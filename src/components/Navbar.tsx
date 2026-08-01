@@ -1,57 +1,65 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Search, Bell, Moon, Sun, Menu } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Search, Bell, Moon, Sun, Menu, User } from 'lucide-react';
 
 const Navbar = () => {
-  const [isDark, setIsDark] = useState(false);
+  const router = useRouter();
+  const [isDark, setIsDark] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.add('dark');
   }, []);
 
   const toggleTheme = () => {
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      localStorage.theme = 'light';
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.theme = 'dark';
-      setIsDark(true);
+    setIsDark(!isDark);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/opportunities?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
   return (
-    <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-[#0f172a]/70 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6">
+    <header className="h-16 border-b border-white/10 bg-[#0d0d12]/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6">
       <div className="flex items-center space-x-4">
-        <button className="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
-          <Menu size={24} />
+        <button className="md:hidden text-gray-400 hover:text-white">
+          <Menu size={20} />
         </button>
-        <div className="hidden md:flex relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+
+        {/* Global Search */}
+        <form onSubmit={handleSearch} className="relative hidden md:flex">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
           <input 
             type="text" 
-            placeholder="Search OS..." 
-            className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-transparent rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all w-64 group-focus-within:w-80"
+            placeholder="Search jobs, syllabus, roadmaps..." 
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all w-64 focus:w-80"
           />
-        </div>
+        </form>
       </div>
       
-      <div className="flex items-center space-x-3 text-slate-500 dark:text-slate-400">
-        <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      <div className="flex items-center space-x-3">
+        {/* Theme Toggle */}
+        <button onClick={toggleTheme} className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
-        <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative">
-          <Bell size={20} />
-          <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-[#0f172a]"></span>
-        </button>
-        <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-300 border-2 border-white dark:border-slate-800 ml-2 shadow-sm cursor-pointer"></div>
+
+        {/* Inbox Notifications Bell */}
+        <Link href="/inbox" className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors relative">
+          <Bell size={18} />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+        </Link>
+
+        {/* User Profile Avatar Link */}
+        <Link href="/profile" className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-400 border border-white/20 flex items-center justify-center font-bold text-white text-xs shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform">
+          <User size={15} />
+        </Link>
       </div>
     </header>
   );
