@@ -1,0 +1,17 @@
+{
+  "short_name": "EngineerOS",
+  "name": "Engineer OS — The B.Tech Operating System",
+  "description": "Your AI-powered Operating System for B.Tech. Syllabus, Roadmaps, Jobs, Startups & Code Analytics.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0d0d12",
+  "theme_color": "#6366f1",
+  "display": "standalone",
+  "orientation": "portrait"
+}
