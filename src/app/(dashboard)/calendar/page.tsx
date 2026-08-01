@@ -1,83 +1,210 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight, Video, MapPin } from 'lucide-react';
+'use client'
+
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import {
+  Calendar as CalendarIcon, ChevronLeft, ChevronRight, Video, MapPin,
+  Plus, Clock, Sparkles, X, CheckCircle2
+} from 'lucide-react'
+
+interface CalendarEvent {
+  id: string
+  title: string
+  date: number // day of month (1-31)
+  type: 'class' | 'hackathon' | 'exam' | 'meetup'
+}
 
 export default function CalendarPage() {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
+  const supabase = createClient()
+  const [events, setEvents] = useState<CalendarEvent[]>([
+    { id: '1', title: 'Smart India Hackathon Kickoff', date: 12, type: 'hackathon' },
+    { id: '2', title: 'OS & C Programming Exam', date: 14, type: 'exam' },
+    { id: '3', title: 'AWS Developer Meetup', date: 18, type: 'meetup' },
+    { id: '4', title: 'Google Cloud Next Stream', date: 25, type: 'class' },
+  ])
+
+  const [showModal, setShowModal] = useState(false)
+  const [eventTitle, setEventTitle] = useState('')
+  const [eventDay, setEventDay] = useState(15)
+  const [eventType, setEventType] = useState<'class' | 'hackathon' | 'exam' | 'meetup'>('hackathon')
+
+  const handleAddEvent = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!eventTitle.trim()) return
+    const newEv: CalendarEvent = {
+      id: `ev_${Date.now()}`,
+      title: eventTitle.trim(),
+      date: Number(eventDay),
+      type: eventType,
+    }
+    setEvents(prev => [...prev, newEv])
+    setShowModal(false)
+    setEventTitle('')
+  }
+
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 h-full flex flex-col">
-      
+    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 flex flex-col">
+
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2">Schedule</h1>
-          <p className="text-slate-500 dark:text-slate-400">Balance your classes, hackathons, and prep.</p>
+          <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+            <CalendarIcon className="text-indigo-400" size={24} /> Academic & Exam Schedule
+          </h1>
+          <p className="text-gray-500 text-sm">Balance college classes, exam deadlines, hackathons, and prep milestones.</p>
         </div>
-        <div className="flex items-center gap-4 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-500"><ChevronLeft size={20} /></button>
-          <span className="font-bold w-32 text-center">October 2026</span>
-          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-500"><ChevronRight size={20} /></button>
-        </div>
+
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20"
+        >
+          <Plus size={16} /> Add Schedule Event
+        </button>
       </div>
 
       {/* Calendar Grid Container */}
-      <div className="glass flex-1 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col bg-white/50 dark:bg-slate-900/50 shadow-sm">
-        
+      <div className="bg-[#111118] border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+
         {/* Days Header */}
-        <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+        <div className="grid grid-cols-7 border-b border-white/10 bg-white/5">
           {days.map(day => (
-            <div key={day} className="py-4 text-center text-sm font-bold text-slate-500 uppercase tracking-wider">
+            <div key={day} className="py-3 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">
               {day}
             </div>
           ))}
         </div>
 
-        {/* Mock Calendar Grid */}
-        <div className="flex-1 grid grid-cols-7 grid-rows-5">
-          {/* We will just render 35 cells for a mock month view */}
+        {/* Month Grid */}
+        <div className="grid grid-cols-7 border-collapse">
           {Array.from({ length: 35 }).map((_, i) => {
-            const date = i - 2; // Offset for starting day
-            const isToday = date === 14;
-            const isCurrentMonth = date > 0 && date <= 31;
-            
+            const date = i - 2
+            const isToday = date === 14
+            const isCurrentMonth = date > 0 && date <= 31
+            const dayEvents = events.filter(e => e.date === date)
+
             return (
-              <div key={i} className={`min-h-[120px] p-2 border-r border-b border-slate-100 dark:border-slate-800/50 ${!isCurrentMonth ? 'bg-slate-50/50 dark:bg-slate-900/30 text-slate-400' : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'} transition-colors relative group cursor-pointer`}>
-                
+              <div
+                key={i}
+                className={`min-h-[110px] p-2 border-r border-b border-white/5 ${
+                  !isCurrentMonth ? 'bg-black/40 text-gray-700' : 'hover:bg-white/5'
+                } transition-colors relative cursor-pointer`}
+              >
                 {/* Date Number */}
-                <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold mb-2
-                  ${isToday ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' : isCurrentMonth ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600'}
-                `}>
+                <div
+                  className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold mb-1 ${
+                    isToday
+                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/40'
+                      : isCurrentMonth
+                      ? 'text-gray-300'
+                      : 'text-gray-700'
+                  }`}
+                >
                   {isCurrentMonth ? date : ''}
                 </div>
 
-                {/* Example Events */}
-                {date === 12 && (
-                  <div className="px-2 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded-md mb-1 truncate">
-                    Hackathon Kickoff
+                {/* Day Events */}
+                {isCurrentMonth && (
+                  <div className="space-y-1">
+                    {dayEvents.map(ev => {
+                      const colorMap = {
+                        hackathon: 'bg-amber-500/10 border-amber-500/30 text-amber-300',
+                        exam: 'bg-rose-500/10 border-rose-500/30 text-rose-300',
+                        meetup: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
+                        class: 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300',
+                      }
+                      return (
+                        <div
+                          key={ev.id}
+                          className={`px-2 py-1 rounded-md border text-[10px] font-semibold truncate ${colorMap[ev.type]}`}
+                        >
+                          {ev.title}
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
-                {date === 14 && (
-                  <div className="px-2 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md mb-1 truncate flex items-center gap-1">
-                    <Video size={10} /> OS Lecture
-                  </div>
-                )}
-                {date === 14 && (
-                  <div className="px-2 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-md mb-1 truncate flex items-center gap-1">
-                    <MapPin size={10} /> GDSC Meetup
-                  </div>
-                )}
-                {date === 20 && (
-                  <div className="px-2 py-1.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-xs font-semibold rounded-md mb-1 truncate">
-                    AWS Cert Exam
-                  </div>
-                )}
-                
               </div>
-            );
+            )
           })}
         </div>
       </div>
-      
+
+      {/* EVENT CREATION MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111118] border border-white/15 rounded-3xl p-6 max-w-md w-full space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center pb-3 border-b border-white/10">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Sparkles size={16} className="text-indigo-400" /> Add Event to Schedule
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-white">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddEvent} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Event Title *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Operating Systems Mid-Sem Exam"
+                  value={eventTitle}
+                  onChange={e => setEventTitle(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Day of Month</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={31}
+                    value={eventDay}
+                    onChange={e => setEventDay(Number(e.target.value))}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Event Category</label>
+                  <select
+                    value={eventType}
+                    onChange={e => setEventType(e.target.value as any)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"
+                  >
+                    <option value="exam" className="bg-[#111118]">Exam</option>
+                    <option value="hackathon" className="bg-[#111118]">Hackathon</option>
+                    <option value="class" className="bg-[#111118]">Class / Lecture</option>
+                    <option value="meetup" className="bg-[#111118]">Meetup</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 bg-white/5 hover:bg-white/10 text-gray-400 text-xs font-bold py-2.5 rounded-xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-500/20"
+                >
+                  Add Event
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
-  );
+  )
 }

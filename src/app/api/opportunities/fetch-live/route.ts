@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server'
 // Fetches live tech listings from public tech feeds & RemoteOK API
 export async function GET() {
   try {
-    // 1. Fetch live jobs from RemoteOK public API
     const response = await fetch('https://remoteok.com/api', {
       headers: {
         'User-Agent': 'Engineer-OS/1.0 (B.Tech Operating System)'
@@ -12,11 +11,10 @@ export async function GET() {
       next: { revalidate: 3600 } // Cache for 1 hour
     })
 
-    let liveListings = []
+    let liveListings: any[] = []
 
     if (response.ok) {
       const data = await response.json()
-      // Skip legal disclaimer (index 0) and filter software engineering roles
       const rawJobs = Array.isArray(data) ? data.slice(1, 15) : []
 
       liveListings = rawJobs.map((job: any, index: number) => {
@@ -51,7 +49,6 @@ export async function GET() {
       listings: liveListings
     })
   } catch (error: any) {
-    // Fallback if network fails
     return NextResponse.json({
       success: false,
       error: error.message,
