@@ -59,8 +59,8 @@ export default function SettingsPage() {
           setBranch(p.branch || 'CSE')
           setSemester(p.semester || 1)
           setCareerGoal(p.career_goal || '')
-          setMasteredSkills((p.mastered_skills || []).join(', '))
-          setLearningSkills((p.learning_skills || []).join(', '))
+          setMasteredSkills(Array.isArray(p.mastered_skills) ? p.mastered_skills.join(', ') : '')
+          setLearningSkills(Array.isArray(p.learning_skills) ? p.learning_skills.join(', ') : '')
         }
       }
       setLoading(false)
@@ -388,7 +388,7 @@ export default function SettingsPage() {
             <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Learning Skills (comma-separated)</label>
             <input
               type="text"
-              placeholder="e.g. Node.js, Docker, Next.js, Machine Learning"
+              placeholder="e.g. Node.js, Next.js, Docker, Machine Learning"
               value={learningSkills}
               onChange={e => setLearningSkills(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"

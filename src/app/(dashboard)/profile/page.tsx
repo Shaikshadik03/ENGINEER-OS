@@ -57,17 +57,19 @@ export default function ProfilePage() {
         if (p) {
           setProfile(p)
           setFullName(p.full_name || '')
-          setUniversity(p.university || 'Indian Institute of Technology / B.Tech College')
+          setUniversity(p.university || '')
           setBranch(p.branch || 'CSE')
           setSemester(p.semester || 1)
-          setBio(p.bio || 'B.Tech Computer Science student passionate about fullstack web development, AI, and competitive programming.')
-          setCareerGoal(p.career_goal || 'SDE-1 at Top Product Company')
-          setGithubUrl(p.github_url || 'https://github.com')
-          setLinkedinUrl(p.linkedin_url || 'https://linkedin.com')
+          setBio(p.bio || '')
+          setCareerGoal(p.career_goal || '')
+          setGithubUrl(p.github_url || '')
+          setLinkedinUrl(p.linkedin_url || '')
           setPortfolioUrl(p.portfolio_url || '')
-          setMasteredInput((p.mastered_skills || ['Python', 'React', 'JavaScript', 'SQL']).join(', '))
-          setLearningInput((p.learning_skills || ['Node.js', 'Next.js', 'Docker', 'DSA']).join(', '))
-          setInterestsInput((p.interests || ['Web Development', 'AI/ML', 'Startups']).join(', '))
+          
+          // CRITICAL FIX: Only join array if array exists, never overwrite saved skills with hardcoded fallbacks
+          setMasteredInput(Array.isArray(p.mastered_skills) ? p.mastered_skills.join(', ') : '')
+          setLearningInput(Array.isArray(p.learning_skills) ? p.learning_skills.join(', ') : '')
+          setInterestsInput(Array.isArray(p.interests) ? p.interests.join(', ') : '')
         }
       }
       setLoading(false)
@@ -102,19 +104,30 @@ export default function ProfilePage() {
 
     if (!error) {
       setProfile(prev => prev ? {
-        ...prev, full_name: fullName, university, branch, semester: Number(semester),
-        bio, career_goal: careerGoal, github_url: githubUrl, linkedin_url: linkedinUrl,
-        portfolio_url: portfolioUrl, mastered_skills: masteredArray, learning_skills: learningArray,
+        ...prev,
+        full_name: fullName,
+        university,
+        branch,
+        semester: Number(semester),
+        bio,
+        career_goal: careerGoal,
+        github_url: githubUrl,
+        linkedin_url: linkedinUrl,
+        portfolio_url: portfolioUrl,
+        mastered_skills: masteredArray,
+        learning_skills: learningArray,
         interests: interestsArray
       } : null)
       setSaveSuccess(true)
-      setTimeout(() => setSaveSuccess(false), 3000)
+      setTimeout(() => setSaveSuccess(false), 3500)
+    } else {
+      alert('Error updating profile: ' + error.message)
     }
     setSaving(false)
   }
 
   if (loading) {
-    return <div className="text-center text-gray-500 py-16">Loading profile...</div>
+    return <div className="text-center text-gray-500 py-16">Loading your profile...</div>
   }
 
   const isPro = profile?.subscription_tier === 'pro'
@@ -160,7 +173,7 @@ export default function ProfilePage() {
 
       {saveSuccess && (
         <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold p-4 rounded-xl flex items-center gap-2">
-          <CheckCircle2 size={16} /> Profile saved successfully! Opportunity Matchmaker & Learning Hub updated!
+          <CheckCircle2 size={16} /> Saved to Database! Opportunity Matchmaker & Learning Hub are now updated with your new skills.
         </div>
       )}
 
@@ -224,6 +237,7 @@ export default function ProfilePage() {
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">University / College Name</label>
                   <input
                     type="text"
+                    placeholder="e.g. Stanford University / IIT Hyderabad"
                     value={university}
                     onChange={e => setUniversity(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
@@ -262,6 +276,7 @@ export default function ProfilePage() {
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Student Bio</label>
                   <textarea
                     rows={3}
+                    placeholder="Tell us about yourself..."
                     value={bio}
                     onChange={e => setBio(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none"
@@ -291,7 +306,7 @@ export default function ProfilePage() {
                   <label className="block text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Mastered Skills (comma-separated)</label>
                   <input
                     type="text"
-                    placeholder="Python, React, JavaScript, SQL, DSA"
+                    placeholder="e.g. Python, React, JavaScript, SQL, DSA"
                     value={masteredInput}
                     onChange={e => setMasteredInput(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
@@ -302,7 +317,7 @@ export default function ProfilePage() {
                   <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Currently Learning Skills (comma-separated)</label>
                   <input
                     type="text"
-                    placeholder="Node.js, Next.js, Docker, Machine Learning"
+                    placeholder="e.g. Node.js, Next.js, Docker, Machine Learning"
                     value={learningInput}
                     onChange={e => setLearningInput(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
@@ -313,7 +328,7 @@ export default function ProfilePage() {
                   <label className="block text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Tech Interests & Domains (comma-separated)</label>
                   <input
                     type="text"
-                    placeholder="Web Development, AI/ML, Startups, Cloud"
+                    placeholder="e.g. Web Development, AI/ML, Startups, Cloud"
                     value={interestsInput}
                     onChange={e => setInterestsInput(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
@@ -369,7 +384,7 @@ export default function ProfilePage() {
                 disabled={saving}
                 className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs px-6 py-3 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20"
               >
-                <Save size={15} /> {saving ? 'Saving...' : 'Save Profile Changes'}
+                <Save size={15} /> {saving ? 'Saving to Database...' : 'Save Profile Changes'}
               </button>
             </div>
 
