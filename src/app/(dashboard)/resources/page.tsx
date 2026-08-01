@@ -48,7 +48,7 @@ const RESOURCES: Resource[] = [
     id: '4',
     title: 'Designing Data-Intensive Applications Summary',
     category: 'books',
-    description: 'Cheatsheet and summary notes for Martin Kleppmann''s classic book on reliable, scalable, and maintainable systems.',
+    description: "Cheatsheet and summary notes for Martin Kleppmann's classic book on reliable, scalable, and maintainable systems.",
     format: 'Markdown Notes',
     link: 'https://github.com/ept/ddia-references',
     tags: ['Databases', 'Distributed Systems']
