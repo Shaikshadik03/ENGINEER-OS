@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   Briefcase, Code2, Trophy, Calendar, MapPin, ExternalLink,
   Star, Filter, Search, Zap, CheckCircle2, Clock, Wifi,
-  User, AlertCircle, TrendingUp
+  User, AlertCircle, TrendingUp, RefreshCw, Radio
 } from 'lucide-react'
 
 interface Opportunity {
@@ -22,6 +22,7 @@ interface Opportunity {
   deadline: string
   tags: string[]
   is_verified: boolean
+  is_live_feed?: boolean
   posted_at: string
 }
 
@@ -34,11 +35,6 @@ interface UserProfile {
   semester: number
 }
 
-// ── MATCH SCORE ENGINE ──
-// Mastered skill match = 1.0 per skill
-// Learning skill match = 0.4 per skill
-// Interest match bonus = +5% (max 15%)
-// Returns 0-100
 function calculateMatchScore(opp: Opportunity, profile: UserProfile): { score: number; reasons: string[] } {
   const { required_skills, tags } = opp
   const { mastered_skills, learning_skills, interests } = profile
@@ -52,41 +48,25 @@ function calculateMatchScore(opp: Opportunity, profile: UserProfile): { score: n
   let max = required_skills.length
 
   required_skills.forEach(skill => {
-    if (mastered_skills.includes(skill)) {
+    const normSkill = skill.toLowerCase()
+    if (mastered_skills.some(s => s.toLowerCase() === normSkill)) {
       earned += 1.0
       reasons.push(`✓ You know ${skill}`)
-    } else if (learning_skills.includes(skill)) {
+    } else if (learning_skills.some(s => s.toLowerCase() === normSkill)) {
       earned += 0.4
       reasons.push(`~ Learning ${skill}`)
     }
   })
 
-  // Interest alignment bonus (max +15%)
   let interestBonus = 0
   const allTags = [...tags, opp.type, opp.company.toLowerCase()]
-  const INTEREST_MAP: Record<string, string[]> = {
-    'Web Development': ['fullstack', 'frontend', 'react', 'node', 'web'],
-    'AI/ML': ['ml', 'ai', 'machine learning', 'data', 'nlp'],
-    'Data Science': ['data', 'analytics', 'sql', 'python'],
-    'Cybersecurity': ['security', 'cyber', 'pen testing'],
-    'Cloud Computing': ['cloud', 'aws', 'devops', 'gcp'],
-    'Mobile Development': ['android', 'mobile', 'ios', 'app'],
-    'Open Source': ['open source', 'github', 'community'],
-    'Startups': ['startup', 'early stage', 'seed'],
-    'FinTech': ['fintech', 'payments', 'banking'],
-    'Competitive Programming': ['hackathon', 'competitive', 'coding'],
-  }
-
   interests.forEach(interest => {
-    const keywords = INTEREST_MAP[interest] || []
-    const matched = keywords.some(kw =>
-      allTags.some(tag => tag.toLowerCase().includes(kw)) ||
-      opp.title.toLowerCase().includes(kw) ||
-      opp.description.toLowerCase().includes(kw)
-    )
-    if (matched && interestBonus < 3) {
-      interestBonus += 5
-      reasons.push(`🎯 Matches your interest in ${interest}`)
+    if (allTags.some(tag => tag.toLowerCase().includes(interest.toLowerCase())) ||
+        opp.title.toLowerCase().includes(interest.toLowerCase())) {
+      if (interestBonus < 15) {
+        interestBonus += 5
+        reasons.push(`🎯 Matches interest in ${interest}`)
+      }
     }
   })
 
@@ -122,6 +102,7 @@ export default function OpportunitiesPage() {
     career_goal: '', branch: 'CSE', semester: 1
   })
   const [loading, setLoading] = useState(true)
+  const [syncingLive, setSyncingLive] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const [search, setSearch] = useState('')
@@ -130,6 +111,7 @@ export default function OpportunitiesPage() {
   const [minMatch, setMinMatch] = useState(0)
   const [sortBy, setSortBy] = useState<'match' | 'recent'>('match')
 
+  // Load database opportunities
   useEffect(() => {
     async function load() {
       setLoading(true)
@@ -146,6 +128,26 @@ export default function OpportunitiesPage() {
     }
     load()
   }, [])
+
+  // Sync Live API Feed
+  const syncLiveFeed = async () => {
+    setSyncingLive(true)
+    try {
+      const res = await fetch('/api/opportunities/fetch-live')
+      const data = await res.json()
+      if (data.success && data.listings.length > 0) {
+        setOpportunities(prev => {
+          const existingIds = new Set(prev.map(o => o.id))
+          const newUnique = data.listings.filter((l: any) => !existingIds.has(l.id))
+          return [...newUnique, ...prev]
+        })
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSyncingLive(false)
+    }
+  }
 
   const processed = useMemo(() => {
     return opportunities
@@ -168,53 +170,47 @@ export default function OpportunitiesPage() {
   const stats = useMemo(() => ({
     high: processed.filter(o => o.score >= 80).length,
     medium: processed.filter(o => o.score >= 50 && o.score < 80).length,
-    total: processed.length
+    total: processed.length,
+    liveCount: processed.filter(o => o.is_live_feed).length
   }), [processed])
 
   return (
     <div className="max-w-5xl mx-auto pb-16 space-y-6">
 
-      {/* Header */}
-      <div className="pb-6 border-b border-white/10">
-        <h1 className="text-2xl font-bold text-white mb-1">Opportunity Matchmaker</h1>
-        <p className="text-gray-500 text-sm">
-          Scored against your actual profile skills + interests. Skill tags in <span className="text-emerald-400">green</span> = you know it. <span className="text-amber-400">Amber</span> = learning it.
-        </p>
+      {/* Header & Live Sync CTA */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+            <Briefcase className="text-indigo-400" size={24} /> Opportunity Matchmaker
+          </h1>
+          <p className="text-gray-500 text-sm">
+            AI-matched against your skills + live tech API feeds.
+          </p>
+        </div>
+
+        <button
+          onClick={syncLiveFeed}
+          disabled={syncingLive}
+          className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
+        >
+          <Radio size={14} className={syncingLive ? 'animate-pulse' : ''} />
+          {syncingLive ? 'Syncing Live API...' : 'Sync Live Web Jobs'}
+        </button>
       </div>
 
-      {/* Profile Snapshot Warning */}
+      {/* Profile Warning */}
       {hasNoProfile && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
           <AlertCircle size={18} className="text-amber-400 shrink-0 mt-0.5" />
           <div>
             <p className="text-amber-400 text-sm font-bold mb-1">Your profile has no skills or interests set.</p>
-            <p className="text-amber-400/70 text-xs">Match scores will be 0% for everything. Go to <a href="/profile" className="underline">Profile Settings</a> or redo onboarding to add your skills and interests — that's what the AI uses to score you.</p>
-          </div>
-        </div>
-      )}
-
-      {/* Profile Snapshot */}
-      {!hasNoProfile && (
-        <div className="bg-[#111118] border border-white/10 rounded-2xl p-4">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <User size={13} /> Matching you based on your profile
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {profile.mastered_skills.map(s => (
-              <span key={s} className="text-xs px-2.5 py-1 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-semibold">✓ {s}</span>
-            ))}
-            {profile.learning_skills.map(s => (
-              <span key={s} className="text-xs px-2.5 py-1 rounded-full border bg-amber-500/10 border-amber-500/30 text-amber-400 font-semibold">~ {s}</span>
-            ))}
-            {profile.interests.map(i => (
-              <span key={i} className="text-xs px-2.5 py-1 rounded-full border bg-indigo-500/10 border-indigo-500/25 text-indigo-400 font-semibold">🎯 {i}</span>
-            ))}
+            <p className="text-amber-400/70 text-xs">Match scores will be 0%. Go to <a href="/settings" className="underline">Settings</a> to add your skills and calibrate the AI engine.</p>
           </div>
         </div>
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[#111118] border border-emerald-500/20 rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-emerald-400">{stats.high}</p>
           <p className="text-xs text-gray-500 mt-1">Strong Match 80%+</p>
@@ -222,6 +218,10 @@ export default function OpportunitiesPage() {
         <div className="bg-[#111118] border border-amber-500/20 rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-amber-400">{stats.medium}</p>
           <p className="text-xs text-gray-500 mt-1">Good Match 50-79%</p>
+        </div>
+        <div className="bg-[#111118] border border-purple-500/20 rounded-xl p-4 text-center">
+          <p className="text-2xl font-bold text-purple-400">{stats.liveCount}</p>
+          <p className="text-xs text-gray-500 mt-1">Live Web Feed Items</p>
         </div>
         <div className="bg-[#111118] border border-white/10 rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-white">{stats.total}</p>
@@ -273,18 +273,23 @@ export default function OpportunitiesPage() {
       ) : (
         <div className="space-y-3">
           {processed.map(opp => {
-            const { icon: TypeIcon, bg } = TYPE_CONFIG[opp.type]
+            const { icon: TypeIcon, bg } = TYPE_CONFIG[opp.type] || TYPE_CONFIG.job
             const isExpanded = expandedId === opp.id
             return (
               <div key={opp.id} className="bg-[#111118] border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all">
                 <div className="p-5">
                   <div className="flex gap-4 justify-between">
                     <div className="flex-1 min-w-0">
-                      {/* Badges row */}
+                      {/* Badges */}
                       <div className="flex flex-wrap gap-2 mb-2">
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1 ${bg}`}>
-                          <TypeIcon size={11} /> {TYPE_CONFIG[opp.type].label}
+                          <TypeIcon size={11} /> {TYPE_CONFIG[opp.type]?.label || 'Job'}
                         </span>
+                        {opp.is_live_feed && (
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-purple-500/10 border-purple-500/25 text-purple-400 flex items-center gap-1">
+                            <Radio size={11} className="animate-pulse" /> LIVE API
+                          </span>
+                        )}
                         {opp.is_remote && <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-emerald-500/10 border-emerald-500/25 text-emerald-400 flex items-center gap-1"><Wifi size={11} /> Remote</span>}
                         {opp.is_verified && <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-blue-500/10 border-blue-500/25 text-blue-400 flex items-center gap-1"><CheckCircle2 size={11} /> Verified</span>}
                         {opp.tags.slice(0, 2).map(tag => (
@@ -301,12 +306,13 @@ export default function OpportunitiesPage() {
                         <span className="flex items-center gap-1"><Clock size={11} />{opp.deadline}</span>
                       </div>
 
-                      {/* Skill tags */}
+                      {/* Required skills */}
                       {opp.required_skills.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
                           {opp.required_skills.map(skill => {
-                            const isMastered = profile.mastered_skills.includes(skill)
-                            const isLearning = profile.learning_skills.includes(skill)
+                            const normSkill = skill.toLowerCase()
+                            const isMastered = profile.mastered_skills.some(s => s.toLowerCase() === normSkill)
+                            const isLearning = profile.learning_skills.some(s => s.toLowerCase() === normSkill)
                             return (
                               <span key={skill} className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${isMastered ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : isLearning ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
                                 {isMastered ? '✓' : isLearning ? '~' : '○'} {skill}
@@ -317,7 +323,7 @@ export default function OpportunitiesPage() {
                       )}
                     </div>
 
-                    {/* Right: score + CTA */}
+                    {/* Right CTA */}
                     <div className="flex flex-col items-end gap-3 shrink-0">
                       <MatchBadge score={opp.score} />
                       <a href={opp.apply_url} target="_blank" rel="noopener noreferrer"
@@ -332,7 +338,6 @@ export default function OpportunitiesPage() {
                   </div>
                 </div>
 
-                {/* Expanded: Why you match */}
                 {isExpanded && (
                   <div className="border-t border-white/5 bg-black/30 px-5 py-4">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -343,23 +348,14 @@ export default function OpportunitiesPage() {
                         ? opp.reasons.map((r, i) => (
                           <p key={i} className="text-xs text-gray-300">{r}</p>
                         ))
-                        : <p className="text-xs text-gray-500">None of the required skills match your profile yet. Add them in your profile to improve this score.</p>
+                        : <p className="text-xs text-gray-500">None of the required skills match your profile yet.</p>
                       }
                     </div>
-                    <p className="text-[10px] text-gray-600 mt-3">
-                      ℹ Listings are curated and verified by Engineer OS. Live job-board integration (LinkedIn, Internshala) is coming in a future update.
-                    </p>
                   </div>
                 )}
               </div>
             )
           })}
-
-          {processed.length === 0 && !loading && (
-            <div className="bg-[#111118] border border-white/10 rounded-2xl p-10 text-center text-gray-400">
-              No opportunities match your current filters.
-            </div>
-          )}
         </div>
       )}
     </div>
