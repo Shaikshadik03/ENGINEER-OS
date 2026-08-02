@@ -7,49 +7,43 @@ const LANGUAGES = [
   {
     id: 'python',
     label: 'Python',
-    version: '3.10.1',
+    version: '3.11.0',
     icon: '🐍',
-    wandboxCompiler: 'cpython-head',
     defaultCode: 'print("Hello from Engineer OS!")\n\nfor i in range(1, 6):\n    print(f"Number: {i}")'
   },
   {
     id: 'c',
     label: 'C',
-    version: '11.1.0',
+    version: 'GCC 11.1',
     icon: '©️',
-    wandboxCompiler: 'gcc-head-c',
     defaultCode: '#include <stdio.h>\n\nint main() {\n    printf("Hello from Engineer OS!\\n");\n    for (int i = 1; i <= 5; i++) {\n        printf("Number: %d\\n", i);\n    }\n    return 0;\n}'
   },
   {
     id: 'cpp',
     label: 'C++',
-    version: '11.1.0',
+    version: 'G++ 11.1',
     icon: '⚡',
-    wandboxCompiler: 'gcc-head',
     defaultCode: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from Engineer OS!" << endl;\n    for (int i = 1; i <= 5; i++) {\n        cout << "Number: " << i << endl;\n    }\n    return 0;\n}'
   },
   {
     id: 'java',
     label: 'Java',
-    version: '15.0.2',
+    version: 'OpenJDK 15',
     icon: '☕',
-    wandboxCompiler: 'openjdk-head',
     defaultCode: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Engineer OS!");\n        for (int i = 1; i <= 5; i++) {\n            System.out.println("Number: " + i);\n        }\n    }\n}'
   },
   {
     id: 'javascript',
     label: 'JavaScript',
-    version: '18.15.0',
+    version: 'Node.js 18',
     icon: '🟡',
-    wandboxCompiler: 'nodejs-head',
     defaultCode: 'console.log("Hello from Engineer OS!");\n\nfor (let i = 1; i <= 5; i++) {\n    console.log(`Number: ${i}`);\n}'
   },
   {
     id: 'sql',
     label: 'SQL',
-    version: '3.36.0',
+    version: 'SQLite 3.36',
     icon: '🗄️',
-    wandboxCompiler: 'sqlite-head',
     defaultCode: '-- SQL Practice Playground\nCREATE TABLE students (id INTEGER, name TEXT, gpa REAL);\nINSERT INTO students VALUES (1, "Shadik", 9.2);\nINSERT INTO students VALUES (2, "Ravi", 8.5);\nINSERT INTO students VALUES (3, "Priya", 9.0);\n\nSELECT * FROM students ORDER BY gpa DESC;'
   },
 ]
@@ -112,103 +106,53 @@ export default function PlaygroundPage() {
   const handleRun = async () => {
     if (!code.trim() || running) return
     setRunning(true)
-    setOutput([{ type: 'info', text: `▶ Running ${selectedLang.label}...` }])
+    setOutput([{ type: 'info', text: `▶ Executing ${selectedLang.label}...` }])
     const startTime = performance.now()
 
-    // 1. JavaScript local runner (instant)
+    // 1. JavaScript client-side runner
     if (selectedLang.id === 'javascript') {
       const logs = runJavaScriptLocally(code)
       if (logs.length === 0) logs.push({ type: 'info', text: '✓ Program finished with no output.' })
       const elapsed = Math.round(performance.now() - startTime)
-      logs.push({ type: 'info', text: `\n✓ Executed locally in ${elapsed}ms` })
+      logs.push({ type: 'info', text: `\n✓ Done in ${elapsed}ms (Client Engine)` })
       setOutput(logs)
       setRunning(false)
       return
     }
 
-    // 2. Multi-compiler remote runner (Wandbox API + Fallback)
+    // 2. Call server-side multi-engine API route
     try {
-      const res = await fetch('https://wandbox.org/api/compile.json', {
+      const res = await fetch('/api/playground/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          compiler: selectedLang.wandboxCompiler,
+          language: selectedLang.id,
           code: code,
           stdin: input,
         }),
       })
 
-      if (res.ok) {
-        const data = await res.json()
-        const lines: OutputLine[] = []
+      const data = await res.json()
+      const lines: OutputLine[] = []
 
-        if (data.program_output) {
-          data.program_output.split('\n').forEach((line: string) => {
-            if (line !== '') lines.push({ type: 'stdout', text: line })
-          })
-        }
-        if (data.compiler_output) {
-          data.compiler_output.split('\n').forEach((line: string) => {
-            if (line !== '') lines.push({ type: 'stdout', text: line })
-          })
-        }
-        if (data.program_error) {
-          data.program_error.split('\n').forEach((line: string) => {
-            if (line !== '') lines.push({ type: 'stderr', text: line })
-          })
-        }
-        if (data.compiler_error) {
-          data.compiler_error.split('\n').forEach((line: string) => {
-            if (line !== '') lines.push({ type: 'stderr', text: line })
-          })
-        }
-
-        if (lines.length === 0) lines.push({ type: 'info', text: '✓ Program finished successfully.' })
-        const elapsed = Math.round(performance.now() - startTime)
-        lines.push({ type: 'info', text: `\n✓ Execution completed in ${elapsed}ms` })
-        setOutput(lines)
-        setRunning(false)
-        return
+      if (data.stdout) {
+        data.stdout.split('\n').forEach((line: string) => {
+          if (line !== '') lines.push({ type: 'stdout', text: line })
+        })
       }
-    } catch (err) {
-      console.log('Wandbox primary runner unreachable, using secondary runner...')
-    }
-
-    // 3. Secondary Runner Fallback (Paiza.io open API)
-    try {
-      const createRes = await fetch(`https://api.paiza.io/runners/create?language=${selectedLang.id === 'c' ? 'c' : selectedLang.id === 'cpp' ? 'cpp' : selectedLang.id === 'java' ? 'java' : selectedLang.id === 'sql' ? 'mysql' : 'python3'}&source_code=${encodeURIComponent(code)}&input=${encodeURIComponent(input)}&api_key=guest`, {
-        method: 'POST'
-      })
-      const createData = await createRes.json()
-
-      if (createData.id) {
-        // Poll result
-        await new Promise(r => setTimeout(r, 1500))
-        const statusRes = await fetch(`https://api.paiza.io/runners/get_details?id=${createData.id}&api_key=guest`)
-        const statusData = await statusRes.json()
-
-        const lines: OutputLine[] = []
-        if (statusData.stdout) {
-          statusData.stdout.split('\n').forEach((l: string) => { if (l !== '') lines.push({ type: 'stdout', text: l }) })
-        }
-        if (statusData.stderr) {
-          statusData.stderr.split('\n').forEach((l: string) => { if (l !== '') lines.push({ type: 'stderr', text: l }) })
-        }
-        if (statusData.build_stderr) {
-          statusData.build_stderr.split('\n').forEach((l: string) => { if (l !== '') lines.push({ type: 'stderr', text: l }) })
-        }
-
-        if (lines.length === 0) lines.push({ type: 'info', text: '✓ Program finished.' })
-        const elapsed = Math.round(performance.now() - startTime)
-        lines.push({ type: 'info', text: `\n✓ Executed in ${elapsed}ms` })
-        setOutput(lines)
-        setRunning(false)
-        return
+      if (data.stderr) {
+        data.stderr.split('\n').forEach((line: string) => {
+          if (line !== '') lines.push({ type: 'stderr', text: line })
+        })
       }
+
+      if (lines.length === 0) lines.push({ type: 'info', text: '✓ Program finished with no output.' })
+      const elapsed = Math.round(performance.now() - startTime)
+      lines.push({ type: 'info', text: `\n✓ Executed via ${data.engine || 'Cloud Engine'} in ${elapsed}ms` })
+      setOutput(lines)
     } catch (e: any) {
-      setOutput([{ type: 'stderr', text: 'Error executing code. Please check your internet connection or syntax.' }])
+      setOutput([{ type: 'stderr', text: 'Error: Could not connect to code runner. Check internet connection.' }])
     }
-
     setRunning(false)
   }
 
@@ -251,7 +195,7 @@ export default function PlaygroundPage() {
             <Code2 size={20} className="text-indigo-400" />
             <h1 className="text-base font-bold text-white">Code Playground</h1>
             <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-              <Sparkles size={10} /> LIVE ENGINE
+              <Sparkles size={10} /> MULTI-ENGINE
             </span>
           </div>
 
