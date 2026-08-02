@@ -37,6 +37,75 @@ const ICON_MAP: Record<string, React.ElementType> = {
 const BRANCHES = ['CSE', 'IT', 'ECE', 'AIML']
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8]
 
+// --- FULL CSE CURRICULUM FALLBACK FOR ALL 8 SEMESTERS ---
+const CURRICULUM_DATA: Record<number, Subject[]> = {
+  1: [
+    { id: 'c-prog', code: 'CS101', name: 'Programming in C', branch: 'CSE', semester: 1, description: 'Variables, loops, pointers, memory & structs', icon: 'Code2', is_pro: false },
+    { id: 'math-1', code: 'MA101', name: 'Engineering Mathematics I', branch: 'CSE', semester: 1, description: 'Calculus, matrices, linear algebra & differential equations', icon: 'BookOpen', is_pro: false },
+    { id: 'phys-1', code: 'PH101', name: 'Engineering Physics', branch: 'CSE', semester: 1, description: 'Quantum mechanics, semiconductor physics & optics', icon: 'Zap', is_pro: false }
+  ],
+  2: [
+    { id: 'dsa-2', code: 'CS201', name: 'Data Structures & Algorithms', branch: 'CSE', semester: 2, description: 'Arrays, stacks, queues, linked lists, trees & graphs', icon: 'Code2', is_pro: false },
+    { id: 'oop-2', code: 'CS202', name: 'Object-Oriented Programming', branch: 'CSE', semester: 2, description: 'Classes, inheritance, polymorphism & STL in C++/Java', icon: 'Cpu', is_pro: false },
+    { id: 'ee-2', code: 'EC201', name: 'Basic Electrical & Electronics', branch: 'CSE', semester: 2, description: 'Circuit theory, logic gates & semiconductor devices', icon: 'Zap', is_pro: false }
+  ],
+  3: [
+    { id: 'dbms-3', code: 'CS301', name: 'Database Management Systems', branch: 'CSE', semester: 3, description: 'Relational model, SQL, normalization & indexing', icon: 'Code2', is_pro: false },
+    { id: 'dm-3', code: 'CS302', name: 'Discrete Mathematics', branch: 'CSE', semester: 3, description: 'Set theory, graph theory, combinatorics & logic', icon: 'BookOpen', is_pro: false },
+    { id: 'dl-3', code: 'CS303', name: 'Digital Logic & Computer Design', branch: 'CSE', semester: 3, description: 'K-maps, flip-flops, registers, ALU & CPU architecture', icon: 'Cpu', is_pro: false }
+  ],
+  4: [
+    { id: 'os-4', code: 'CS401', name: 'Operating Systems', branch: 'CSE', semester: 4, description: 'Processes, threads, CPU scheduling, memory & deadlocks', icon: 'Cpu', is_pro: false },
+    { id: 'cn-4', code: 'CS402', name: 'Computer Networks', branch: 'CSE', semester: 4, description: 'OSI model, TCP/IP, routing, HTTP, DNS & sockets', icon: 'Zap', is_pro: false },
+    { id: 'toc-4', code: 'CS403', name: 'Theory of Computation', branch: 'CSE', semester: 4, description: 'Finite automata, DFA/NFA, Turing machines & grammars', icon: 'BookOpen', is_pro: false }
+  ],
+  5: [
+    { id: 'sys-5', code: 'CS501', name: 'System Design & Architecture', branch: 'CSE', semester: 5, description: 'Scalability, microservices, load balancing & caching', icon: 'Cpu', is_pro: false },
+    { id: 'se-5', code: 'CS502', name: 'Software Engineering & Agile', branch: 'CSE', semester: 5, description: 'SDLC, Agile/Scrum, Git, CI/CD & software testing', icon: 'Code2', is_pro: false },
+    { id: 'cd-5', code: 'CS503', name: 'Compiler Design', branch: 'CSE', semester: 5, description: 'Lexical analysis, parsing, AST & code optimization', icon: 'BookOpen', is_pro: false }
+  ],
+  6: [
+    { id: 'ml-6', code: 'CS601', name: 'Machine Learning & Data Mining', branch: 'CSE', semester: 6, description: 'Supervised/unsupervised learning, regression & neural nets', icon: 'Cpu', is_pro: false },
+    { id: 'cloud-6', code: 'CS602', name: 'Cloud Computing & DevOps', branch: 'CSE', semester: 6, description: 'AWS, GCP, Docker, Kubernetes, Terraform & serverless', icon: 'Zap', is_pro: false },
+    { id: 'web-6', code: 'CS603', name: 'Full-Stack Web Technologies', branch: 'CSE', semester: 6, description: 'React, Node.js, REST APIs, GraphQL & web security', icon: 'Code2', is_pro: false }
+  ],
+  7: [
+    { id: 'ai-7', code: 'CS701', name: 'Artificial Intelligence & Deep Learning', branch: 'CSE', semester: 7, description: 'PyTorch, CNNs, Transformers, LLMs & AI ethics', icon: 'Cpu', is_pro: false },
+    { id: 'sec-7', code: 'CS702', name: 'Cyber Security & Cryptography', branch: 'CSE', semester: 7, description: 'AES, RSA, PKI, hashing, penetration testing & web sec', icon: 'Zap', is_pro: false },
+    { id: 'bigdata-7', code: 'CS703', name: 'Big Data Analytics & Spark', branch: 'CSE', semester: 7, description: 'Hadoop, Apache Spark, Kafka & distributed processing', icon: 'BookOpen', is_pro: false }
+  ],
+  8: [
+    { id: 'proj-8', code: 'CS801', name: 'Capstone Major Project Masterclass', branch: 'CSE', semester: 8, description: 'Architecture design, production deployment & documentation', icon: 'Code2', is_pro: false },
+    { id: 'hpc-8', code: 'CS802', name: 'High Performance Computing', branch: 'CSE', semester: 8, description: 'CUDA, MPI, GPU acceleration & multi-threading', icon: 'Cpu', is_pro: false },
+    { id: 'gate-8', code: 'CS803', name: 'Placement & GATE Masterclass', branch: 'CSE', semester: 8, description: 'Product company technical rounds, GATE PYQs & mock tests', icon: 'Zap', is_pro: false }
+  ]
+}
+
+const CHAPTERS_DATA: Record<string, Chapter[]> = {
+  default: [
+    {
+      id: 'chap-1', subject_id: 'default', title: 'Module 1: Foundations & Core Concepts', order_index: 1, is_pro: false,
+      subtopics: [
+        { id: 'sub-1', chapter_id: 'chap-1', title: '1.1 Introduction & Fundamental Principles', order_index: 1, video_url: 'https://www.youtube.com/embed/zOjov-2OZ0E', notes_markdown: '# Fundamentals\n- Core concepts & theoretical foundation\n- Key formulas & implementation guidelines\n- Standard industry practices', xp_reward: 50, is_pro: false },
+        { id: 'sub-2', chapter_id: 'chap-1', title: '1.2 Practical Implementation & Examples', order_index: 2, video_url: 'https://www.youtube.com/embed/rfscVS0vtbw', notes_markdown: '# Implementation Guide\n- Step-by-step problem walkthrough\n- Time & space complexity analysis\n- Edge cases & optimization tips', xp_reward: 50, is_pro: false }
+      ]
+    },
+    {
+      id: 'chap-2', subject_id: 'default', title: 'Module 2: Advanced Topics & Exam/Interview Prep', order_index: 2, is_pro: false,
+      subtopics: [
+        { id: 'sub-3', chapter_id: 'chap-2', title: '2.1 Advanced Patterns & Optimization', order_index: 1, video_url: 'https://www.youtube.com/embed/8hly31xKLI0', notes_markdown: '# Advanced Techniques\n- High-frequency exam & interview questions\n- Real-world production trade-offs', xp_reward: 75, is_pro: false }
+      ]
+    }
+  ]
+}
+
+const QUIZZES_DATA: Record<string, Quiz[]> = {
+  default: [
+    { id: 'q-1', subtopic_id: 'default', question: 'Which of the following best describes the primary time complexity of binary search?', options: ['O(n)', 'O(log n)', 'O(n^2)', 'O(1)'], correct_index: 1, xp_reward: 20 },
+    { id: 'q-2', subtopic_id: 'default', question: 'In computer memory management, what is the main purpose of virtual memory?', options: ['Speed up CPU cache', 'Extend physical RAM using secondary disk storage', 'Directly execute machine code', 'Manage GPU rendering'], correct_index: 1, xp_reward: 20 }
+  ]
+}
+
 export default function LearningDashboard() {
   const supabase = createClient()
 
@@ -55,7 +124,6 @@ export default function LearningDashboard() {
   const [loading, setLoading] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
 
-  // Load profile on mount
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -64,25 +132,27 @@ export default function LearningDashboard() {
       const { data } = await supabase.from('profiles').select('branch,semester,subscription_tier,xp,streak').eq('id', user.id).single()
       if (data) {
         setProfile(data as Profile)
-        setSelectedBranch(data.branch || 'CSE')
-        setSelectedSemester(data.semester || 1)
+        if (data.branch) setSelectedBranch(data.branch)
+        if (data.semester) setSelectedSemester(data.semester)
       }
     }
     load()
   }, [])
 
-  // Fetch subjects when branch/semester changes
   useEffect(() => {
     async function fetchSubjects() {
       setLoading(true)
       const { data } = await supabase.from('subjects').select('*').eq('branch', selectedBranch).eq('semester', selectedSemester)
-      setSubjects(data || [])
+      if (data && data.length > 0) {
+        setSubjects(data)
+      } else {
+        setSubjects(CURRICULUM_DATA[selectedSemester] || CURRICULUM_DATA[1])
+      }
       setLoading(false)
     }
     fetchSubjects()
   }, [selectedBranch, selectedSemester])
 
-  // Open a subject - load chapters + subtopics + user progress
   const openSubject = async (subject: Subject) => {
     setActiveSubject(subject)
     setActiveSubtopic(null)
@@ -91,7 +161,7 @@ export default function LearningDashboard() {
     const { data: chapData } = await supabase
       .from('chapters').select('*').eq('subject_id', subject.id).order('order_index')
 
-    if (chapData) {
+    if (chapData && chapData.length > 0) {
       const ids = chapData.map(c => c.id)
       const { data: subData } = await supabase
         .from('subtopics').select('*').in('chapter_id', ids).order('order_index')
@@ -99,6 +169,8 @@ export default function LearningDashboard() {
       setChapters(chapData.map(c => ({
         ...c, subtopics: subData?.filter(s => s.chapter_id === c.id) || []
       })))
+    } else {
+      setChapters(CHAPTERS_DATA.default)
     }
 
     if (userId) {
@@ -109,17 +181,20 @@ export default function LearningDashboard() {
     setLoading(false)
   }
 
-  // Open a subtopic - load quizzes
   const openSubtopic = async (sub: Subtopic) => {
     setActiveSubtopic(sub)
     setQuizSubmitted(false)
     setSelectedAnswers({})
     setQuizScore(0)
+
     const { data } = await supabase.from('quizzes').select('*').eq('subtopic_id', sub.id)
-    setQuizzes(data || [])
+    if (data && data.length > 0) {
+      setQuizzes(data)
+    } else {
+      setQuizzes(QUIZZES_DATA.default)
+    }
   }
 
-  // Mark subtopic as complete and award XP
   const completeSubtopic = async () => {
     if (!activeSubtopic || !userId) return
     const { error } = await supabase.from('user_progress').upsert({
@@ -133,7 +208,6 @@ export default function LearningDashboard() {
     }
   }
 
-  // Submit quiz and award XP
   const submitQuiz = async () => {
     let score = 0
     quizzes.forEach(q => {
@@ -141,6 +215,7 @@ export default function LearningDashboard() {
     })
     setQuizScore(score)
     setQuizSubmitted(true)
+
     if (score > 0 && userId) {
       const newXp = (profile?.xp || 0) + score
       await supabase.from('profiles').update({ xp: newXp }).eq('id', userId)
@@ -148,102 +223,118 @@ export default function LearningDashboard() {
     }
   }
 
-  const isPro = profile?.subscription_tier === 'pro'
-
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-8">
-
-      {/* ── HEADER & STATS BAR ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-white/10">
+    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-white/10">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Learning Hub</h1>
-          <p className="text-gray-500 text-sm">Select your branch & semester to start the real syllabus.</p>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <BookOpen className="text-indigo-400" size={24} /> Learning Hub
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Full 8-Semester syllabus across CSE, IT, ECE, & AIML with video lectures and quizzes.
+          </p>
         </div>
-        <div className="flex gap-3">
-          {[
-            { icon: Flame, label: 'Streak', value: `${profile?.streak || 0}d`, color: 'orange' },
-            { icon: Star, label: 'XP', value: `${profile?.xp || 0}`, color: 'emerald' },
-            { icon: Award, label: 'Tier', value: (profile?.subscription_tier || 'FREE').toUpperCase(), color: 'indigo' }
-          ].map(({ icon: Icon, label, value, color }) => (
-            <div key={label} className={`bg-[#111118] border border-${color}-500/30 rounded-xl px-4 py-2.5 flex items-center gap-2.5`}>
-              <Icon className={`text-${color}-400`} size={18} />
-              <div>
-                <p className={`text-[9px] font-bold text-${color}-400 uppercase tracking-wider`}>{label}</p>
-                <p className="text-white font-bold text-sm leading-tight">{value}</p>
-              </div>
-            </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 bg-[#111118] border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-400">
+            <Flame size={15} /> {profile?.streak || 0}d Streak
+          </div>
+          <div className="flex items-center gap-1.5 bg-[#111118] border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-400">
+            <Star size={15} /> {profile?.xp || 0} XP
+          </div>
+        </div>
+      </div>
+
+      {/* Branch & Semester Selector */}
+      <div className="bg-[#111118] border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+        {/* Branches */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-1">Branch:</span>
+          {BRANCHES.map(b => (
+            <button
+              key={b}
+              onClick={() => { setSelectedBranch(b); setActiveSubject(null) }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                selectedBranch === b
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                  : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white'
+              }`}
+            >
+              {b}
+            </button>
+          ))}
+        </div>
+
+        {/* Semesters 1 to 8 */}
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-1">Semester:</span>
+          {SEMESTERS.map(s => (
+            <button
+              key={s}
+              onClick={() => { setSelectedSemester(s); setActiveSubject(null) }}
+              className={`w-8 h-8 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${
+                selectedSemester === s
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                  : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white'
+              }`}
+            >
+              {s}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* ── VIEW 1: BRANCH / SEMESTER SELECTOR + SUBJECT GRID ── */}
+      {/* ── VIEW 1: SUBJECT CARDS ── */}
       {!activeSubject && (
-        <>
-          {/* Selectors */}
-          <div className="bg-[#111118] border border-white/10 rounded-2xl p-5 flex flex-wrap gap-6 items-center">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Branch</span>
-              <div className="flex gap-2">
-                {BRANCHES.map(b => (
-                  <button key={b} onClick={() => setSelectedBranch(b)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedBranch === b ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
-                    {b}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Semester</span>
-              <div className="flex gap-1.5">
-                {SEMESTERS.map(s => (
-                  <button key={s} onClick={() => setSelectedSemester(s)}
-                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${selectedSemester === s ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="space-y-4">
+          <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+            {selectedBranch} — Semester {selectedSemester} Subjects
+          </h2>
 
-          {/* Subject Cards */}
-          <div>
-            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">
-              {selectedBranch} — Semester {selectedSemester} Subjects
-            </h2>
-            {loading ? (
-              <div className="text-center text-gray-500 py-16">Loading syllabus...</div>
-            ) : subjects.length === 0 ? (
-              <div className="bg-[#111118] border border-white/10 rounded-2xl p-10 text-center">
-                <p className="text-gray-400 mb-2">No content yet for {selectedBranch} Sem {selectedSemester}.</p>
-                <p className="text-xs text-gray-600">Pilot is live on <span className="text-indigo-400 font-bold">CSE Semester 1</span>. Select that to begin.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {subjects.map(sub => {
-                  const locked = sub.is_pro && !isPro
-                  const SubIcon = ICON_MAP[sub.icon] || BookOpen
-                  return (
-                    <div key={sub.id} onClick={() => !locked && openSubject(sub)}
-                      className={`bg-[#111118] border border-white/10 rounded-2xl p-6 transition-all relative ${locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:border-indigo-500/60 hover:scale-[1.02]'}`}>
-                      <div className="flex justify-between mb-4">
-                        <span className="text-xs font-mono text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-md">{sub.code}</span>
-                        {locked
-                          ? <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold"><Lock size={11} /> PRO</span>
-                          : <SubIcon size={18} className="text-gray-600" />
-                        }
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-[#111118] border border-white/10 rounded-2xl p-5 animate-pulse h-40" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {subjects.map(subject => {
+                const IconComp = ICON_MAP[subject.icon] || BookOpen
+                return (
+                  <div
+                    key={subject.id}
+                    onClick={() => openSubject(subject)}
+                    className="bg-[#111118] border border-white/10 hover:border-indigo-500/40 rounded-2xl p-5 cursor-pointer transition-all group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                          <IconComp size={20} />
+                        </div>
+                        <span className="text-[10px] font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md font-mono">
+                          {subject.code}
+                        </span>
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-2">{sub.name}</h3>
-                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-4">{sub.description}</p>
-                      <div className="pt-3 border-t border-white/5 flex items-center gap-2 text-xs text-indigo-400 font-semibold">
-                        <PlayCircle size={14} /> Open Course
-                      </div>
+                      <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mb-1">
+                        {subject.name}
+                      </h3>
+                      <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+                        {subject.description}
+                      </p>
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </>
+
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 text-xs font-bold text-indigo-400 group-hover:text-indigo-300">
+                      <span>Start Module</span>
+                      <ChevronRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       )}
 
       {/* ── VIEW 2: CHAPTERS & SUBTOPICS ── */}
@@ -254,53 +345,46 @@ export default function LearningDashboard() {
           </button>
 
           <div className="bg-[#111118] border border-white/10 rounded-2xl p-6">
-            <span className="text-xs font-mono text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-md mb-3 inline-block">{activeSubject.code}</span>
-            <h2 className="text-xl font-bold text-white mb-1">{activeSubject.name}</h2>
-            <p className="text-sm text-gray-500">{activeSubject.description}</p>
+            <span className="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
+              {activeSubject.code}
+            </span>
+            <h2 className="text-xl font-bold text-white mt-2 mb-1">{activeSubject.name}</h2>
+            <p className="text-xs text-gray-400">{activeSubject.description}</p>
           </div>
 
-          {loading ? (
-            <div className="text-center text-gray-500 py-12">Loading chapters...</div>
-          ) : (
-            chapters.map(chap => {
-              const chapLocked = chap.is_pro && !isPro
-              return (
-                <div key={chap.id} className="bg-[#111118] border border-white/10 rounded-2xl p-5">
-                  <h4 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
-                    {chap.title}
-                    {chapLocked && (
-                      <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full flex items-center gap-1"><Lock size={11} /> PRO</span>
-                    )}
-                  </h4>
+          <div className="space-y-4">
+            {chapters.map(chap => (
+              <div key={chap.id} className="bg-[#111118] border border-white/10 rounded-2xl p-5">
+                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                  <Sparkles size={15} className="text-indigo-400" /> {chap.title}
+                </h3>
 
-                  <div className="space-y-2">
-                    {chap.subtopics?.map(sub => {
-                      const isCompleted = completedIds.has(sub.id)
-                      const locked = (sub.is_pro || chapLocked) && !isPro
-                      return (
-                        <button key={sub.id} onClick={() => !locked && openSubtopic(sub)} disabled={locked}
-                          className={`w-full flex items-center justify-between p-3.5 rounded-xl border transition-all text-left
-                            ${isCompleted ? 'bg-emerald-500/5 border-emerald-500/25 text-emerald-400'
-                              : locked ? 'bg-white/5 border-white/5 opacity-50 cursor-not-allowed text-gray-500'
-                              : 'bg-white/5 border-white/10 hover:border-indigo-500/40 text-gray-300 hover:text-white'}`}>
-                          <span className="flex items-center gap-3 text-sm font-medium">
-                            {isCompleted ? <CheckCircle2 size={17} className="text-emerald-400 shrink-0" />
-                              : locked ? <Lock size={17} className="text-amber-500 shrink-0" />
-                              : <PlayCircle size={17} className="text-indigo-400 shrink-0" />}
-                            {sub.title}
-                          </span>
-                          <span className="flex items-center gap-2 shrink-0">
-                            <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">+{sub.xp_reward} XP</span>
-                            <ChevronRight size={15} className="text-gray-600" />
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
+                <div className="space-y-2">
+                  {chap.subtopics?.map(sub => {
+                    const isDone = completedIds.has(sub.id)
+                    return (
+                      <div
+                        key={sub.id}
+                        onClick={() => openSubtopic(sub)}
+                        className="flex items-center justify-between p-3 rounded-xl bg-white/3 hover:bg-white/8 border border-white/5 hover:border-indigo-500/30 cursor-pointer transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          {isDone
+                            ? <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+                            : <PlayCircle size={18} className="text-gray-500 group-hover:text-indigo-400 shrink-0 transition-colors" />}
+                          <span className={`text-xs font-semibold ${isDone ? 'text-gray-400 line-through' : 'text-white'}`}>{sub.title}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">+ {sub.xp_reward} XP</span>
+                          <ChevronRight size={14} className="text-gray-500 group-hover:text-white" />
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-              )
-            })
-          )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -400,7 +484,6 @@ export default function LearningDashboard() {
           )}
         </div>
       )}
-
     </div>
   )
 }

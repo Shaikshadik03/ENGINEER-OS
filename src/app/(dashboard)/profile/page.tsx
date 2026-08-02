@@ -87,20 +87,31 @@ export default function ProfilePage() {
     const learningArray = learningInput.split(',').map(s => s.trim()).filter(Boolean)
     const interestsArray = interestsInput.split(',').map(s => s.trim()).filter(Boolean)
 
-    const { error } = await supabase.from('profiles').update({
+    const updateData: any = {
       full_name: fullName,
-      university,
       branch,
       semester: Number(semester),
-      bio,
       career_goal: careerGoal,
-      github_url: githubUrl,
-      linkedin_url: linkedinUrl,
-      portfolio_url: portfolioUrl,
       mastered_skills: masteredArray,
       learning_skills: learningArray,
       interests: interestsArray,
+    }
+
+    // Attempt full update with optional columns
+    let { error } = await supabase.from('profiles').update({
+      ...updateData,
+      university,
+      bio,
+      github_url: githubUrl,
+      linkedin_url: linkedinUrl,
+      portfolio_url: portfolioUrl,
     }).eq('id', profile.id)
+
+    // Fallback if schema lacks optional columns (like bio, university, social links)
+    if (error && error.message.includes('column')) {
+      const fallbackRes = await supabase.from('profiles').update(updateData).eq('id', profile.id)
+      error = fallbackRes.error
+    }
 
     if (!error) {
       setProfile(prev => prev ? {

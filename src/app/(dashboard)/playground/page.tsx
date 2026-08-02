@@ -52,7 +52,7 @@ export default function PlaygroundPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           language: selectedLang.pistonLang,
-          version: selectedLang.version,
+          version: '*',
           files: [{ name: selectedLang.id === 'java' ? 'Main.java' : `main.${selectedLang.id}`, content: code }],
           stdin: input,
         }),
@@ -61,11 +61,20 @@ export default function PlaygroundPage() {
       const data = await res.json()
       const lines: OutputLine[] = []
 
-      if (data.run?.stdout) {
+      if (data.message) {
+        lines.push({ type: 'stderr', text: `Runner Notice: ${data.message}` })
+      }
+
+      if (data.run?.output) {
+        data.run.output.split('\n').forEach((line: string) => {
+          if (line !== '') lines.push({ type: 'stdout', text: line })
+        })
+      } else if (data.run?.stdout) {
         data.run.stdout.split('\n').forEach((line: string) => {
           if (line !== '') lines.push({ type: 'stdout', text: line })
         })
       }
+
       if (data.run?.stderr) {
         data.run.stderr.split('\n').forEach((line: string) => {
           if (line !== '') lines.push({ type: 'stderr', text: line })
@@ -77,11 +86,11 @@ export default function PlaygroundPage() {
         })
       }
 
-      if (lines.length === 0) lines.push({ type: 'info', text: '✓ Program exited with no output.' })
+      if (lines.length === 0) lines.push({ type: 'info', text: '✓ Program finished.' })
       lines.push({ type: 'info', text: `\n✓ Done in ${data.run?.cpu_time || 0}ms` })
       setOutput(lines)
     } catch (e: any) {
-      setOutput([{ type: 'stderr', text: 'Error: Could not connect to code runner. Check internet.' }])
+      setOutput([{ type: 'stderr', text: 'Error: Could not connect to code runner. Check internet connection.' }])
     }
     setRunning(false)
   }
