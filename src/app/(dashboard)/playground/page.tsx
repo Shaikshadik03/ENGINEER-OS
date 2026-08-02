@@ -1,34 +1,34 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, RotateCcw, Download, ChevronDown, Terminal, Code2, Loader2, Sparkles } from 'lucide-react'
+import { Play, RotateCcw, Download, ChevronDown, Terminal, Code2, Loader2, Sparkles, CheckCircle2 } from 'lucide-react'
 
 const LANGUAGES = [
   {
     id: 'python',
     label: 'Python',
-    version: '3.11.0',
+    version: 'Python 3.10',
     icon: '🐍',
     defaultCode: 'print("Hello from Engineer OS!")\n\nfor i in range(1, 6):\n    print(f"Number: {i}")'
   },
   {
     id: 'c',
     label: 'C',
-    version: 'GCC 11.1',
+    version: 'GCC 11.2',
     icon: '©️',
     defaultCode: '#include <stdio.h>\n\nint main() {\n    printf("Hello from Engineer OS!\\n");\n    for (int i = 1; i <= 5; i++) {\n        printf("Number: %d\\n", i);\n    }\n    return 0;\n}'
   },
   {
     id: 'cpp',
     label: 'C++',
-    version: 'G++ 11.1',
+    version: 'G++ 11.2',
     icon: '⚡',
     defaultCode: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from Engineer OS!" << endl;\n    for (int i = 1; i <= 5; i++) {\n        cout << "Number: " << i << endl;\n    }\n    return 0;\n}'
   },
   {
     id: 'java',
     label: 'Java',
-    version: 'OpenJDK 15',
+    version: 'OpenJDK 17',
     icon: '☕',
     defaultCode: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Engineer OS!");\n        for (int i = 1; i <= 5; i++) {\n            System.out.println("Number: " + i);\n        }\n    }\n}'
   },
@@ -76,8 +76,55 @@ export default function PlaygroundPage() {
     setShowLangMenu(false)
   }
 
-  // --- CLIENT-SIDE JS EVALUATOR ---
-  const runJavaScriptLocally = (sourceCode: string) => {
+  // Load Skulpt dynamically for Python
+  const loadSkulpt = (): Promise<any> => {
+    return new Promise((resolve) => {
+      if ((window as any).Sk) return resolve((window as any).Sk)
+      const s1 = document.createElement('script')
+      s1.src = 'https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js'
+      s1.onload = () => {
+        const s2 = document.createElement('script')
+        s2.src = 'https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js'
+        s2.onload = () => resolve((window as any).Sk)
+        document.body.appendChild(s2)
+      }
+      document.body.appendChild(s1)
+    })
+  }
+
+  // --- PYTHON IN-BROWSER ENGINE ---
+  const runPythonLocally = async (pyCode: string) => {
+    const logs: OutputLine[] = []
+    try {
+      const Sk = await loadSkulpt()
+      let stdoutAcc = ''
+      Sk.configure({
+        output: (text: string) => { stdoutAcc += text },
+        read: (x: string) => {
+          if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
+            throw new Error("File not found: '" + x + "'")
+          }
+          return Sk.builtinFiles["files"][x]
+        }
+      })
+
+      await Sk.misceval.asyncToPromise(() =>
+        Sk.importMainWithBody("<stdin>", false, pyCode, true)
+      )
+
+      if (stdoutAcc) {
+        stdoutAcc.split('\n').forEach(line => {
+          if (line !== '') logs.push({ type: 'stdout', text: line })
+        })
+      }
+    } catch (err: any) {
+      logs.push({ type: 'stderr', text: err.toString() })
+    }
+    return logs
+  }
+
+  // --- JAVASCRIPT IN-BROWSER ENGINE ---
+  const runJavaScriptLocally = (jsCode: string) => {
     const logs: OutputLine[] = []
     const originalLog = console.log
     const originalError = console.error
@@ -90,7 +137,7 @@ export default function PlaygroundPage() {
     }
 
     try {
-      const fn = new Function(sourceCode)
+      const fn = new Function(jsCode)
       fn()
     } catch (err: any) {
       logs.push({ type: 'stderr', text: `Error: ${err.message}` })
@@ -109,18 +156,29 @@ export default function PlaygroundPage() {
     setOutput([{ type: 'info', text: `▶ Executing ${selectedLang.label}...` }])
     const startTime = performance.now()
 
-    // 1. JavaScript client-side runner
-    if (selectedLang.id === 'javascript') {
-      const logs = runJavaScriptLocally(code)
+    // 1. Python in-browser engine (Instant, 0ms latency, zero OCI errors)
+    if (selectedLang.id === 'python') {
+      const logs = await runPythonLocally(code)
       if (logs.length === 0) logs.push({ type: 'info', text: '✓ Program finished with no output.' })
       const elapsed = Math.round(performance.now() - startTime)
-      logs.push({ type: 'info', text: `\n✓ Done in ${elapsed}ms (Client Engine)` })
+      logs.push({ type: 'info', text: `\n✓ Executed locally in ${elapsed}ms (Browser Python Engine)` })
       setOutput(logs)
       setRunning(false)
       return
     }
 
-    // 2. Call server-side multi-engine API route
+    // 2. JavaScript in-browser engine (Instant, 0ms latency)
+    if (selectedLang.id === 'javascript') {
+      const logs = runJavaScriptLocally(code)
+      if (logs.length === 0) logs.push({ type: 'info', text: '✓ Program finished with no output.' })
+      const elapsed = Math.round(performance.now() - startTime)
+      logs.push({ type: 'info', text: `\n✓ Executed locally in ${elapsed}ms (Browser JS Engine)` })
+      setOutput(logs)
+      setRunning(false)
+      return
+    }
+
+    // 3. C / C++ / Java / SQL via Server Multi-Engine Route
     try {
       const res = await fetch('/api/playground/execute', {
         method: 'POST',
@@ -148,10 +206,10 @@ export default function PlaygroundPage() {
 
       if (lines.length === 0) lines.push({ type: 'info', text: '✓ Program finished with no output.' })
       const elapsed = Math.round(performance.now() - startTime)
-      lines.push({ type: 'info', text: `\n✓ Executed via ${data.engine || 'Cloud Engine'} in ${elapsed}ms` })
+      lines.push({ type: 'info', text: `\n✓ Executed in ${elapsed}ms` })
       setOutput(lines)
     } catch (e: any) {
-      setOutput([{ type: 'stderr', text: 'Error: Could not connect to code runner. Check internet connection.' }])
+      setOutput([{ type: 'stderr', text: 'Error executing code. Check syntax or internet connection.' }])
     }
     setRunning(false)
   }
@@ -195,7 +253,7 @@ export default function PlaygroundPage() {
             <Code2 size={20} className="text-indigo-400" />
             <h1 className="text-base font-bold text-white">Code Playground</h1>
             <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-              <Sparkles size={10} /> MULTI-ENGINE
+              <Sparkles size={10} /> ZERO-LATENCY ENGINE
             </span>
           </div>
 
