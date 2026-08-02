@@ -320,7 +320,7 @@ const SKILL_TREE: SkillNode[] = [
     ]
   },
 
-  // ── 5. COMMUNICATION & SOFT SKILLS (SPECIFICALLY REQUESTED BY USER!) ──
+  // ── 5. COMMUNICATION & SOFT SKILLS ──
   {
     id: 'tech-communication',
     name: 'Technical Communication & Code Pitching',
@@ -599,7 +599,7 @@ export default function GamifiedSkillsTreePage() {
         </div>
       </div>
 
-      {/* ── CLEAN SKILL NODES GRID (NO OVERLAPPING TEXT!) ── */}
+      {/* ── CLEAN SKILL NODES GRID ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSkills.map(skill => {
           const isSelected = selectedSkill?.id === skill.id
@@ -641,7 +641,7 @@ export default function GamifiedSkillsTreePage() {
                   {skill.description}
                 </p>
 
-                {/* Clean Pill Badges (Zero Overlap!) */}
+                {/* Clean Pill Badges */}
                 <div className="flex items-center gap-2 flex-wrap mb-4">
                   <span className="text-[10px] font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
                     <BookMarked size={12} /> {skill.modules.length} Modules
@@ -664,147 +664,149 @@ export default function GamifiedSkillsTreePage() {
         })}
       </div>
 
-      {/* ── EXPANDED INTERFACE: MODULE HEADINGS IN A ROW + LESSON COLUMNS ── */}
+      {/* ── EXPANDED MODAL OVERLAY: MODULE HEADINGS IN A ROW + LESSON COLUMNS ── */}
       {selectedSkill && (
-        <div className="bg-[#111118] border border-indigo-500/40 rounded-2xl p-6 space-y-6 animate-in slide-in-from-bottom-4 duration-300">
-          {/* Header */}
-          <div className="flex justify-between items-start border-b border-white/10 pb-4">
-            <div className="flex items-center gap-3">
-              <span className="text-4xl">{selectedSkill.icon}</span>
-              <div>
-                <h2 className="text-xl font-bold text-white">{selectedSkill.name}</h2>
-                <p className="text-xs text-indigo-400 font-semibold">{selectedSkill.domain} • {selectedSkill.tier} Tier • {selectedSkill.modules.length} Modules</p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setSelectedSkill(null)}
-              className="text-xs font-bold text-gray-400 hover:text-white px-3 py-1.5 rounded-xl border border-white/10 hover:bg-white/10"
-            >
-              Close Panel ✕
-            </button>
-          </div>
-
-          {/* 1. MODULE HEADINGS IN A ROW (HORIZONTAL TABS across top!) */}
-          <div className="space-y-2">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Select Module Heading:</span>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/10">
-              {selectedSkill.modules.map((mod, idx) => {
-                const isActive = activeModuleIndex === idx
-                const isChallengeDone = completedChallengeIds.has(mod.challenge.id)
-
-                return (
-                  <button
-                    key={mod.id}
-                    onClick={() => setActiveModuleIndex(idx)}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2 border ${
-                      isActive
-                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
-                        : isChallengeDone
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20'
-                        : 'bg-white/5 border-white/10 text-gray-300 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    {isChallengeDone ? (
-                      <CheckCircle2 size={15} className="text-emerald-400" />
-                    ) : (
-                      <Layers3 size={15} className={isActive ? 'text-white' : 'text-indigo-400'} />
-                    )}
-                    <span>{mod.title}</span>
-                    <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-gray-400'
-                    }`}>
-                      {mod.lessons.length} Lessons
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* 2. LESSONS PRESENTED AS COLUMNS UNDER ACTIVE MODULE */}
-          {currentModule && (
-            <div className="space-y-6 pt-2">
-              <div className="bg-white/3 border border-white/8 rounded-xl p-4">
-                <h3 className="text-sm font-bold text-white">{currentModule.title}</h3>
-                <p className="text-xs text-gray-400 mt-1">{currentModule.description}</p>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-6 overflow-y-auto animate-in fade-in duration-300">
+          <div className="bg-[#111118] border border-indigo-500/50 rounded-2xl p-6 w-full max-w-5xl my-auto max-h-[90vh] overflow-y-auto shadow-2xl space-y-6">
+            {/* Modal Header */}
+            <div className="flex justify-between items-start border-b border-white/10 pb-4 sticky top-0 bg-[#111118] z-10 pt-1">
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">{selectedSkill.icon}</span>
+                <div>
+                  <h2 className="text-xl font-bold text-white">{selectedSkill.name}</h2>
+                  <p className="text-xs text-indigo-400 font-semibold">{selectedSkill.domain} • {selectedSkill.tier} Tier • {selectedSkill.modules.length} Modules</p>
+                </div>
               </div>
 
-              {/* Column Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {currentModule.lessons.map(les => {
-                  const isDone = completedLessonIds.has(les.id)
+              <button
+                onClick={() => setSelectedSkill(null)}
+                className="text-xs font-bold text-gray-400 hover:text-white px-3 py-1.5 rounded-xl border border-white/10 hover:bg-white/10 flex items-center gap-1"
+              >
+                Close <X size={16} />
+              </button>
+            </div>
+
+            {/* 1. MODULE HEADINGS IN A ROW (HORIZONTAL TABS across top!) */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Select Module Heading:</span>
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/10">
+                {selectedSkill.modules.map((mod, idx) => {
+                  const isActive = activeModuleIndex === idx
+                  const isChallengeDone = completedChallengeIds.has(mod.challenge.id)
 
                   return (
-                    <div
-                      key={les.id}
-                      className={`bg-black/40 border rounded-2xl p-4 space-y-3 flex flex-col justify-between transition-all ${
-                        isDone ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10'
+                    <button
+                      key={mod.id}
+                      onClick={() => setActiveModuleIndex(idx)}
+                      className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2 border ${
+                        isActive
+                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20 scale-[1.02]'
+                          : isChallengeDone
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20'
+                          : 'bg-white/5 border-white/10 text-gray-300 hover:text-white hover:bg-white/10'
                       }`}
                     >
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-start gap-2">
-                          <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                            {isDone ? <CheckCircle2 size={14} className="text-emerald-400 shrink-0" /> : <BookOpen size={14} className="text-indigo-400 shrink-0" />}
-                            <span>{les.title}</span>
-                          </h4>
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded shrink-0">
-                            +{les.xp} XP
-                          </span>
-                        </div>
-
-                        <p className="text-[11px] text-gray-300 leading-relaxed font-mono">
-                          💡 {les.takeaway}
-                        </p>
-
-                        {les.codeSnippet && (
-                          <div className="bg-[#0a0a0f] p-3 rounded-xl border border-white/5 text-[10px] font-mono text-emerald-300 overflow-x-auto">
-                            <pre>{les.codeSnippet}</pre>
-                          </div>
-                        )}
-                      </div>
-
-                      <button
-                        onClick={() => toggleLessonCompletion(les.id, les.xp)}
-                        className={`w-full py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                          isDone
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30'
-                            : 'bg-white/5 text-gray-300 hover:text-white border border-white/10 hover:bg-white/10'
-                        }`}
-                      >
-                        {isDone ? <><Check size={14} /> Lesson Completed</> : <><Plus size={14} /> Mark Lesson Complete (+{les.xp} XP)</>}
-                      </button>
-                    </div>
+                      {isChallengeDone ? (
+                        <CheckCircle2 size={15} className="text-emerald-400" />
+                      ) : (
+                        <Layers3 size={15} className={isActive ? 'text-white' : 'text-indigo-400'} />
+                      )}
+                      <span>{mod.title}</span>
+                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-gray-400'
+                      }`}>
+                        {mod.lessons.length} Lessons
+                      </span>
+                    </button>
                   )
                 })}
               </div>
+            </div>
 
-              {/* End-of-Module Mini-Challenge Launcher */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl gap-4">
-                <div>
-                  <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">END-OF-MODULE MINI-CHALLENGE</span>
-                  <h4 className="text-xs font-bold text-white mt-0.5">{currentModule.challenge.title}</h4>
+            {/* 2. LESSONS PRESENTED AS COLUMNS UNDER ACTIVE MODULE */}
+            {currentModule && (
+              <div className="space-y-6 pt-1">
+                <div className="bg-white/3 border border-white/8 rounded-xl p-4">
+                  <h3 className="text-sm font-bold text-white">{currentModule.title}</h3>
+                  <p className="text-xs text-gray-400 mt-1">{currentModule.description}</p>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setActiveChallenge({ challenge: currentModule.challenge, skillId: selectedSkill.id })
-                    setChallengeCode(currentModule.challenge.starterCode)
-                    setChallengeFeedback(null)
-                  }}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-1.5 shrink-0"
-                >
-                  <Terminal size={14} /> Start Challenge (+{currentModule.challenge.xpReward} XP)
-                </button>
+                {/* Column Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {currentModule.lessons.map(les => {
+                    const isDone = completedLessonIds.has(les.id)
+
+                    return (
+                      <div
+                        key={les.id}
+                        className={`bg-black/40 border rounded-2xl p-4 space-y-3 flex flex-col justify-between transition-all ${
+                          isDone ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10'
+                        }`}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-start gap-2">
+                            <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                              {isDone ? <CheckCircle2 size={14} className="text-emerald-400 shrink-0" /> : <BookOpen size={14} className="text-indigo-400 shrink-0" />}
+                              <span>{les.title}</span>
+                            </h4>
+                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded shrink-0">
+                              +{les.xp} XP
+                            </span>
+                          </div>
+
+                          <p className="text-[11px] text-gray-300 leading-relaxed font-mono">
+                            💡 {les.takeaway}
+                          </p>
+
+                          {les.codeSnippet && (
+                            <div className="bg-[#0a0a0f] p-3 rounded-xl border border-white/5 text-[10px] font-mono text-emerald-300 overflow-x-auto">
+                              <pre>{les.codeSnippet}</pre>
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => toggleLessonCompletion(les.id, les.xp)}
+                          className={`w-full py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            isDone
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30'
+                              : 'bg-white/5 text-gray-300 hover:text-white border border-white/10 hover:bg-white/10'
+                          }`}
+                        >
+                          {isDone ? <><Check size={14} /> Lesson Completed</> : <><Plus size={14} /> Mark Lesson Complete (+{les.xp} XP)</>}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* End-of-Module Mini-Challenge Launcher */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl gap-4">
+                  <div>
+                    <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">END-OF-MODULE MINI-CHALLENGE</span>
+                    <h4 className="text-xs font-bold text-white mt-0.5">{currentModule.challenge.title}</h4>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setActiveChallenge({ challenge: currentModule.challenge, skillId: selectedSkill.id })
+                      setChallengeCode(currentModule.challenge.starterCode)
+                      setChallengeFeedback(null)
+                    }}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-1.5 shrink-0"
+                  >
+                    <Terminal size={14} /> Start Challenge (+{currentModule.challenge.xpReward} XP)
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
       {/* ── INTERACTIVE 10-LINE MINI-CHALLENGE MODAL ── */}
       {activeChallenge && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-60 flex items-center justify-center p-4">
           <div className="bg-[#111118] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4">
             <div className="flex justify-between items-start">
               <div>
