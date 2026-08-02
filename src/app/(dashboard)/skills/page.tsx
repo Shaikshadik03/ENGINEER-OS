@@ -448,6 +448,7 @@ export default function GamifiedSkillsTreePage() {
   const [selectedDomain, setSelectedDomain] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSkill, setSelectedSkill] = useState<SkillNode | null>(null)
+  const [activeModuleIndex, setActiveModuleIndex] = useState<number>(0)
   const [activeChallenge, setActiveChallenge] = useState<{ challenge: MiniChallenge; skillId: string } | null>(null)
   const [challengeCode, setChallengeCode] = useState('')
   const [challengeFeedback, setChallengeFeedback] = useState<{ success: boolean; msg: string } | null>(null)
@@ -467,6 +468,12 @@ export default function GamifiedSkillsTreePage() {
     }
     load()
   }, [])
+
+  // When a skill is selected, default activeModuleIndex to 0
+  const handleOpenSkill = (skill: SkillNode) => {
+    setSelectedSkill(skill)
+    setActiveModuleIndex(0)
+  }
 
   // Toggle Lesson Completion
   const toggleLessonCompletion = async (lessonId: string, xpAmount: number) => {
@@ -525,6 +532,8 @@ export default function GamifiedSkillsTreePage() {
     return matchesDomain && matchesSearch
   })
 
+  const currentModule = selectedSkill?.modules[activeModuleIndex]
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500">
       {/* Top Banner: Gamified XP & Level Header */}
@@ -532,7 +541,7 @@ export default function GamifiedSkillsTreePage() {
         <div className="space-y-2 max-w-xl">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-extrabold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={12} /> Basics to Advanced Deep Learning
+              <Sparkles size={12} /> Clean Modular Architecture
             </span>
             <span className="text-[10px] font-extrabold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
               <MessageSquare size={12} /> Soft Skills Included
@@ -540,7 +549,7 @@ export default function GamifiedSkillsTreePage() {
           </div>
           <h1 className="text-2xl font-bold text-white">Full-Stack & Communication Gamified Skill Tree</h1>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Click any skill node to open its full Basics → Advanced lesson curriculum, real-world code matches, and interactive end-of-module challenges!
+            Click any skill to open Module Headings in a Row and present lessons as clean columns!
           </p>
         </div>
 
@@ -590,15 +599,16 @@ export default function GamifiedSkillsTreePage() {
         </div>
       </div>
 
-      {/* ── SKILL NODES GRID ── */}
+      {/* ── CLEAN SKILL NODES GRID (NO OVERLAPPING TEXT!) ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSkills.map(skill => {
           const isSelected = selectedSkill?.id === skill.id
+          const totalLessonsCount = skill.modules.reduce((acc, m) => acc + m.lessons.length, 0)
 
           return (
             <div
               key={skill.id}
-              onClick={() => setSelectedSkill(skill)}
+              onClick={() => handleOpenSkill(skill)}
               className={`bg-[#111118] border rounded-2xl p-5 cursor-pointer transition-all group flex flex-col justify-between hover:border-indigo-500/50 ${
                 isSelected ? 'border-indigo-500 bg-indigo-500/5 ring-1 ring-indigo-500/30' : 'border-white/10'
               }`}
@@ -617,7 +627,7 @@ export default function GamifiedSkillsTreePage() {
                     </div>
                   </div>
 
-                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-lg border ${
+                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-lg border shrink-0 ${
                     skill.tier === 'Diamond' ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30' :
                     skill.tier === 'Gold' ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' :
                     skill.tier === 'Silver' ? 'bg-slate-300/10 text-slate-200 border-slate-300/30' :
@@ -631,38 +641,22 @@ export default function GamifiedSkillsTreePage() {
                   {skill.description}
                 </p>
 
-                {/* Modules & Lessons Count */}
-                <div className="space-y-2 mb-4">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Skill Modules & Curriculum:</span>
-                  {skill.modules.map(mod => {
-                    const isChallengeDone = completedChallengeIds.has(mod.challenge.id)
-
-                    return (
-                      <div
-                        key={mod.id}
-                        className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all ${
-                          isChallengeDone
-                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 font-semibold'
-                            : 'bg-white/3 border-white/5 text-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {isChallengeDone ? (
-                            <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
-                          ) : (
-                            <BookMarked size={15} className="text-indigo-400 shrink-0" />
-                          )}
-                          <span className="truncate">{mod.title}</span>
-                        </div>
-                        <span className="text-[10px] font-bold text-gray-400 shrink-0">{mod.lessons.length} Lessons</span>
-                      </div>
-                    )
-                  })}
+                {/* Clean Pill Badges (Zero Overlap!) */}
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                  <span className="text-[10px] font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                    <BookMarked size={12} /> {skill.modules.length} Modules
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                    <BookOpen size={12} /> {totalLessonsCount} Lessons
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
+                    +{skill.totalXp} XP
+                  </span>
                 </div>
               </div>
 
               <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-bold text-indigo-400 group-hover:text-indigo-300">
-                <span>Open Basics → Advanced Lessons</span>
+                <span>Explore Modules & Lessons</span>
                 <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -670,15 +664,16 @@ export default function GamifiedSkillsTreePage() {
         })}
       </div>
 
-      {/* ── EXPANDED BASICS TO ADVANCED LESSONS PANEL ── */}
+      {/* ── EXPANDED INTERFACE: MODULE HEADINGS IN A ROW + LESSON COLUMNS ── */}
       {selectedSkill && (
         <div className="bg-[#111118] border border-indigo-500/40 rounded-2xl p-6 space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+          {/* Header */}
           <div className="flex justify-between items-start border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
               <span className="text-4xl">{selectedSkill.icon}</span>
               <div>
-                <h2 className="text-xl font-bold text-white">{selectedSkill.name} Full Curriculum</h2>
-                <p className="text-xs text-indigo-400 font-semibold">{selectedSkill.domain} • {selectedSkill.tier} Tier • {selectedSkill.modules.length} Detailed Modules</p>
+                <h2 className="text-xl font-bold text-white">{selectedSkill.name}</h2>
+                <p className="text-xs text-indigo-400 font-semibold">{selectedSkill.domain} • {selectedSkill.tier} Tier • {selectedSkill.modules.length} Modules</p>
               </div>
             </div>
 
@@ -690,87 +685,120 @@ export default function GamifiedSkillsTreePage() {
             </button>
           </div>
 
-          {/* Detailed Modules Grid */}
-          <div className="space-y-6">
-            {selectedSkill.modules.map(mod => (
-              <div key={mod.id} className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-4">
-                <div>
-                  <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-                    <Layers3 size={18} className="text-indigo-400" /> {mod.title}
-                  </h3>
-                  <p className="text-xs text-gray-400">{mod.description}</p>
-                </div>
+          {/* 1. MODULE HEADINGS IN A ROW (HORIZONTAL TABS across top!) */}
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Select Module Heading:</span>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/10">
+              {selectedSkill.modules.map((mod, idx) => {
+                const isActive = activeModuleIndex === idx
+                const isChallengeDone = completedChallengeIds.has(mod.challenge.id)
 
-                {/* Lessons Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {mod.lessons.map(les => {
-                    const isDone = completedLessonIds.has(les.id)
+                return (
+                  <button
+                    key={mod.id}
+                    onClick={() => setActiveModuleIndex(idx)}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2 border ${
+                      isActive
+                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
+                        : isChallengeDone
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20'
+                        : 'bg-white/5 border-white/10 text-gray-300 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {isChallengeDone ? (
+                      <CheckCircle2 size={15} className="text-emerald-400" />
+                    ) : (
+                      <Layers3 size={15} className={isActive ? 'text-white' : 'text-indigo-400'} />
+                    )}
+                    <span>{mod.title}</span>
+                    <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-gray-400'
+                    }`}>
+                      {mod.lessons.length} Lessons
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
 
-                    return (
-                      <div
-                        key={les.id}
-                        className={`bg-black/40 border rounded-xl p-4 space-y-3 flex flex-col justify-between transition-all ${
-                          isDone ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/8'
-                        }`}
-                      >
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-start gap-2">
-                            <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                              {isDone ? <CheckCircle2 size={14} className="text-emerald-400" /> : <BookOpen size={14} className="text-indigo-400" />}
-                              {les.title}
-                            </h4>
-                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded shrink-0">
-                              +{les.xp} XP
-                            </span>
-                          </div>
+          {/* 2. LESSONS PRESENTED AS COLUMNS UNDER ACTIVE MODULE */}
+          {currentModule && (
+            <div className="space-y-6 pt-2">
+              <div className="bg-white/3 border border-white/8 rounded-xl p-4">
+                <h3 className="text-sm font-bold text-white">{currentModule.title}</h3>
+                <p className="text-xs text-gray-400 mt-1">{currentModule.description}</p>
+              </div>
 
-                          <p className="text-[11px] text-gray-300 leading-relaxed font-mono">
-                            💡 {les.takeaway}
-                          </p>
+              {/* Column Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {currentModule.lessons.map(les => {
+                  const isDone = completedLessonIds.has(les.id)
 
-                          {les.codeSnippet && (
-                            <div className="bg-[#0a0a0f] p-3 rounded-xl border border-white/5 text-[10px] font-mono text-emerald-300 overflow-x-auto">
-                              <pre>{les.codeSnippet}</pre>
-                            </div>
-                          )}
+                  return (
+                    <div
+                      key={les.id}
+                      className={`bg-black/40 border rounded-2xl p-4 space-y-3 flex flex-col justify-between transition-all ${
+                        isDone ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/10'
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                            {isDone ? <CheckCircle2 size={14} className="text-emerald-400 shrink-0" /> : <BookOpen size={14} className="text-indigo-400 shrink-0" />}
+                            <span>{les.title}</span>
+                          </h4>
+                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded shrink-0">
+                            +{les.xp} XP
+                          </span>
                         </div>
 
-                        <button
-                          onClick={() => toggleLessonCompletion(les.id, les.xp)}
-                          className={`w-full py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                            isDone
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30'
-                              : 'bg-white/5 text-gray-300 hover:text-white border border-white/10 hover:bg-white/10'
-                          }`}
-                        >
-                          {isDone ? <><Check size={14} /> Lesson Completed</> : <><Plus size={14} /> Mark Lesson Complete (+{les.xp} XP)</>}
-                        </button>
+                        <p className="text-[11px] text-gray-300 leading-relaxed font-mono">
+                          💡 {les.takeaway}
+                        </p>
+
+                        {les.codeSnippet && (
+                          <div className="bg-[#0a0a0f] p-3 rounded-xl border border-white/5 text-[10px] font-mono text-emerald-300 overflow-x-auto">
+                            <pre>{les.codeSnippet}</pre>
+                          </div>
+                        )}
                       </div>
-                    )
-                  })}
-                </div>
 
-                {/* Real Mini-Challenge Launcher */}
-                <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl gap-4">
-                  <div>
-                    <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">END-OF-MODULE MINI-CHALLENGE</span>
-                    <h4 className="text-xs font-bold text-white mt-0.5">{mod.challenge.title}</h4>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setActiveChallenge({ challenge: mod.challenge, skillId: selectedSkill.id })
-                      setChallengeCode(mod.challenge.starterCode)
-                      setChallengeFeedback(null)
-                    }}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-1.5 shrink-0"
-                  >
-                    <Terminal size={14} /> Start Challenge (+{mod.challenge.xpReward} XP)
-                  </button>
-                </div>
+                      <button
+                        onClick={() => toggleLessonCompletion(les.id, les.xp)}
+                        className={`w-full py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                          isDone
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30'
+                            : 'bg-white/5 text-gray-300 hover:text-white border border-white/10 hover:bg-white/10'
+                        }`}
+                      >
+                        {isDone ? <><Check size={14} /> Lesson Completed</> : <><Plus size={14} /> Mark Lesson Complete (+{les.xp} XP)</>}
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
-            ))}
-          </div>
+
+              {/* End-of-Module Mini-Challenge Launcher */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl gap-4">
+                <div>
+                  <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">END-OF-MODULE MINI-CHALLENGE</span>
+                  <h4 className="text-xs font-bold text-white mt-0.5">{currentModule.challenge.title}</h4>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setActiveChallenge({ challenge: currentModule.challenge, skillId: selectedSkill.id })
+                    setChallengeCode(currentModule.challenge.starterCode)
+                    setChallengeFeedback(null)
+                  }}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-1.5 shrink-0"
+                >
+                  <Terminal size={14} /> Start Challenge (+{currentModule.challenge.xpReward} XP)
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
