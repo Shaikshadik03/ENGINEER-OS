@@ -6,7 +6,8 @@ import {
   Award, Search, Sparkles, CheckCircle2, Plus, ArrowRight,
   Code2, Cpu, Database, Cloud, Brain, Layers, BookOpen, ExternalLink, X,
   Calendar, Terminal, Check, Play, Zap, Flame, ShieldCheck, Lock, Unlock,
-  MessageSquare, Users, Trophy, ChevronRight, Star, Compass, UserCheck
+  MessageSquare, Users, Trophy, ChevronRight, Star, Compass, UserCheck,
+  BookMarked, HelpCircle, Layers3
 } from 'lucide-react'
 
 // --- 4-LEVEL TAXONOMY DEFINITIONS ---
@@ -54,20 +55,21 @@ const SKILL_TREE: SkillNode[] = [
   // ── 1. PROGRAMMING FUNDAMENTALS ──
   {
     id: 'python-mastery',
-    name: 'Python 3 & Scripting',
+    name: 'Python 3 & Backend Scripting',
     domain: 'Programming',
     icon: '🐍',
-    tier: 'Silver',
-    totalXp: 450,
-    description: 'Master Python syntax, data structures, async programming, and API integration.',
+    tier: 'Gold',
+    totalXp: 750,
+    description: 'Complete Python journey from basic syntax and data structures to async concurrency, Pydantic, and FastAPI.',
     modules: [
       {
         id: 'py-mod-1',
-        title: 'Module 1: Variables, Strings & Data Structures',
-        description: 'Variables, f-strings, lists, dicts, and JSON manipulation.',
+        title: 'Module 1 (Basics): Syntax, Strings & Data Structures',
+        description: 'Variables, f-strings, lists, dicts, tuples, and JSON manipulation.',
         lessons: [
-          { id: 'py-l1', title: '1.1 Variables & f-string Formatting', duration: '5 min', xp: 20, takeaway: 'f-strings allow embedding expressions directly in strings using f"Hello {name}".', codeSnippet: 'name = "Shadik"\nrole = "Forward Deployed Engineer"\nprint(f"{name} is training as a {role}.")' },
-          { id: 'py-l2', title: '1.2 Lists, Dicts & JSON Parsing', duration: '8 min', xp: 25, takeaway: 'Dictionaries store key-value pairs matching JSON API payloads.', codeSnippet: 'data = {"student": "Shadik", "skills": ["Python", "FastAPI"]}\ndata["skills"].append("React")\nprint(data["skills"])' }
+          { id: 'py-l1', title: '1.1 Variables, Inputs & f-string Formatting', duration: '5 min', xp: 20, takeaway: 'f-strings allow embedding expressions directly in strings using f"Hello {name}".', codeSnippet: 'name = "Shadik"\nrole = "Forward Deployed Engineer"\nprint(f"{name} is training as a {role}.")' },
+          { id: 'py-l2', title: '1.2 Lists, Dictionaries & JSON Parsing', duration: '8 min', xp: 25, takeaway: 'Dictionaries store key-value pairs matching JSON API payloads.', codeSnippet: 'data = {"student": "Shadik", "skills": ["Python", "FastAPI"]}\ndata["skills"].append("React")\nprint(data["skills"])' },
+          { id: 'py-l3', title: '1.3 List Comprehensions & Data Filtering', duration: '7 min', xp: 25, takeaway: 'List comprehensions build filtered lists in a single clean line.', codeSnippet: 'scores = [85, 42, 90, 68, 95]\nhigh_scores = [s for s in scores if s >= 80]\nprint(high_scores)  # [85, 90, 95]' }
         ],
         challenge: {
           id: 'py-ch-1',
@@ -81,48 +83,131 @@ const SKILL_TREE: SkillNode[] = [
       },
       {
         id: 'py-mod-2',
-        title: 'Module 2: Control Flow & Async Functions',
-        description: 'Conditionals, for loops, async/await, and error handling.',
+        title: 'Module 2 (Intermediate): Functions, Decorators & OOP',
+        description: 'Functions with type hints, custom decorators, and Object-Oriented classes.',
         lessons: [
-          { id: 'py-l3', title: '2.1 Conditionals & Logical Auth Checks', duration: '6 min', xp: 20, takeaway: 'Use boolean logic (and/or/not) to guard API endpoints.', codeSnippet: 'if is_authenticated and role == "admin":\n    print("Access Granted")' },
-          { id: 'py-l4', title: '2.2 Asynchronous Python with async/await', duration: '10 min', xp: 30, takeaway: 'async def enables non-blocking asynchronous concurrency.', codeSnippet: 'import asyncio\nasync def fetch_data():\n    await asyncio.sleep(0.5)\n    return "Loaded"' }
+          { id: 'py-l4', title: '2.1 Functions, Default Args & Type Hints', duration: '6 min', xp: 25, takeaway: 'Type hints improve IDE autocompletion and prevent runtime bugs.', codeSnippet: 'from typing import List\ndef calculate_gpa(grades: List[float]) -> float:\n    return sum(grades) / len(grades)' },
+          { id: 'py-l5', title: '2.2 OOP Classes, Inheritance & Dunder Methods', duration: '9 min', xp: 30, takeaway: 'Classes encapsulate state and behavior into reusable objects.', codeSnippet: 'class Student:\n    def __init__(self, name: str):\n        self.name = name\n    def greet(self):\n        return f"Hi, I am {self.name}"' }
         ],
         challenge: {
           id: 'py-ch-2',
-          title: 'Mini-Challenge: Async Endpoint Fetcher',
-          prompt: 'Create an `async def fetch_user_data(user_id)` function that awaits `asyncio.sleep(0.1)` and returns `{"id": user_id, "status": "active"}`.',
-          starterCode: 'import asyncio\n\n# Define async function here:\n',
-          expectedKeywords: ['async', 'def', 'await', 'return'],
+          title: 'Mini-Challenge: Create a Student Class',
+          prompt: 'Create a Python class `Student` with `__init__(self, name)` and a method `add_skill(self, skill)` that appends to `self.skills`.',
+          starterCode: 'class Student:\n    def __init__(self, name):\n        self.name = name\n        self.skills = []\n\n    # Add method here:\n',
+          expectedKeywords: ['def', 'add_skill', 'self', 'append'],
           xpReward: 100,
-          hint: 'Use async def fetch_user_data(user_id): await asyncio.sleep(0.1) return ...'
+          hint: 'def add_skill(self, skill): self.skills.append(skill)'
+        }
+      },
+      {
+        id: 'py-mod-3',
+        title: 'Module 3 (Advanced): Async Concurrency & FastAPI',
+        description: 'async/await, asyncio event loops, Pydantic validation, and REST API deployment.',
+        lessons: [
+          { id: 'py-l6', title: '3.1 Asynchronous Python with async/await', duration: '10 min', xp: 35, takeaway: 'async def enables non-blocking asynchronous concurrency for high-throughput APIs.', codeSnippet: 'import asyncio\nasync def fetch_ai_reply(prompt: str):\n    await asyncio.sleep(0.1)\n    return f"AI Answer: {prompt}"' },
+          { id: 'py-l7', title: '3.2 Pydantic Data Validation & FastAPI Routes', duration: '10 min', xp: 40, takeaway: 'FastAPI combines Pydantic models with async handlers for type-safe JSON APIs.', codeSnippet: 'from fastapi import FastAPI\nfrom pydantic import BaseModel\napp = FastAPI()\nclass Msg(BaseModel):\n    text: str\n@app.post("/chat")\ndef chat(msg: Msg):\n    return {"reply": msg.text}' }
+        ],
+        challenge: {
+          id: 'py-ch-3',
+          title: 'Mini-Challenge: Production FastAPI Health Endpoint',
+          prompt: 'Write a FastAPI app instance with a GET route `@app.get("/health")` returning `{"status": "ok", "uptime": 100}`.',
+          starterCode: 'from fastapi import FastAPI\napp = FastAPI()\n\n# Define endpoint below:\n',
+          expectedKeywords: ['@app.get', 'def', 'return', 'status'],
+          xpReward: 120,
+          hint: '@app.get("/health") def health(): return {"status": "ok", "uptime": 100}'
         }
       }
     ]
   },
   {
     id: 'c-programming',
-    name: 'C & Low-Level Memory',
+    name: 'C & Low-Level Memory Management',
     domain: 'Programming',
     icon: '©️',
-    tier: 'Bronze',
-    totalXp: 200,
-    description: 'Pointers, dynamic memory allocation (malloc/free), structs, and pointers arithmetic.',
+    tier: 'Silver',
+    totalXp: 500,
+    description: 'From variables and arrays to pointers, dereferencing, structs, and dynamic memory allocation (malloc/free).',
     modules: [
       {
         id: 'c-mod-1',
-        title: 'Module 1: Pointers & Dynamic Memory',
-        description: 'Memory addresses, dereferencing, and Heap allocation.',
+        title: 'Module 1 (Basics): Variables, Data Types & Control Flow',
+        description: 'Compiling C code, printf, scanf, loops, and array manipulation.',
         lessons: [
-          { id: 'c-l1', title: '1.1 Pointer Basics & Dereferencing', duration: '7 min', xp: 20, takeaway: '& retrieves address, * dereferences pointer to access value.', codeSnippet: 'int x = 42;\nint *ptr = &x;\nprintf("Value: %d\\n", *ptr);' }
+          { id: 'c-l1', title: '1.1 Compiling C Code & Printf Formatting', duration: '5 min', xp: 20, takeaway: 'C code compiles to machine bytecode via GCC. Use %d for integers, %f for floats.', codeSnippet: '#include <stdio.h>\nint main() {\n    printf("B.Tech CSE Student\\n");\n    return 0;\n}' },
+          { id: 'c-l2', title: '1.2 Arrays & Memory Offsets', duration: '7 min', xp: 25, takeaway: 'C arrays occupy contiguous memory blocks accessed via index arithmetic.', codeSnippet: 'int arr[3] = {10, 20, 30};\nprintf("First item: %d\\n", arr[0]);' }
         ],
         challenge: {
           id: 'c-ch-1',
-          title: 'Mini-Challenge: Swap Two Variables using Pointers',
-          prompt: 'Write a C function `void swap(int *a, int *b)` that swaps the values stored at pointers `a` and `b`.',
-          starterCode: 'void swap(int *a, int *b) {\n    // Your pointer swap logic here:\n}',
-          expectedKeywords: ['int', 'temp', '*a', '*b'],
+          title: 'Mini-Challenge: Calculate Array Sum in C',
+          prompt: 'Write a loop inside `int main()` that sums the elements of `int arr[3] = {5, 10, 15};` and prints the sum using `printf`.',
+          starterCode: '#include <stdio.h>\nint main() {\n    int arr[3] = {5, 10, 15};\n    int sum = 0;\n    // Write loop here:\n}',
+          expectedKeywords: ['for', 'sum', 'printf', 'return'],
           xpReward: 75,
-          hint: 'Use a temporary variable: int temp = *a; *a = *b; *b = temp;'
+          hint: 'for(int i=0; i<3; i++) sum += arr[i]; printf("%d", sum);'
+        }
+      },
+      {
+        id: 'c-mod-2',
+        title: 'Module 2 (Advanced): Pointers, Structs & Malloc',
+        description: 'Pointer arithmetic, dereferencing, custom structs, and Heap memory management.',
+        lessons: [
+          { id: 'c-l3', title: '2.1 Pointer Basics & Dereferencing', duration: '8 min', xp: 30, takeaway: '& retrieves address, * dereferences pointer to access stored value.', codeSnippet: 'int x = 42;\nint *ptr = &x;\nprintf("Value: %d\\n", *ptr);' },
+          { id: 'c-l4', title: '2.2 Dynamic Memory Allocation (malloc & free)', duration: '10 min', xp: 35, takeaway: 'malloc allocates bytes on the Heap; free releases memory to prevent memory leaks.', codeSnippet: 'int *arr = (int*) malloc(5 * sizeof(int));\narr[0] = 100;\nfree(arr);' }
+        ],
+        challenge: {
+          id: 'c-ch-2',
+          title: 'Mini-Challenge: Swap Variables with Pointers',
+          prompt: 'Write a C function `void swap(int *a, int *b)` that swaps the values stored at pointers `a` and `b`.',
+          starterCode: 'void swap(int *a, int *b) {\n    // Swap logic:\n}',
+          expectedKeywords: ['int', 'temp', '*a', '*b'],
+          xpReward: 100,
+          hint: 'int temp = *a; *a = *b; *b = temp;'
+        }
+      }
+    ]
+  },
+  {
+    id: 'dsa-mastery',
+    name: 'Data Structures & Algorithms (DSA)',
+    domain: 'Programming',
+    icon: '🧩',
+    tier: 'Diamond',
+    totalXp: 900,
+    description: 'Arrays, Two Pointers, Linked Lists, Trees, Graphs, and Dynamic Programming algorithms.',
+    modules: [
+      {
+        id: 'dsa-mod-1',
+        title: 'Module 1 (Basics): Arrays, Two Pointers & Sliding Window',
+        description: 'Linear time O(N) array techniques to eliminate O(N^2) brute force loops.',
+        lessons: [
+          { id: 'dsa-l1', title: '1.1 Two Pointers Technique', duration: '8 min', xp: 25, takeaway: 'Two pointers move inward from opposite ends of a sorted array to find pairs in O(N).', codeSnippet: 'def two_sum_sorted(nums, target):\n    left, right = 0, len(nums)-1\n    while left < right:\n        curr = nums[left] + nums[right]\n        if curr == target: return [left, right]\n        elif curr < target: left += 1\n        else: right -= 1' },
+          { id: 'dsa-l2', title: '1.2 Sliding Window Pattern', duration: '9 min', xp: 30, takeaway: 'Sliding window expands/contracts a range to compute dynamic subarray metrics in O(N).', codeSnippet: 'def max_sub_array_of_k(arr, k):\n    window_sum = sum(arr[:k])\n    max_sum = window_sum\n    for i in range(len(arr) - k):\n        window_sum = window_sum - arr[i] + arr[i+k]\n        max_sum = max(max_sum, window_sum)\n    return max_sum' }
+        ],
+        challenge: {
+          id: 'dsa-ch-1',
+          title: 'Mini-Challenge: Implement Binary Search in O(log N)',
+          prompt: 'Write a Python function `binary_search(nums, target)` that returns the index of target in sorted list `nums`, or -1 if missing.',
+          starterCode: 'def binary_search(nums, target):\n    left, right = 0, len(nums) - 1\n    # Write loop here:\n',
+          expectedKeywords: ['while', 'mid', 'left', 'right'],
+          xpReward: 100,
+          hint: 'while left <= right: mid = (left + right) // 2 ...'
+        }
+      },
+      {
+        id: 'dsa-mod-2',
+        title: 'Module 2 (Advanced): Dynamic Programming & Trees',
+        description: 'Recursion, memoization, tabulation, and binary search trees.',
+        lessons: [
+          { id: 'dsa-l3', title: '2.1 Dynamic Programming: Memoization vs Tabulation', duration: '12 min', xp: 40, takeaway: 'DP stores intermediate subproblem solutions to prevent duplicate exponential work.', codeSnippet: 'def fib(n, memo={}):\n    if n in memo: return memo[n]\n    if n <= 1: return n\n    memo[n] = fib(n-1, memo) + fib(n-2, memo)\n    return memo[n]' }
+        ],
+        challenge: {
+          id: 'dsa-ch-2',
+          title: 'Mini-Challenge: Memoized Fibonacci',
+          prompt: 'Complete the memoized `fib(n)` function using a dictionary `memo`.',
+          starterCode: 'def fib(n, memo={}):\n    if n <= 1: return n\n    # Implement memoization check & storage:\n',
+          expectedKeywords: ['if', 'memo', 'return'],
+          xpReward: 120,
+          hint: 'if n in memo: return memo[n]; memo[n] = fib(n-1, memo) + fib(n-2, memo)'
         }
       }
     ]
@@ -131,19 +216,19 @@ const SKILL_TREE: SkillNode[] = [
   // ── 2. CORE CS SUBJECTS ──
   {
     id: 'dbms-sql',
-    name: 'DBMS & Relational SQL',
+    name: 'DBMS & Relational SQL Architecture',
     domain: 'Core CS',
     icon: '🗄️',
-    tier: 'Silver',
-    totalXp: 350,
-    description: 'SQL queries, JOINs, database normalization, indexing, and transactions.',
+    tier: 'Gold',
+    totalXp: 650,
+    description: 'Relational database schema design, SELECT/JOIN queries, indexing, and ACID transactions.',
     modules: [
       {
         id: 'db-mod-1',
-        title: 'Module 1: Relational Queries & JOINs',
-        description: 'SELECT, WHERE, INNER/LEFT JOIN, and aggregation.',
+        title: 'Module 1 (Basics): Queries, Filtering & Aggregations',
+        description: 'SELECT, WHERE, GROUP BY, HAVING, and ORDER BY.',
         lessons: [
-          { id: 'db-l1', title: '1.1 SQL JOIN Masterclass', duration: '8 min', xp: 25, takeaway: 'INNER JOIN returns matching records; LEFT JOIN includes all left table rows.', codeSnippet: 'SELECT u.name, o.title\nFROM users u\nJOIN orders o ON u.id = o.user_id;' }
+          { id: 'db-l1', title: '1.1 SQL SELECT & Filtering Essentials', duration: '6 min', xp: 20, takeaway: 'WHERE filters individual rows; ORDER BY sorts result sets.', codeSnippet: 'SELECT name, branch, gpa\nFROM students\nWHERE branch = \'CSE\' AND gpa >= 8.0\nORDER BY gpa DESC;' }
         ],
         challenge: {
           id: 'db-ch-1',
@@ -154,6 +239,23 @@ const SKILL_TREE: SkillNode[] = [
           xpReward: 75,
           hint: 'SELECT name, gpa FROM students WHERE gpa >= 8.5 ORDER BY gpa DESC;'
         }
+      },
+      {
+        id: 'db-mod-2',
+        title: 'Module 2 (Advanced): JOINs, Indexing & ACID Transactions',
+        description: 'INNER/LEFT JOIN, B-Tree indexes, and ACID transaction safety.',
+        lessons: [
+          { id: 'db-l2', title: '2.1 SQL JOINs Masterclass', duration: '8 min', xp: 30, takeaway: 'INNER JOIN combines matching rows across 2 tables via foreign keys.', codeSnippet: 'SELECT u.name, p.title\nFROM users u\nJOIN projects p ON u.id = p.user_id;' }
+        ],
+        challenge: {
+          id: 'db-ch-2',
+          title: 'Mini-Challenge: INNER JOIN Query',
+          prompt: 'Write a SQL query joining `users` and `tasks` on `users.id = tasks.user_id` selecting `users.name` and `tasks.title`.',
+          starterCode: '-- Write your JOIN query:\n',
+          expectedKeywords: ['SELECT', 'FROM', 'JOIN', 'ON'],
+          xpReward: 100,
+          hint: 'SELECT users.name, tasks.title FROM users JOIN tasks ON users.id = tasks.user_id;'
+        }
       }
     ]
   },
@@ -161,19 +263,19 @@ const SKILL_TREE: SkillNode[] = [
   // ── 3. DEV TOOLS ──
   {
     id: 'git-github',
-    name: 'Git & GitHub Mastery',
+    name: 'Git & GitHub Version Control',
     domain: 'Dev Tools',
     icon: '🐙',
     tier: 'Silver',
-    totalXp: 300,
-    description: 'Commits, branching, pull requests, merge conflict resolution, and rebasing.',
+    totalXp: 500,
+    description: 'Git init, commits, branching, pull requests, resolving merge conflicts, and interactive rebase.',
     modules: [
       {
         id: 'git-mod-1',
-        title: 'Module 1: Branching & Merge Conflicts',
-        description: 'Creating branches, rebasing, and resolving merge conflicts.',
+        title: 'Module 1 (Basics): Commits, Branches & Remote Push',
+        description: 'git init, add, commit, branch creation, and origin push.',
         lessons: [
-          { id: 'git-l1', title: '1.1 Git Branching Workflow', duration: '5 min', xp: 20, takeaway: 'Always develop features on isolated git branches: git checkout -b feat/name.', codeSnippet: 'git checkout -b feat/ai-copilot\ngit add .\ngit commit -m "feat: add AI copilot widget"\ngit push origin feat/ai-copilot' }
+          { id: 'git-l1', title: '1.1 Git Branching Workflow', duration: '5 min', xp: 20, takeaway: 'Always isolate new feature code on a dedicated git branch before merging.', codeSnippet: 'git checkout -b feat/skills-tree\ngit add .\ngit commit -m "feat: add gamified skill tree"\ngit push origin feat/skills-tree' }
         ],
         challenge: {
           id: 'git-ch-1',
@@ -188,26 +290,26 @@ const SKILL_TREE: SkillNode[] = [
     ]
   },
 
-  // ── 4. WEB & APP BUILDING ──
+  // ── 4. WEB DEV ──
   {
     id: 'react-nextjs',
     name: 'React 18 & Next.js App Router',
     domain: 'Web Dev',
     icon: '⚛️',
-    tier: 'Gold',
-    totalXp: 600,
-    description: 'Server components, hooks (useState, useEffect), API routes, and glassmorphic UI design.',
+    tier: 'Diamond',
+    totalXp: 800,
+    description: 'Component architecture, useState/useEffect, server components, API routes, and glassmorphic UI design.',
     modules: [
       {
         id: 'react-mod-1',
-        title: 'Module 1: React State & Custom Hooks',
-        description: 'useState, useEffect, and custom state synchronization.',
+        title: 'Module 1 (Basics): JSX, Components & useState',
+        description: 'Building reactive user interfaces using declarative component state.',
         lessons: [
-          { id: 'react-l1', title: '1.1 useState & Component Reactivity', duration: '7 min', xp: 25, takeaway: 'useState triggers component re-render whenever state updates.', codeSnippet: 'const [score, setScore] = useState(0)\n<button onClick={() => setScore(s => s + 10)}>+10 XP</button>' }
+          { id: 'react-l1', title: '1.1 React Hooks & State Reactivity', duration: '7 min', xp: 25, takeaway: 'useState triggers component re-renders whenever state values change.', codeSnippet: 'const [xp, setXp] = useState(100)\n<button onClick={() => setXp(prev => prev + 50)}>+50 XP</button>' }
         ],
         challenge: {
           id: 'react-ch-1',
-          title: 'Mini-Challenge: Build an XP Counter Component',
+          title: 'Mini-Challenge: XP Counter Component',
           prompt: 'Write a React component snippet with state `xp` initialized to 0 and a button that adds 50 XP when clicked.',
           starterCode: 'function XpCounter() {\n  // State and button click handler:\n}',
           expectedKeywords: ['useState', 'setXp', 'button', 'onClick'],
@@ -218,23 +320,23 @@ const SKILL_TREE: SkillNode[] = [
     ]
   },
 
-  // ── 5. COMMUNICATION & SOFT SKILLS (SPECIFICALLY REQUESTED!) ──
+  // ── 5. COMMUNICATION & SOFT SKILLS (SPECIFICALLY REQUESTED BY USER!) ──
   {
     id: 'tech-communication',
-    name: 'Technical Communication & Code Explanation',
+    name: 'Technical Communication & Code Pitching',
     domain: 'Communication',
     icon: '🗣️',
-    tier: 'Silver',
-    totalXp: 400,
-    description: 'Learn to explain project architecture, DSA approach, and complex code out loud to senior engineers.',
+    tier: 'Gold',
+    totalXp: 600,
+    description: 'Master explaining project architecture, thinking out loud during DSA interviews, and technical presentations.',
     modules: [
       {
         id: 'comm-mod-1',
-        title: 'Module 1: Explaining Code & System Architecture',
-        description: 'The 3-Step Framework for technical explanations.',
+        title: 'Module 1 (Basics): The 3-Step Technical Explanation Framework',
+        description: 'Goal -> High-Level Data Flow -> Technical Trade-offs.',
         lessons: [
-          { id: 'comm-l1', title: '1.1 The 3-Step Code Explanation Framework', duration: '6 min', xp: 25, takeaway: 'Step 1: Goal/Problem -> Step 2: High-level Data Flow -> Step 3: Specific Trade-offs.', codeSnippet: 'Example:\n"This API route takes a student resume PDF, parses the text via PyPDF, passes it to Gemini 1.5 for keyword extraction, and returns an ATS score matrix in under 800ms."' },
-          { id: 'comm-l2', title: '1.2 Thinking Out Loud in Technical Interviews', duration: '8 min', xp: 25, takeaway: 'Never stay silent! Verbalize your brute-force idea first, then optimize out loud.', codeSnippet: 'Pattern:\n"First, I see a brute force O(N^2) solution using nested loops. However, we can optimize this to O(N) using a Hash Map by storing target complements."' }
+          { id: 'comm-l1', title: '1.1 The 3-Step Code Explanation Framework', duration: '6 min', xp: 25, takeaway: 'Step 1: Goal/Problem -> Step 2: Data Flow -> Step 3: Specific Trade-offs.', codeSnippet: 'Example:\n"This API route takes a student resume PDF, parses text via PyPDF, passes it to Gemini 1.5 for keyword extraction, and returns an ATS score matrix in under 800ms."' },
+          { id: 'comm-l2', title: '1.2 Thinking Out Loud in Technical Interviews', duration: '8 min', xp: 30, takeaway: 'Never stay silent! Verbalize your brute-force idea first, then optimize out loud.', codeSnippet: 'Pattern:\n"First, I see a brute force O(N^2) solution using nested loops. However, we can optimize this to O(N) using a Hash Map by storing target complements."' }
         ],
         challenge: {
           id: 'comm-ch-1',
@@ -249,13 +351,13 @@ const SKILL_TREE: SkillNode[] = [
     ]
   },
   {
-    id: 'resume-linkedin-branding',
+    id: 'resume-branding',
     name: 'Resume, LinkedIn & Tech Branding',
     domain: 'Communication',
     icon: '📜',
     tier: 'Gold',
-    totalXp: 500,
-    description: 'Action-verb bullet points, recruiter magnet LinkedIn headlines, and GitHub portfolio presentation.',
+    totalXp: 550,
+    description: 'Google XYZ resume formula, recruiter magnet LinkedIn profiles, and GitHub portfolio presentation.',
     modules: [
       {
         id: 'brand-mod-1',
@@ -277,20 +379,20 @@ const SKILL_TREE: SkillNode[] = [
     ]
   },
   {
-    id: 'public-speaking-pitching',
+    id: 'public-speaking',
     name: 'Public Speaking & Hackathon Pitching',
     domain: 'Communication',
     icon: '🎤',
     tier: 'Silver',
-    totalXp: 350,
-    description: 'Hooking judges in 15 seconds, live demo tricks, and answering tough judge Q&A.',
+    totalXp: 450,
+    description: '15-second opening hooks, live demo flow, and answering tough judge Q&A.',
     modules: [
       {
         id: 'pitch-mod-1',
         title: 'Module 1: The 3-Minute Winning Hackathon Pitch',
         description: 'Hook -> Problem -> Live Demo -> Tech Architecture -> Impact.',
         lessons: [
-          { id: 'pitch-l1', title: '1.1 The 15-Second Judge Hook', duration: '5 min', xp: 20, takeaway: 'Start with a relatable pain point or surprising metric before showing your slides.', codeSnippet: 'Hook Example:\n"90% of B.Tech students study blindly without knowing what skills top companies actually test. Today, we built Engineer-OS to solve that."' }
+          { id: 'pitch-l1', title: '1.1 The 15-Second Judge Hook', duration: '5 min', xp: 20, takeaway: 'Start with a relatable pain point or surprising metric before showing your slides.', codeSnippet: 'Hook Example:\n"90% of B.Tech students study blindly without knowing what skills top companies test. Today, we built Engineer-OS to solve that."' }
         ],
         challenge: {
           id: 'pitch-ch-1',
@@ -305,19 +407,19 @@ const SKILL_TREE: SkillNode[] = [
     ]
   },
 
-  // ── 7. CAREER & PLACEMENT PREP ──
+  // ── 7. CAREER PREP ──
   {
-    id: 'career-interview-prep',
-    name: 'Placement & Mock Interview Mastery',
+    id: 'placement-interview-prep',
+    name: 'Placement & Mock Technical Interview Mastery',
     domain: 'Career Prep',
     icon: '🎯',
     tier: 'Gold',
-    totalXp: 500,
-    description: 'Aptitude tests, product company technical rounds, system design basics, and HR interview responses.',
+    totalXp: 600,
+    description: 'STAR behavioral response framework, technical round strategy, and quantitative aptitude hacks.',
     modules: [
       {
         id: 'career-mod-1',
-        title: 'Module 1: Technical & Behavioral Rounds',
+        title: 'Module 1: Behavioral & Technical Interview Rounds',
         description: 'STAR Method for behavioral questions and technical confidence.',
         lessons: [
           { id: 'career-l1', title: '1.1 STAR Behavioral Method', duration: '7 min', xp: 25, takeaway: 'Situation -> Task -> Action -> Result.', codeSnippet: 'Question: "Tell me about a time you faced a difficult bug."\nAnswer: Use STAR to explain how you isolated the issue and fixed it.' }
@@ -341,7 +443,7 @@ const DOMAINS = ['All', 'Programming', 'Core CS', 'Dev Tools', 'Web Dev', 'Commu
 export default function GamifiedSkillsTreePage() {
   const supabase = createClient()
   const [profile, setProfile] = useState<any>(null)
-  const [userXp, setUserXp] = useState(0)
+  const [userXp, setUserXp] = useState(150)
   const [streak, setStreak] = useState(3)
   const [selectedDomain, setSelectedDomain] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
@@ -350,6 +452,7 @@ export default function GamifiedSkillsTreePage() {
   const [challengeCode, setChallengeCode] = useState('')
   const [challengeFeedback, setChallengeFeedback] = useState<{ success: boolean; msg: string } | null>(null)
   const [completedChallengeIds, setCompletedChallengeIds] = useState<Set<string>>(new Set(['py-ch-1']))
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set(['py-l1']))
 
   useEffect(() => {
     async function load() {
@@ -365,7 +468,30 @@ export default function GamifiedSkillsTreePage() {
     load()
   }, [])
 
-  // Run Challenge Verification Logic
+  // Toggle Lesson Completion
+  const toggleLessonCompletion = async (lessonId: string, xpAmount: number) => {
+    const nextCompleted = new Set(completedLessonIds)
+    let addedXp = 0
+
+    if (nextCompleted.has(lessonId)) {
+      nextCompleted.delete(lessonId)
+      addedXp = -xpAmount
+    } else {
+      nextCompleted.add(lessonId)
+      addedXp = xpAmount
+    }
+
+    setCompletedLessonIds(nextCompleted)
+    const newXp = Math.max(0, userXp + addedXp)
+    setUserXp(newXp)
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      await supabase.from('profiles').update({ xp: newXp }).eq('id', user.id)
+    }
+  }
+
+  // Verify Mini-Challenge
   const handleVerifyChallenge = async () => {
     if (!activeChallenge) return
     const { challenge } = activeChallenge
@@ -406,15 +532,15 @@ export default function GamifiedSkillsTreePage() {
         <div className="space-y-2 max-w-xl">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-extrabold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={12} /> B.Tech Skill Tree Architecture
+              <Sparkles size={12} /> Basics to Advanced Deep Learning
             </span>
             <span className="text-[10px] font-extrabold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <MessageSquare size={12} /> Communication Included
+              <MessageSquare size={12} /> Soft Skills Included
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Gamified Skill Tree & Interactive Challenges</h1>
+          <h1 className="text-2xl font-bold text-white">Full-Stack & Communication Gamified Skill Tree</h1>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Level up from Bronze to Diamond across 7 core domains: Programming, Core CS, Dev Tools, Web Dev, AI, Communication & Career Prep!
+            Click any skill node to open its full Basics → Advanced lesson curriculum, real-world code matches, and interactive end-of-module challenges!
           </p>
         </div>
 
@@ -505,9 +631,9 @@ export default function GamifiedSkillsTreePage() {
                   {skill.description}
                 </p>
 
-                {/* Modules Nodes List */}
+                {/* Modules & Lessons Count */}
                 <div className="space-y-2 mb-4">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Skill Modules & Nodes:</span>
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Skill Modules & Curriculum:</span>
                   {skill.modules.map(mod => {
                     const isChallengeDone = completedChallengeIds.has(mod.challenge.id)
 
@@ -524,11 +650,11 @@ export default function GamifiedSkillsTreePage() {
                           {isChallengeDone ? (
                             <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
                           ) : (
-                            <Unlock size={15} className="text-indigo-400 shrink-0" />
+                            <BookMarked size={15} className="text-indigo-400 shrink-0" />
                           )}
                           <span className="truncate">{mod.title}</span>
                         </div>
-                        <span className="text-[10px] font-bold text-gray-400 shrink-0">+{mod.challenge.xpReward} XP</span>
+                        <span className="text-[10px] font-bold text-gray-400 shrink-0">{mod.lessons.length} Lessons</span>
                       </div>
                     )
                   })}
@@ -536,7 +662,7 @@ export default function GamifiedSkillsTreePage() {
               </div>
 
               <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-bold text-indigo-400 group-hover:text-indigo-300">
-                <span>Explore Tree Nodes</span>
+                <span>Open Basics → Advanced Lessons</span>
                 <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -544,57 +670,88 @@ export default function GamifiedSkillsTreePage() {
         })}
       </div>
 
-      {/* ── EXPANDED SKILL MODULES & INTERACTIVE CHALLENGE PANEL ── */}
+      {/* ── EXPANDED BASICS TO ADVANCED LESSONS PANEL ── */}
       {selectedSkill && (
         <div className="bg-[#111118] border border-indigo-500/40 rounded-2xl p-6 space-y-6 animate-in slide-in-from-bottom-4 duration-300">
           <div className="flex justify-between items-start border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">{selectedSkill.icon}</span>
+              <span className="text-4xl">{selectedSkill.icon}</span>
               <div>
-                <h2 className="text-xl font-bold text-white">{selectedSkill.name}</h2>
-                <p className="text-xs text-indigo-400 font-semibold">{selectedSkill.domain} • {selectedSkill.tier} Tier ({selectedSkill.totalXp} Max XP)</p>
+                <h2 className="text-xl font-bold text-white">{selectedSkill.name} Full Curriculum</h2>
+                <p className="text-xs text-indigo-400 font-semibold">{selectedSkill.domain} • {selectedSkill.tier} Tier • {selectedSkill.modules.length} Detailed Modules</p>
               </div>
             </div>
 
             <button
               onClick={() => setSelectedSkill(null)}
-              className="text-xs font-bold text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
+              className="text-xs font-bold text-gray-400 hover:text-white px-3 py-1.5 rounded-xl border border-white/10 hover:bg-white/10"
             >
               Close Panel ✕
             </button>
           </div>
 
-          {/* Modules Grid */}
+          {/* Detailed Modules Grid */}
           <div className="space-y-6">
             {selectedSkill.modules.map(mod => (
               <div key={mod.id} className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-4">
                 <div>
                   <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-                    <Sparkles size={16} className="text-indigo-400" /> {mod.title}
+                    <Layers3 size={18} className="text-indigo-400" /> {mod.title}
                   </h3>
                   <p className="text-xs text-gray-400">{mod.description}</p>
                 </div>
 
-                {/* Lessons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {mod.lessons.map(les => (
-                    <div key={les.id} className="bg-black/40 border border-white/5 rounded-xl p-3.5 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-bold text-white">{les.title}</span>
-                        <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">+{les.xp} XP</span>
-                      </div>
-                      <p className="text-[11px] text-gray-400 leading-relaxed font-mono">{les.takeaway}</p>
-                      {les.codeSnippet && (
-                        <div className="bg-[#0a0a0f] p-2 rounded-lg text-[10px] font-mono text-indigo-300 overflow-x-auto">
-                          <pre>{les.codeSnippet}</pre>
+                {/* Lessons Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {mod.lessons.map(les => {
+                    const isDone = completedLessonIds.has(les.id)
+
+                    return (
+                      <div
+                        key={les.id}
+                        className={`bg-black/40 border rounded-xl p-4 space-y-3 flex flex-col justify-between transition-all ${
+                          isDone ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/8'
+                        }`}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-start gap-2">
+                            <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                              {isDone ? <CheckCircle2 size={14} className="text-emerald-400" /> : <BookOpen size={14} className="text-indigo-400" />}
+                              {les.title}
+                            </h4>
+                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded shrink-0">
+                              +{les.xp} XP
+                            </span>
+                          </div>
+
+                          <p className="text-[11px] text-gray-300 leading-relaxed font-mono">
+                            💡 {les.takeaway}
+                          </p>
+
+                          {les.codeSnippet && (
+                            <div className="bg-[#0a0a0f] p-3 rounded-xl border border-white/5 text-[10px] font-mono text-emerald-300 overflow-x-auto">
+                              <pre>{les.codeSnippet}</pre>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        <button
+                          onClick={() => toggleLessonCompletion(les.id, les.xp)}
+                          className={`w-full py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            isDone
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30'
+                              : 'bg-white/5 text-gray-300 hover:text-white border border-white/10 hover:bg-white/10'
+                          }`}
+                        >
+                          {isDone ? <><Check size={14} /> Lesson Completed</> : <><Plus size={14} /> Mark Lesson Complete (+{les.xp} XP)</>}
+                        </button>
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* Real Mini-Challenge Launcher */}
-                <div className="pt-2 flex items-center justify-between bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl">
+                <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl gap-4">
                   <div>
                     <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">END-OF-MODULE MINI-CHALLENGE</span>
                     <h4 className="text-xs font-bold text-white mt-0.5">{mod.challenge.title}</h4>
