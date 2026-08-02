@@ -2,9 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import {
-  Sparkles, X, Send, Bot, User, Minimize2, MessageSquare, Zap
-} from 'lucide-react'
+import { Sparkles, X, Send, Bot, User, Minimize2, Loader2, Code2, BookOpen, Briefcase, Map } from 'lucide-react'
 
 interface Message {
   id: string
@@ -12,22 +10,40 @@ interface Message {
   text: string
 }
 
+function renderMarkdown(text: string) {
+  return text
+    .replace(/```(\w+)?\n?([\s\S]*?)```/g, '<pre class="bg-black/40 border border-white/10 rounded-lg p-3 my-2 text-xs overflow-x-auto font-mono text-emerald-300 whitespace-pre-wrap">$2</pre>')
+    .replace(/`([^`]+)`/g, '<code class="bg-black/40 px-1.5 py-0.5 rounded text-emerald-300 font-mono text-xs">$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
+    .replace(/^## (.+)$/gm, '<h3 class="text-indigo-400 font-bold text-sm mt-3 mb-1">$1</h3>')
+    .replace(/^### (.+)$/gm, '<h4 class="text-gray-300 font-bold text-xs mt-2 mb-1">$1</h4>')
+    .replace(/^> (.+)$/gm, '<blockquote class="border-l-2 border-indigo-500 pl-3 text-gray-400 italic my-2 text-xs">$1</blockquote>')
+    .replace(/^- (.+)$/gm, '<li class="flex gap-1.5 items-start text-xs"><span class="text-indigo-400 mt-0.5">•</span><span>$1</span></li>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-indigo-400 underline hover:text-indigo-300" target="_blank">$1</a>')
+    .replace(/\n\n/g, '<br/>')
+    .replace(/\n/g, ' ')
+}
+
+const QUICK_PROMPTS = [
+  { icon: Code2, text: 'Help me with DSA' },
+  { icon: BookOpen, text: 'What should I study today?' },
+  { icon: Briefcase, text: 'Internship tips' },
+  { icon: Map, text: 'Career roadmap for me' },
+]
+
 export default function AICopilot() {
   const supabase = createClient()
   const [isOpen, setIsOpen] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(false)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState<any>(null)
-
   const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      sender: 'ai',
-      text: 'Hey! I am your Engineer OS AI Copilot. Ask me anything about your syllabus, DSA prep, resume tips, or campus startups! 🚀'
-    }
+    { id: '1', sender: 'ai', text: '👋 Hey! I\'m your **Engineer OS Copilot** — your personal AI study buddy.\n\nI can help with:\n- 📖 **Academics** — DSA, OS, DBMS, Networks\n- 💻 **Code** — write, debug, explain\n- 🎯 **Career** — resume, internships, placements\n- 🗺️ **Roadmaps** — what to learn next\n\nWhat do you need today?' }
   ])
 
   const chatEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     async function load() {
@@ -41,159 +57,163 @@ export default function AICopilot() {
   }, [])
 
   useEffect(() => {
-    if (isOpen) {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (isOpen && !isMinimized) {
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
     }
-  }, [messages, isOpen])
+  }, [messages, isOpen, isMinimized])
+
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      setTimeout(() => inputRef.current?.focus(), 300)
+    }
+  }, [isOpen, isMinimized])
 
   const sendMessage = async (textToSend?: string) => {
     const query = textToSend || input
     if (!query.trim() || loading) return
 
-    const userMsg: Message = { id: `u_${Date.now()}`, sender: 'user', text: query.trim() }
+    const userMsg: Message = { id: Date.now().toString(), sender: 'user', text: query }
     setMessages(prev => [...prev, userMsg])
-    if (!textToSend) setInput('')
+    setInput('')
     setLoading(true)
 
     try {
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: query,
-          userProfile: profile
-        })
+        body: JSON.stringify({ message: query, userProfile: profile }),
       })
-
       const data = await res.json()
-      if (data.success) {
-        const aiMsg: Message = { id: `ai_${Date.now()}`, sender: 'ai', text: data.reply }
-        setMessages(prev => [...prev, aiMsg])
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: data.response || data.error || 'Sorry, I ran into an error. Please try again.'
       }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
+      setMessages(prev => [...prev, aiMsg])
+    } catch {
+      setMessages(prev => [...prev, { id: Date.now().toString(), sender: 'ai', text: 'Network error. Please check your connection.' }])
     }
+    setLoading(false)
   }
 
-  const SUGGESTIONS = [
-    'How do I prepare for SDE-1 interviews?',
-    'Explain Linked Lists vs Arrays',
-    'Tips to improve my AI Resume Score',
-    'How to pitch my startup idea?'
-  ]
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
+  }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-
-      {/* CHAT WINDOW */}
-      {isOpen && (
-        <div className="bg-[#111118] border border-indigo-500/30 rounded-3xl shadow-2xl w-[360px] sm:w-[400px] h-[520px] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200 mb-4">
-          
-          {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-900/60 to-[#111118] p-4 border-b border-white/10 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-                <Sparkles size={18} />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm text-white">Engineer OS Copilot</h3>
-                <p className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Online AI Assistant
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors"
-            >
-              <Minimize2 size={18} />
-            </button>
-          </div>
-
-          {/* Messages Stream */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 custom-scrollbar text-xs">
-            {messages.map(msg => (
-              <div
-                key={msg.id}
-                className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {msg.sender === 'ai' && (
-                  <div className="w-7 h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <Bot size={14} />
-                  </div>
-                )}
-
-                <div
-                  className={`p-3 rounded-2xl max-w-[80%] leading-relaxed whitespace-pre-wrap ${
-                    msg.sender === 'user'
-                      ? 'bg-indigo-600 text-white font-medium rounded-tr-none'
-                      : 'bg-white/5 border border-white/10 text-gray-200 rounded-tl-none'
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-
-            {loading && (
-              <div className="flex items-center gap-2 text-gray-500 text-xs py-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" /> Copilot is thinking...
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Quick Suggestions Chips */}
-          <div className="px-4 py-2 bg-black/30 border-t border-white/5 flex flex-wrap gap-1.5">
-            {SUGGESTIONS.map(sug => (
-              <button
-                key={sug}
-                onClick={() => sendMessage(sug)}
-                className="text-[10px] bg-white/5 hover:bg-indigo-500/20 border border-white/10 hover:border-indigo-500/40 text-gray-400 hover:text-indigo-300 px-2 py-1 rounded-md transition-all text-left truncate max-w-[180px]"
-              >
-                {sug}
-              </button>
-            ))}
-          </div>
-
-          {/* Input Form */}
-          <form
-            onSubmit={e => { e.preventDefault(); sendMessage() }}
-            className="p-3 border-t border-white/10 flex gap-2 bg-[#111118]"
-          >
-            <input
-              type="text"
-              placeholder="Ask AI Copilot..."
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
-            />
-            <button
-              type="submit"
-              disabled={loading || !input.trim()}
-              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white p-2 rounded-xl transition-all shadow-lg shadow-indigo-500/20 shrink-0"
-            >
-              <Send size={15} />
-            </button>
-          </form>
-
-        </div>
-      )}
-
-      {/* FLOATING ACTION BUTTON */}
+    <>
+      {/* Floating Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:scale-105 text-white p-4 rounded-full shadow-2xl shadow-indigo-500/50 flex items-center gap-2 font-bold text-xs border border-indigo-400/30 transition-all group"
+          onClick={() => { setIsOpen(true); setIsMinimized(false) }}
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full shadow-2xl shadow-indigo-500/40 flex items-center justify-center hover:scale-110 transition-all duration-300 group"
+          title="Open AI Copilot"
         >
-          <Sparkles size={20} className="animate-spin-slow group-hover:rotate-45 transition-transform" />
-          <span className="hidden sm:inline">Ask AI Copilot</span>
+          <Sparkles size={22} className="text-white group-hover:rotate-12 transition-transform" />
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-[#0c0c14] animate-pulse" />
         </button>
       )}
 
-    </div>
+      {/* Chat Window */}
+      {isOpen && (
+        <div className={`fixed bottom-6 right-6 z-50 w-[360px] bg-[#111118] border border-white/10 rounded-2xl shadow-2xl shadow-black/50 flex flex-col transition-all duration-300 ${isMinimized ? 'h-14' : 'h-[520px]'}`}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-indigo-600/20 to-purple-600/10 rounded-t-2xl shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="relative">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Sparkles size={14} className="text-white" />
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-[#111118]" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Engineer OS Copilot</p>
+                <p className="text-[10px] text-emerald-400">● Online · AI-powered</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button onClick={() => setIsMinimized(!isMinimized)} className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                <Minimize2 size={14} />
+              </button>
+              <button onClick={() => setIsOpen(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+
+          {!isMinimized && (
+            <>
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth">
+                {messages.map(msg => (
+                  <div key={msg.id} className={`flex gap-2 ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
+                    <div className={`shrink-0 w-7 h-7 rounded-xl flex items-center justify-center ${msg.sender === 'ai' ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-white/10'}`}>
+                      {msg.sender === 'ai' ? <Sparkles size={12} className="text-white" /> : <User size={12} className="text-gray-300" />}
+                    </div>
+                    <div className={`max-w-[80%] rounded-2xl px-3 py-2.5 text-xs leading-relaxed ${msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-white/5 border border-white/8 text-gray-300 rounded-tl-sm'}`}>
+                      {msg.sender === 'ai'
+                        ? <div dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.text) }} />
+                        : <p>{msg.text}</p>}
+                    </div>
+                  </div>
+                ))}
+                {loading && (
+                  <div className="flex gap-2">
+                    <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
+                      <Sparkles size={12} className="text-white" />
+                    </div>
+                    <div className="bg-white/5 border border-white/8 rounded-2xl rounded-tl-sm px-3 py-2.5 flex items-center gap-1.5">
+                      <Loader2 size={12} className="animate-spin text-indigo-400" />
+                      <span className="text-xs text-gray-400">Thinking...</span>
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+
+              {/* Quick Prompts */}
+              {messages.length <= 1 && (
+                <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+                  {QUICK_PROMPTS.map(qp => {
+                    const Icon = qp.icon
+                    return (
+                      <button
+                        key={qp.text}
+                        onClick={() => sendMessage(qp.text)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 hover:border-indigo-500/40 hover:bg-indigo-500/10 rounded-xl text-[11px] font-semibold text-gray-400 hover:text-white transition-all"
+                      >
+                        <Icon size={11} className="text-indigo-400" />
+                        {qp.text}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Input */}
+              <div className="px-3 pb-3 shrink-0">
+                <div className="flex gap-2 bg-white/5 border border-white/10 rounded-xl p-1.5">
+                  <input
+                    ref={inputRef}
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ask me anything..."
+                    className="flex-1 bg-transparent text-xs text-white placeholder-gray-500 px-2 focus:outline-none"
+                  />
+                  <button
+                    onClick={() => sendMessage()}
+                    disabled={!input.trim() || loading}
+                    className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white p-2 rounded-lg transition-all"
+                  >
+                    <Send size={13} />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </>
   )
 }

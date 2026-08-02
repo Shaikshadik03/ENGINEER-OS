@@ -12,8 +12,24 @@ interface TaskItem {
   id: string
   title: string
   tag: string
-  status: 'todo' | 'in_progress' | 'done'
+  status: 'todo' | 'inprogress' | 'done'
   due_date: string
+}
+
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour >= 5 && hour < 12) return 'Good Morning'
+  if (hour >= 12 && hour < 17) return 'Good Afternoon'
+  if (hour >= 17 && hour < 21) return 'Good Evening'
+  return 'Good Night'
+}
+
+function getGreetingEmoji(): string {
+  const hour = new Date().getHours()
+  if (hour >= 5 && hour < 12) return '☀️'
+  if (hour >= 12 && hour < 17) return '🌤️'
+  if (hour >= 17 && hour < 21) return '🌆'
+  return '🌙'
 }
 
 export default function RootDashboard() {
@@ -54,13 +70,6 @@ export default function RootDashboard() {
         
         if (tData && tData.length > 0) {
           setTasks(tData)
-        } else {
-          // Starter seed tasks if table is empty
-          setTasks([
-            { id: '1', title: 'Complete Programming in C Module 1', tag: 'Syllabus', status: 'in_progress', due_date: 'Today' },
-            { id: '2', title: 'Practice 2 LeetCode Array Problems', tag: 'DSA', status: 'todo', due_date: 'Today' },
-            { id: '3', title: 'Analyze Resume with AI Resume Coach', tag: 'Career', status: 'todo', due_date: 'Tomorrow' },
-          ])
         }
 
         // Load top opportunity recommendation
@@ -77,21 +86,13 @@ export default function RootDashboard() {
     const nextStatus = task.status === 'done' ? 'todo' : 'done'
     const updated = tasks.map(t => t.id === task.id ? { ...t, status: nextStatus as any } : t)
     setTasks(updated)
-
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      await supabase.from('tasks').upsert({
-        id: task.id,
-        user_id: user.id,
-        title: task.title,
-        tag: task.tag,
-        status: nextStatus
-      })
-    }
+    await supabase.from('tasks').update({ status: nextStatus }).eq('id', task.id)
   }
 
   const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : 'Engineer'
   const pendingTasksCount = tasks.filter(t => t.status !== 'done').length
+  const greeting = getGreeting()
+  const greetingEmoji = getGreetingEmoji()
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16 animate-in fade-in duration-500">
@@ -100,7 +101,7 @@ export default function RootDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-            Good Morning, {firstName}! 👋
+            {greeting}, {firstName}! {greetingEmoji}
           </h1>
           <p className="text-gray-400 text-sm mt-1">
             {profile?.branch || 'CSE'} Semester {profile?.semester || 1} • {pendingTasksCount} pending tasks today.

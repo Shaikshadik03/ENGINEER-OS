@@ -1,5 +1,7 @@
+'use client'
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -16,10 +18,13 @@ import {
   User,
   Rocket,
   FileText,
-  Sparkles
+  Sparkles,
+  Terminal
 } from 'lucide-react';
 
+
 const Sidebar = () => {
+  const pathname = usePathname()
   const menuItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/' },
     { name: 'Learning Engine', icon: <BookOpen size={18} />, path: '/learning' },
@@ -32,6 +37,7 @@ const Sidebar = () => {
   ];
 
   const tools = [
+    { name: 'Code Playground', icon: <Terminal size={18} />, path: '/playground' },
     { name: 'AI Resume Coach', icon: <FileText size={18} />, path: '/resume-analyzer' },
     { name: 'Analytics', icon: <BarChart size={18} />, path: '/analytics' },
     { name: 'Calendar', icon: <Calendar size={18} />, path: '/calendar' },
@@ -44,18 +50,27 @@ const Sidebar = () => {
     { name: 'Settings & Billing', icon: <Settings size={18} />, path: '/settings' },
   ];
 
+
+  const isActive = (path: string) => pathname === path
+
   const renderLinks = (items: {name: string, icon: React.ReactNode, path: string}[]) => (
     <ul className="space-y-1">
       {items.map((item) => (
         <li key={item.name}>
-          <Link href={item.path} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-colors font-medium text-xs">
-            <span className="text-indigo-400">{item.icon}</span>
+          <Link href={item.path} className={`flex items-center space-x-3 px-3 py-2 rounded-xl transition-colors font-medium text-xs ${
+            isActive(item.path)
+              ? 'bg-indigo-600/20 border border-indigo-500/30 text-white'
+              : 'text-gray-400 hover:bg-white/5 hover:text-white'
+          }`}>
+            <span className={isActive(item.path) ? 'text-indigo-400' : 'text-indigo-400/60'}>{item.icon}</span>
             <span>{item.name}</span>
+            {isActive(item.path) && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />}
           </Link>
         </li>
       ))}
     </ul>
   );
+
 
   return (
     <aside className="w-64 h-screen fixed left-0 top-0 border-r border-white/10 bg-[#0d0d12] overflow-y-auto hidden md:flex flex-col">
