@@ -19,7 +19,8 @@ import {
   Rocket,
   FileText,
   Sparkles,
-  Terminal
+  Terminal,
+  Award
 } from 'lucide-react';
 
 
@@ -28,6 +29,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/' },
     { name: 'Learning Engine', icon: <BookOpen size={18} />, path: '/learning' },
+    { name: 'Skills Hub', icon: <Award size={18} />, path: '/skills' },
     { name: 'Career Roadmaps', icon: <Map size={18} />, path: '/roadmaps' },
     { name: 'Opportunities', icon: <Briefcase size={18} />, path: '/opportunities' },
     { name: 'Startup Scout', icon: <Rocket size={18} />, path: '/projects' },
