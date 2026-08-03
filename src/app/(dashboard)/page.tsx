@@ -89,7 +89,7 @@ export default function RootDashboard() {
     await supabase.from('tasks').update({ status: nextStatus }).eq('id', task.id)
   }
 
-  const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : 'Engineer'
+  const displayName = profile?.full_name ? profile.full_name : 'Engineer'
   const pendingTasksCount = tasks.filter(t => t.status !== 'done').length
   const greeting = getGreeting()
   const greetingEmoji = getGreetingEmoji()
@@ -101,7 +101,7 @@ export default function RootDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-            {greeting}, {firstName}! {greetingEmoji}
+            {greeting}, {displayName}! {greetingEmoji}
           </h1>
           <p className="text-gray-400 text-sm mt-1">
             {profile?.branch || 'CSE'} Semester {profile?.semester || 1} • {pendingTasksCount} pending tasks today.
