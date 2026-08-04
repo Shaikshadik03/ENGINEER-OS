@@ -37,7 +37,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
 const BRANCHES = ['CSE', 'IT', 'ECE', 'AIML']
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8]
 
-// --- FULL CSE CURRICULUM FALLBACK FOR ALL 8 SEMESTERS ---
 const CURRICULUM_DATA: Record<number, Subject[]> = {
   1: [
     { id: 'c-prog', code: 'CS101', name: 'Programming in C', branch: 'CSE', semester: 1, description: 'Variables, loops, pointers, memory & structs', icon: 'Code2', is_pro: false },
@@ -224,41 +223,41 @@ export default function LearningDashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 text-slate-900">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-white/10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <BookOpen className="text-indigo-400" size={24} /> Learning Hub
+          <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+            <BookOpen className="text-sky-600" size={26} /> Learning Engine
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-slate-500 font-semibold text-sm mt-1">
             Full 8-Semester syllabus across CSE, IT, ECE, & AIML with video lectures and quizzes.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-[#111118] border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-400">
+          <div className="flex items-center gap-1.5 bg-white border border-slate-200/80 px-4 py-2 rounded-2xl text-xs font-extrabold text-amber-600 shadow-sm">
             <Flame size={15} /> {profile?.streak || 0}d Streak
           </div>
-          <div className="flex items-center gap-1.5 bg-[#111118] border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-400">
+          <div className="flex items-center gap-1.5 bg-white border border-slate-200/80 px-4 py-2 rounded-2xl text-xs font-extrabold text-emerald-600 shadow-sm">
             <Star size={15} /> {profile?.xp || 0} XP
           </div>
         </div>
       </div>
 
       {/* Branch & Semester Selector */}
-      <div className="bg-[#111118] border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-sm">
         {/* Branches */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-1">Branch:</span>
+          <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mr-1">BRANCH:</span>
           {BRANCHES.map(b => (
             <button
               key={b}
               onClick={() => { setSelectedBranch(b); setActiveSubject(null) }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedBranch === b
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-                  : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white'
+                  ? 'bg-sky-600 text-white shadow-md font-extrabold'
+                  : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               {b}
@@ -268,15 +267,15 @@ export default function LearningDashboard() {
 
         {/* Semesters 1 to 8 */}
         <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-1">Semester:</span>
+          <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mr-1">SEMESTER:</span>
           {SEMESTERS.map(s => (
             <button
               key={s}
               onClick={() => { setSelectedSemester(s); setActiveSubject(null) }}
-              className={`w-8 h-8 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${
+              className={`w-9 h-9 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${
                 selectedSemester === s
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-                  : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white'
+                  ? 'bg-sky-600 text-white shadow-md font-extrabold'
+                  : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               {s}
@@ -288,14 +287,14 @@ export default function LearningDashboard() {
       {/* ── VIEW 1: SUBJECT CARDS ── */}
       {!activeSubject && (
         <div className="space-y-4">
-          <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-            {selectedBranch} — Semester {selectedSemester} Subjects
+          <h2 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+            {selectedBranch} — SEMESTER {selectedSemester} SUBJECTS
           </h2>
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-[#111118] border border-white/10 rounded-2xl p-5 animate-pulse h-40" />
+                <div key={i} className="bg-white border border-slate-200 rounded-3xl p-5 animate-pulse h-40" />
               ))}
             </div>
           ) : (
@@ -306,26 +305,26 @@ export default function LearningDashboard() {
                   <div
                     key={subject.id}
                     onClick={() => openSubject(subject)}
-                    className="bg-[#111118] border border-white/10 hover:border-indigo-500/40 rounded-2xl p-5 cursor-pointer transition-all group flex flex-col justify-between"
+                    className="bg-white border border-slate-200/80 hover:border-sky-300 rounded-3xl p-6 cursor-pointer transition-all group flex flex-col justify-between shadow-sm hover:shadow-md"
                   >
                     <div>
                       <div className="flex justify-between items-start mb-3">
-                        <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <div className="p-3 rounded-2xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-colors">
                           <IconComp size={20} />
                         </div>
-                        <span className="text-[10px] font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md font-mono">
+                        <span className="text-[10px] font-extrabold text-sky-700 bg-sky-100 border border-sky-200 px-2.5 py-1 rounded-lg font-mono">
                           {subject.code}
                         </span>
                       </div>
-                      <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mb-1">
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-sky-600 transition-colors mb-1">
                         {subject.name}
                       </h3>
-                      <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
                         {subject.description}
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 text-xs font-bold text-indigo-400 group-hover:text-indigo-300">
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-sky-600 group-hover:text-sky-800">
                       <span>Start Module</span>
                       <ChevronRight size={15} className="group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -340,23 +339,23 @@ export default function LearningDashboard() {
       {/* ── VIEW 2: CHAPTERS & SUBTOPICS ── */}
       {activeSubject && !activeSubtopic && (
         <div className="space-y-5">
-          <button onClick={() => setActiveSubject(null)} className="flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-white">
+          <button onClick={() => setActiveSubject(null)} className="flex items-center gap-2 text-xs font-bold text-sky-600 hover:text-sky-800">
             <ArrowLeft size={15} /> Back to Subjects
           </button>
 
-          <div className="bg-[#111118] border border-white/10 rounded-2xl p-6">
-            <span className="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm">
+            <span className="text-[10px] font-mono font-bold text-sky-700 bg-sky-100 border border-sky-200 px-2.5 py-1 rounded-lg">
               {activeSubject.code}
             </span>
-            <h2 className="text-xl font-bold text-white mt-2 mb-1">{activeSubject.name}</h2>
-            <p className="text-xs text-gray-400">{activeSubject.description}</p>
+            <h2 className="text-xl font-bold text-slate-900 mt-2 mb-1">{activeSubject.name}</h2>
+            <p className="text-xs text-slate-500 font-medium">{activeSubject.description}</p>
           </div>
 
           <div className="space-y-4">
             {chapters.map(chap => (
-              <div key={chap.id} className="bg-[#111118] border border-white/10 rounded-2xl p-5">
-                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                  <Sparkles size={15} className="text-indigo-400" /> {chap.title}
+              <div key={chap.id} className="bg-white border border-slate-200/80 rounded-3xl p-6 space-y-3 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <Sparkles size={15} className="text-sky-600" /> {chap.title}
                 </h3>
 
                 <div className="space-y-2">
@@ -366,17 +365,17 @@ export default function LearningDashboard() {
                       <div
                         key={sub.id}
                         onClick={() => openSubtopic(sub)}
-                        className="flex items-center justify-between p-3 rounded-xl bg-white/3 hover:bg-white/8 border border-white/5 hover:border-indigo-500/30 cursor-pointer transition-all group"
+                        className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-sky-300 cursor-pointer transition-all group"
                       >
                         <div className="flex items-center gap-3">
                           {isDone
-                            ? <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
-                            : <PlayCircle size={18} className="text-gray-500 group-hover:text-indigo-400 shrink-0 transition-colors" />}
-                          <span className={`text-xs font-semibold ${isDone ? 'text-gray-400 line-through' : 'text-white'}`}>{sub.title}</span>
+                            ? <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                            : <PlayCircle size={18} className="text-slate-400 group-hover:text-sky-600 shrink-0 transition-colors" />}
+                          <span className={`text-xs font-bold ${isDone ? 'text-slate-400 line-through' : 'text-slate-800'}`}>{sub.title}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">+ {sub.xp_reward} XP</span>
-                          <ChevronRight size={14} className="text-gray-500 group-hover:text-white" />
+                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-md border border-emerald-200">+ {sub.xp_reward} XP</span>
+                          <ChevronRight size={14} className="text-slate-400 group-hover:text-slate-700" />
                         </div>
                       </div>
                     )
@@ -391,19 +390,19 @@ export default function LearningDashboard() {
       {/* ── VIEW 3: VIDEO + NOTES + QUIZ ── */}
       {activeSubtopic && (
         <div className="space-y-5">
-          <button onClick={() => setActiveSubtopic(null)} className="flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-white">
+          <button onClick={() => setActiveSubtopic(null)} className="flex items-center gap-2 text-xs font-bold text-sky-600 hover:text-sky-800">
             <ArrowLeft size={15} /> Back to Chapters
           </button>
 
           {/* Subtopic Header */}
-          <div className="bg-[#111118] border border-white/10 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 flex flex-wrap items-center justify-between gap-4 shadow-sm">
             <div>
-              <h2 className="text-xl font-bold text-white mb-1">{activeSubtopic.title}</h2>
-              <p className="text-xs text-indigo-400 font-semibold">Earn +{activeSubtopic.xp_reward} XP on completion</p>
+              <h2 className="text-xl font-bold text-slate-900 mb-1">{activeSubtopic.title}</h2>
+              <p className="text-xs text-sky-700 font-bold">Earn +{activeSubtopic.xp_reward} XP on completion</p>
             </div>
             {completedIds.has(activeSubtopic.id)
-              ? <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><CheckCircle2 size={15} /> Completed</span>
-              : <button onClick={completeSubtopic} className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all">
+              ? <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2"><CheckCircle2 size={15} /> Completed</span>
+              : <button onClick={completeSubtopic} className="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-5 py-2.5 rounded-2xl flex items-center gap-2 transition-all shadow-md">
                   <Sparkles size={15} /> Mark Complete & Claim XP
                 </button>
             }
@@ -411,12 +410,12 @@ export default function LearningDashboard() {
 
           {/* Video */}
           {activeSubtopic.video_url && (
-            <div className="bg-[#111118] border border-white/10 rounded-2xl overflow-hidden">
-              <div className="px-5 py-3 border-b border-white/10 flex items-center gap-2">
-                <PlayCircle size={15} className="text-indigo-400" />
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Video Lecture</span>
+            <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm">
+              <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+                <PlayCircle size={15} className="text-sky-600" />
+                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Video Lecture</span>
               </div>
-              <div className="aspect-video w-full bg-black">
+              <div className="aspect-video w-full bg-slate-900">
                 <iframe src={activeSubtopic.video_url} title={activeSubtopic.title}
                   className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen />
@@ -426,12 +425,12 @@ export default function LearningDashboard() {
 
           {/* Notes */}
           {activeSubtopic.notes_markdown && (
-            <div className="bg-[#111118] border border-white/10 rounded-2xl overflow-hidden">
-              <div className="px-5 py-3 border-b border-white/10 flex items-center gap-2">
-                <BookOpen size={15} className="text-indigo-400" />
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Study Notes</span>
+            <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm">
+              <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+                <BookOpen size={15} className="text-sky-600" />
+                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Study Notes</span>
               </div>
-              <div className="p-5 text-sm text-gray-300 leading-relaxed whitespace-pre-wrap font-mono bg-black/30">
+              <div className="p-6 text-xs text-slate-800 leading-relaxed whitespace-pre-wrap font-mono bg-slate-50">
                 {activeSubtopic.notes_markdown}
               </div>
             </div>
@@ -439,29 +438,29 @@ export default function LearningDashboard() {
 
           {/* Quiz */}
           {quizzes.length > 0 && (
-            <div className="bg-[#111118] border border-white/10 rounded-2xl overflow-hidden">
-              <div className="px-5 py-3 border-b border-white/10 flex items-center gap-2">
-                <HelpCircle size={15} className="text-emerald-400" />
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Practice Quiz</span>
+            <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm">
+              <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+                <HelpCircle size={15} className="text-emerald-600" />
+                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Practice Quiz</span>
               </div>
-              <div className="p-5 space-y-5">
+              <div className="p-6 space-y-5">
                 {quizzes.map((q, idx) => (
-                  <div key={q.id} className="bg-white/5 rounded-xl p-4 space-y-3">
-                    <p className="text-sm font-semibold text-white">{idx + 1}. {q.question}</p>
+                  <div key={q.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
+                    <p className="text-xs font-bold text-slate-900">{idx + 1}. {q.question}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {q.options.map((opt, oi) => {
                         const isSelected = selectedAnswers[q.id] === oi
                         const isCorrect = q.correct_index === oi
-                        let cls = 'bg-white/5 border-white/10 text-gray-300 hover:border-indigo-400'
+                        let cls = 'bg-white border-slate-200 text-slate-800 hover:bg-slate-100'
                         if (quizSubmitted) {
-                          cls = isCorrect ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
-                            : isSelected ? 'bg-rose-500/20 border-rose-500 text-rose-300' : 'bg-white/5 border-white/10 text-gray-500'
+                          cls = isCorrect ? 'bg-emerald-100 border-emerald-400 text-emerald-900 font-bold'
+                            : isSelected ? 'bg-rose-100 border-rose-400 text-rose-900' : 'bg-white border-slate-200 text-slate-400'
                         } else if (isSelected) {
-                          cls = 'bg-indigo-600/30 border-indigo-500 text-white font-bold'
+                          cls = 'bg-sky-100 border-sky-400 text-sky-900 font-bold'
                         }
                         return (
                           <button key={oi} disabled={quizSubmitted} onClick={() => setSelectedAnswers(p => ({ ...p, [q.id]: oi }))}
-                            className={`p-3 rounded-lg border text-xs text-left transition-all ${cls}`}>
+                            className={`p-3 rounded-xl border text-xs text-left transition-all ${cls}`}>
                             {opt}
                           </button>
                         )
@@ -472,10 +471,10 @@ export default function LearningDashboard() {
 
                 {!quizSubmitted
                   ? <button onClick={submitQuiz} disabled={Object.keys(selectedAnswers).length < quizzes.length}
-                      className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold px-6 py-3 rounded-xl transition-all">
+                      className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold px-6 py-3 rounded-2xl transition-all shadow-md">
                       Submit Quiz & Claim XP
                     </button>
-                  : <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl px-5 py-3 text-emerald-400 text-xs font-bold flex items-center gap-2">
+                  : <div className="bg-emerald-100 border border-emerald-300 rounded-2xl px-5 py-3 text-emerald-900 text-xs font-bold flex items-center gap-2">
                       <CheckCircle2 size={16} /> Quiz Done! +{quizScore} XP added to your profile.
                     </div>
                 }

@@ -70,289 +70,255 @@ function calculateMatchScore(opp: Opportunity, profile: UserProfile): { score: n
     }
   })
 
-  const baseScore = max > 0 ? Math.round((earned / max) * 100) : 100
-  const finalScore = Math.min(100, baseScore + interestBonus)
+  const basePct = Math.round((earned / max) * 85)
+  const finalScore = Math.min(100, basePct + interestBonus)
+
+  if (reasons.length === 0) {
+    reasons.push('General engineering opportunity')
+  }
 
   return { score: finalScore, reasons }
 }
 
 const TYPE_CONFIG = {
-  job:        { label: 'Job',        icon: Briefcase, bg: 'bg-indigo-500/10 border-indigo-500/25 text-indigo-400' },
-  internship: { label: 'Internship', icon: Code2,     bg: 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' },
-  hackathon:  { label: 'Hackathon',  icon: Trophy,    bg: 'bg-amber-500/10 border-amber-500/25 text-amber-400' },
-  event:      { label: 'Event',      icon: Calendar,  bg: 'bg-purple-500/10 border-purple-500/25 text-purple-400' },
-}
-
-function MatchBadge({ score }: { score: number }) {
-  const color = score >= 80 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
-    : score >= 50 ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
-    : 'text-gray-500 bg-white/5 border-white/10'
-  return (
-    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold shrink-0 ${color}`}>
-      <Zap size={12} />{score}% Match
-    </div>
-  )
+  internship: { label: 'Internship', icon: Briefcase, bg: 'bg-sky-100 text-sky-700 border-sky-200' },
+  job:        { label: 'Full-Time Job', icon: Code2, bg: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+  hackathon:  { label: 'Hackathon', icon: Trophy, bg: 'bg-amber-100 text-amber-700 border-amber-200' },
+  event:      { label: 'Tech Event', icon: Calendar, bg: 'bg-purple-100 text-purple-700 border-purple-200' },
 }
 
 export default function OpportunitiesPage() {
   const supabase = createClient()
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
-  const [profile, setProfile] = useState<UserProfile>({
-    mastered_skills: [], learning_skills: [], interests: [],
-    career_goal: '', branch: 'CSE', semester: 1
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    mastered_skills: [], learning_skills: [], interests: [], career_goal: '', branch: '', semester: 1
   })
   const [loading, setLoading] = useState(true)
-  const [syncingLive, setSyncingLive] = useState(false)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [fetchingLive, setFetchingLive] = useState(false)
+  const [liveCount, setLiveCount] = useState(0)
 
+  // Filters
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [minMatch, setMinMatch] = useState<number>(0)
   const [remoteOnly, setRemoteOnly] = useState(false)
-  const [minMatch, setMinMatch] = useState(0)
   const [sortBy, setSortBy] = useState<'match' | 'recent'>('match')
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  // Load database opportunities
   useEffect(() => {
-    async function load() {
+    async function loadData() {
       setLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        const { data } = await supabase.from('profiles')
-          .select('mastered_skills,learning_skills,interests,career_goal,branch,semester')
-          .eq('id', user.id).single()
-        if (data) setProfile(data as UserProfile)
+        const { data: p } = await supabase.from('profiles').select('mastered_skills,learning_skills,interests,career_goal,branch,semester').eq('id', user.id).single()
+        if (p) {
+          setUserProfile({
+            mastered_skills: p.mastered_skills || [],
+            learning_skills: p.learning_skills || [],
+            interests: p.interests || [],
+            career_goal: p.career_goal || '',
+            branch: p.branch || 'CSE',
+            semester: p.semester || 1,
+          })
+        }
       }
-      const { data: opps } = await supabase.from('opportunities').select('*').order('posted_at', { ascending: false })
-      if (opps) setOpportunities(opps)
+
+      const { data: opps } = await supabase.from('opportunities').select('*').order('created_at', { ascending: false })
+      if (opps && opps.length > 0) setOpportunities(opps)
       setLoading(false)
     }
-    load()
+    loadData()
   }, [])
 
-  // Sync Live API Feed
-  const syncLiveFeed = async () => {
-    setSyncingLive(true)
+  const fetchLiveWebFeed = async () => {
+    setFetchingLive(true)
     try {
       const res = await fetch('/api/opportunities/fetch-live')
-      const data = await res.json()
-      if (data.success && data.listings.length > 0) {
+      const json = await res.json()
+      if (json.opportunities && json.opportunities.length > 0) {
+        setLiveCount(json.count)
         setOpportunities(prev => {
-          const existingIds = new Set(prev.map(o => o.id))
-          const newUnique = data.listings.filter((l: any) => !existingIds.has(l.id))
-          return [...newUnique, ...prev]
+          const ids = new Set(prev.map(o => o.id))
+          const newItems = json.opportunities.filter((o: any) => !ids.has(o.id))
+          return [...newItems, ...prev]
         })
       }
     } catch (e) {
-      console.error(e)
-    } finally {
-      setSyncingLive(false)
+      console.error('Failed to fetch live opportunities', e)
     }
+    setFetchingLive(false)
   }
 
+  const scoredOpps = useMemo(() => {
+    return opportunities.map(opp => {
+      const { score, reasons } = calculateMatchScore(opp, userProfile)
+      return { ...opp, matchScore: score, matchReasons: reasons }
+    })
+  }, [opportunities, userProfile])
+
   const processed = useMemo(() => {
-    return opportunities
-      .map(opp => ({ ...opp, ...calculateMatchScore(opp, profile) }))
+    return scoredOpps
       .filter(opp => {
         if (typeFilter !== 'all' && opp.type !== typeFilter) return false
         if (remoteOnly && !opp.is_remote) return false
-        if (opp.score < minMatch) return false
-        if (search && !`${opp.title} ${opp.company} ${opp.description}`.toLowerCase().includes(search.toLowerCase())) return false
+        if (opp.matchScore < minMatch) return false
+        if (search) {
+          const q = search.toLowerCase()
+          return opp.title.toLowerCase().includes(q) ||
+            opp.company.toLowerCase().includes(q) ||
+            opp.description.toLowerCase().includes(q) ||
+            opp.required_skills.some(s => s.toLowerCase().includes(q))
+        }
         return true
       })
-      .sort((a, b) => sortBy === 'match'
-        ? b.score - a.score
-        : new Date(b.posted_at).getTime() - new Date(a.posted_at).getTime()
-      )
-  }, [opportunities, profile, typeFilter, remoteOnly, minMatch, search, sortBy])
-
-  const hasNoProfile = profile.mastered_skills.length === 0 && profile.interests.length === 0
+      .sort((a, b) => {
+        if (sortBy === 'match') return b.matchScore - a.matchScore
+        return new Date(b.posted_at || 0).getTime() - new Date(a.posted_at || 0).getTime()
+      })
+  }, [scoredOpps, search, typeFilter, minMatch, remoteOnly, sortBy])
 
   const stats = useMemo(() => ({
-    high: processed.filter(o => o.score >= 80).length,
-    medium: processed.filter(o => o.score >= 50 && o.score < 80).length,
-    total: processed.length,
-    liveCount: processed.filter(o => o.is_live_feed).length
-  }), [processed])
+    total: opportunities.length,
+    high: scoredOpps.filter(o => o.matchScore >= 80).length,
+    medium: scoredOpps.filter(o => o.matchScore >= 50 && o.matchScore < 80).length,
+    liveCount: opportunities.filter(o => o.is_live_feed).length,
+  }), [opportunities, scoredOpps])
+
+  const hasNoProfile = !userProfile.mastered_skills.length && !userProfile.learning_skills.length
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6">
-
-      {/* Header & Live Sync CTA */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
+    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 text-slate-900">
+      
+      {/* Top Banner */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-            <Briefcase className="text-indigo-400" size={24} /> Opportunity Matchmaker
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <Briefcase size={28} className="text-sky-600" /> Career & Internship Opportunities
           </h1>
-          <p className="text-gray-500 text-sm">
-            AI-matched against your skills + live tech API feeds.
+          <p className="text-xs text-slate-500 font-semibold mt-1">
+            Real-time internships, hackathons & entry-level engineering roles matched with your skills.
           </p>
         </div>
 
         <button
-          onClick={syncLiveFeed}
-          disabled={syncingLive}
-          className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
+          onClick={fetchLiveWebFeed}
+          disabled={fetchingLive}
+          className="bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white font-extrabold text-xs px-5 py-3 rounded-2xl transition-all shadow-md flex items-center gap-2"
         >
-          <Radio size={14} className={syncingLive ? 'animate-pulse' : ''} />
-          {syncingLive ? 'Syncing Live API...' : 'Sync Live Web Jobs'}
+          <RefreshCw size={14} className={fetchingLive ? 'animate-spin' : ''} />
+          {fetchingLive ? 'Fetching Web Feed...' : 'Sync Live Jobs Feed'}
         </button>
       </div>
 
-      {/* Profile Warning */}
-      {hasNoProfile && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
-          <AlertCircle size={18} className="text-amber-400 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-amber-400 text-sm font-bold mb-1">Your profile has no skills or interests set.</p>
-            <p className="text-amber-400/70 text-xs">Match scores will be 0%. Go to <a href="/settings" className="underline">Settings</a> to add your skills and calibrate the AI engine.</p>
-          </div>
-        </div>
-      )}
-
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#111118] border border-emerald-500/20 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-400">{stats.high}</p>
-          <p className="text-xs text-gray-500 mt-1">Strong Match 80%+</p>
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
+          <p className="text-2xl font-black text-emerald-600">{stats.high}</p>
+          <p className="text-xs text-slate-500 font-bold mt-1">Strong Match 80%+</p>
         </div>
-        <div className="bg-[#111118] border border-amber-500/20 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-amber-400">{stats.medium}</p>
-          <p className="text-xs text-gray-500 mt-1">Good Match 50-79%</p>
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
+          <p className="text-2xl font-black text-amber-600">{stats.medium}</p>
+          <p className="text-xs text-slate-500 font-bold mt-1">Good Match 50-79%</p>
         </div>
-        <div className="bg-[#111118] border border-purple-500/20 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-purple-400">{stats.liveCount}</p>
-          <p className="text-xs text-gray-500 mt-1">Live Web Feed Items</p>
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
+          <p className="text-2xl font-black text-purple-600">{stats.liveCount}</p>
+          <p className="text-xs text-slate-500 font-bold mt-1">Live Web Feed Items</p>
         </div>
-        <div className="bg-[#111118] border border-white/10 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-white">{stats.total}</p>
-          <p className="text-xs text-gray-500 mt-1">Total Showing</p>
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
+          <p className="text-2xl font-black text-slate-900">{stats.total}</p>
+          <p className="text-xs text-slate-500 font-bold mt-1">Total Showing</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-[#111118] border border-white/10 rounded-2xl p-4 space-y-3">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-5 space-y-4 shadow-sm">
         <div className="relative">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input type="text" placeholder="Search role, company, keyword..." value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+            className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all" />
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <Filter size={13} className="text-gray-500" />
+          <Filter size={13} className="text-slate-400" />
           {(['all', 'internship', 'job', 'hackathon', 'event'] as const).map(t => (
             <button key={t} onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${typeFilter === t ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+              className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all ${typeFilter === t ? 'bg-sky-600 text-white font-extrabold shadow-sm' : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
               {t === 'all' ? 'All' : t}
             </button>
           ))}
           <button onClick={() => setRemoteOnly(!remoteOnly)}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${remoteOnly ? 'bg-emerald-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+            className={`flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold transition-all ${remoteOnly ? 'bg-emerald-600 text-white font-extrabold shadow-sm' : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
             <Wifi size={11} /> Remote
           </button>
-          <span className="text-xs text-gray-600">Min Match:</span>
-          {[0, 50, 70, 90].map(m => (
-            <button key={m} onClick={() => setMinMatch(m)}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${minMatch === m ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
-              {m === 0 ? 'Any' : `${m}%+`}
-            </button>
-          ))}
-          <div className="ml-auto flex gap-2">
-            {(['match', 'recent'] as const).map(s => (
-              <button key={s} onClick={() => setSortBy(s)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${sortBy === s ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-400'}`}>
-                {s === 'match' ? 'Best Match' : 'Recent'}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
       {/* Results */}
       {loading ? (
-        <div className="text-center text-gray-500 py-16">Loading opportunities...</div>
+        <div className="text-center text-slate-400 font-bold py-16">Loading opportunities...</div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {processed.map(opp => {
             const { icon: TypeIcon, bg } = TYPE_CONFIG[opp.type] || TYPE_CONFIG.job
             const isExpanded = expandedId === opp.id
             return (
-              <div key={opp.id} className="bg-[#111118] border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all">
-                <div className="p-5">
+              <div key={opp.id} className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden hover:shadow-md transition-all shadow-sm">
+                <div className="p-6">
                   <div className="flex gap-4 justify-between">
                     <div className="flex-1 min-w-0">
-                      {/* Badges */}
                       <div className="flex flex-wrap gap-2 mb-2">
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1 ${bg}`}>
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${bg}`}>
                           <TypeIcon size={11} /> {TYPE_CONFIG[opp.type]?.label || 'Job'}
                         </span>
                         {opp.is_live_feed && (
-                          <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-purple-500/10 border-purple-500/25 text-purple-400 flex items-center gap-1">
-                            <Radio size={11} className="animate-pulse" /> LIVE API
+                          <span className="text-xs font-bold px-3 py-1 rounded-full border bg-purple-100 border-purple-200 text-purple-700 flex items-center gap-1">
+                            <Radio size={11} className="animate-pulse text-purple-600" /> LIVE API
                           </span>
                         )}
-                        {opp.is_remote && <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-emerald-500/10 border-emerald-500/25 text-emerald-400 flex items-center gap-1"><Wifi size={11} /> Remote</span>}
-                        {opp.is_verified && <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-blue-500/10 border-blue-500/25 text-blue-400 flex items-center gap-1"><CheckCircle2 size={11} /> Verified</span>}
-                        {opp.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className="text-xs px-2 py-1 rounded-full bg-white/5 border border-white/10 text-gray-500">{tag}</span>
+                        {opp.is_remote && (
+                          <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800">
+                            🏠 Remote
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-lg font-bold text-slate-900 leading-tight mb-1">{opp.title}</h3>
+                      <p className="text-xs text-slate-600 font-bold mb-3">{opp.company} • {opp.location}</p>
+
+                      <div className="flex flex-wrap gap-2 text-xs font-bold text-slate-500 mb-4">
+                        <span className="text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">{opp.stipend_or_salary}</span>
+                        {opp.deadline && <span className="bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">Deadline: {opp.deadline}</span>}
+                      </div>
+
+                      {/* Required Skills */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {opp.required_skills.map((s, idx) => (
+                          <span key={idx} className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700">
+                            {s}
+                          </span>
                         ))}
                       </div>
-
-                      <h3 className="text-base font-bold text-white mb-0.5">{opp.title}</h3>
-                      <p className="text-sm text-indigo-400 font-semibold mb-3">{opp.company}</p>
-
-                      <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-3">
-                        <span className="flex items-center gap-1"><MapPin size={11} />{opp.location}</span>
-                        {opp.stipend_or_salary && <span className="flex items-center gap-1"><Star size={11} />{opp.stipend_or_salary}</span>}
-                        <span className="flex items-center gap-1"><Clock size={11} />{opp.deadline}</span>
-                      </div>
-
-                      {/* Required skills */}
-                      {opp.required_skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {opp.required_skills.map(skill => {
-                            const normSkill = skill.toLowerCase()
-                            const isMastered = profile.mastered_skills.some(s => s.toLowerCase() === normSkill)
-                            const isLearning = profile.learning_skills.some(s => s.toLowerCase() === normSkill)
-                            return (
-                              <span key={skill} className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${isMastered ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : isLearning ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
-                                {isMastered ? '✓' : isLearning ? '~' : '○'} {skill}
-                              </span>
-                            )
-                          })}
-                        </div>
-                      )}
                     </div>
 
-                    {/* Right CTA */}
-                    <div className="flex flex-col items-end gap-3 shrink-0">
-                      <MatchBadge score={opp.score} />
-                      <a href={opp.apply_url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all">
-                        Apply <ExternalLink size={12} />
+                    <div className="flex flex-col items-end justify-between gap-3">
+                      <div className="text-right">
+                        <div className={`text-xl font-black ${opp.matchScore >= 80 ? 'text-emerald-600' : opp.matchScore >= 50 ? 'text-amber-600' : 'text-slate-400'}`}>
+                          {opp.matchScore}%
+                        </div>
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">AI MATCH</span>
+                      </div>
+
+                      <a
+                        href={opp.apply_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-2xl transition-all shadow-sm flex items-center gap-1.5"
+                      >
+                        Apply <ExternalLink size={13} />
                       </a>
-                      <button onClick={() => setExpandedId(isExpanded ? null : opp.id)}
-                        className="text-xs text-gray-500 hover:text-indigo-400 transition-colors flex items-center gap-1">
-                        <TrendingUp size={12} /> {isExpanded ? 'Hide' : 'Why I match'}
-                      </button>
                     </div>
                   </div>
                 </div>
-
-                {isExpanded && (
-                  <div className="border-t border-white/5 bg-black/30 px-5 py-4">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <Zap size={12} className="text-indigo-400" /> Why your score is {opp.score}%
-                    </p>
-                    <div className="space-y-1.5">
-                      {opp.reasons.length > 0
-                        ? opp.reasons.map((r, i) => (
-                          <p key={i} className="text-xs text-gray-300">{r}</p>
-                        ))
-                        : <p className="text-xs text-gray-500">None of the required skills match your profile yet.</p>
-                      }
-                    </div>
-                  </div>
-                )}
               </div>
             )
           })}

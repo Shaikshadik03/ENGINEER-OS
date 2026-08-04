@@ -32,28 +32,28 @@ function RoadmapNodeComponent({ data }: NodeProps) {
   }
 
   const styleMap = {
-    completed: 'bg-emerald-500/20 border-emerald-500 text-emerald-300',
-    available: 'bg-indigo-500/20 border-indigo-500 text-white cursor-pointer hover:scale-105',
-    locked:    'bg-white/5 border-white/10 text-gray-600 cursor-not-allowed opacity-60',
+    completed: 'bg-emerald-100 border-emerald-400 text-emerald-900 font-bold',
+    available: 'bg-sky-50 border-sky-400 text-slate-900 font-bold cursor-pointer hover:scale-105 shadow-sm',
+    locked:    'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60',
   }
 
   const iconMap = {
-    completed: <CheckCircle2 size={14} className="text-emerald-400" />,
-    available: <Circle size={14} className="text-indigo-400" />,
-    locked:    <Lock size={14} className="text-gray-600" />,
+    completed: <CheckCircle2 size={14} className="text-emerald-600" />,
+    available: <Circle size={14} className="text-sky-600" />,
+    locked:    <Lock size={14} className="text-slate-400" />,
   }
 
   return (
     <div
       onClick={status !== 'locked' ? onClick : undefined}
-      className={`px-4 py-3 rounded-xl border-2 transition-all text-center min-w-[140px] select-none shadow-lg ${styleMap[status]}`}
+      className={`px-4 py-3 rounded-2xl border-2 transition-all text-center min-w-[140px] select-none shadow-sm ${styleMap[status]}`}
     >
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <div className="flex items-center justify-center gap-1.5 mb-1">
         {iconMap[status]}
         <span className="text-xs font-bold">{label}</span>
       </div>
-      <span className={`text-[9px] font-semibold ${status === 'completed' ? 'text-emerald-400' : status === 'available' ? 'text-indigo-400' : 'text-gray-600'}`}>
+      <span className={`text-[9px] font-extrabold ${status === 'completed' ? 'text-emerald-700' : status === 'available' ? 'text-sky-700' : 'text-slate-400'}`}>
         +{xp} XP
       </span>
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
@@ -63,14 +63,12 @@ function RoadmapNodeComponent({ data }: NodeProps) {
 
 const nodeTypes = { roadmapNode: RoadmapNodeComponent }
 
-// ── LAYOUT: arrange nodes in a simple vertical-layered grid ──
 function buildFlowNodes(
   nodes: RoadmapNode[],
   masteredSkills: string[],
   completedNodeIds: Set<string>,
   onClickNode: (node: RoadmapNode) => void
 ): Node[] {
-  // Assign layers based on prerequisites depth
   const depthMap: Record<string, number> = {}
   const getDepth = (id: string, visited = new Set<string>()): number => {
     if (visited.has(id)) return 0
@@ -82,15 +80,8 @@ function buildFlowNodes(
 
   nodes.forEach(n => { depthMap[n.id] = getDepth(n.id) })
 
-  const maxDepth = Math.max(...Object.values(depthMap))
   const layerCounts: Record<number, number> = {}
-  const layerIndex: Record<number, number> = {}
   nodes.forEach(n => { layerCounts[depthMap[n.id]] = (layerCounts[depthMap[n.id]] || 0) + 1 })
-  nodes.forEach(n => {
-    const d = depthMap[n.id]
-    layerIndex[d] = (layerIndex[d] || 0)
-    layerIndex[d]++
-  })
 
   const posTracker: Record<number, number> = {}
 
@@ -102,7 +93,6 @@ function buildFlowNodes(
     const x = (col - (count - 1) / 2) * 200
     const y = depth * 140
 
-    // Determine status
     const isCompleted = completedNodeIds.has(n.id)
     const prereqsDone = n.prerequisites.every(p => completedNodeIds.has(p))
     const hasSkill = n.skills.length === 0 || n.skills.some(s => masteredSkills.includes(s))
@@ -124,12 +114,11 @@ function buildFlowEdges(edges: Array<{ from: string; to: string }>): Edge[] {
     id: `${e.from}-${e.to}`,
     source: e.from,
     target: e.to,
-    style: { stroke: '#6366f1', strokeWidth: 1.5, opacity: 0.5 },
+    style: { stroke: '#0284c7', strokeWidth: 2, opacity: 0.7 },
     animated: false,
   }))
 }
 
-// ── MAIN PAGE ──
 export default function RoadmapsPage() {
   const supabase = createClient()
   const [masteredSkills, setMasteredSkills] = useState<string[]>([])
@@ -143,7 +132,6 @@ export default function RoadmapsPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
-  // Load user profile
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -154,14 +142,12 @@ export default function RoadmapsPage() {
         setMasteredSkills(data.mastered_skills || [])
         setUserXP(data.xp || 0)
       }
-      // Load completed roadmap nodes
       const { data: prog } = await supabase.from('roadmap_progress').select('node_id').eq('user_id', user.id)
       if (prog) setCompletedNodes(new Set(prog.map(p => p.node_id)))
     }
     load()
   }, [])
 
-  // Open a roadmap
   const openRoadmap = useCallback((roadmap: typeof ROADMAPS[0]) => {
     setActiveRoadmap(roadmap)
     setSelectedNode(null)
@@ -171,7 +157,6 @@ export default function RoadmapsPage() {
     setEdges(flowEdges)
   }, [masteredSkills, completedNodes])
 
-  // Mark a node complete
   const completeNode = useCallback(async (node: RoadmapNode) => {
     if (!userId || completedNodes.has(node.id)) return
     const { error } = await supabase.from('roadmap_progress').upsert({
@@ -183,7 +168,6 @@ export default function RoadmapsPage() {
       const newXP = userXP + node.xp
       setUserXP(newXP)
       await supabase.from('profiles').update({ xp: newXP }).eq('id', userId)
-      // Rebuild flow with updated status
       if (activeRoadmap) {
         setNodes(buildFlowNodes(activeRoadmap.nodes, masteredSkills, newCompleted, setSelectedNode))
       }
@@ -191,37 +175,19 @@ export default function RoadmapsPage() {
     }
   }, [userId, completedNodes, userXP, activeRoadmap, masteredSkills])
 
-  const colorMap: Record<string, string> = {
-    indigo: 'border-indigo-500/30 hover:border-indigo-500',
-    purple: 'border-purple-500/30 hover:border-purple-500',
-    orange: 'border-orange-500/30 hover:border-orange-500',
-    green: 'border-green-500/30 hover:border-green-500',
-    pink: 'border-pink-500/30 hover:border-pink-500',
-    red: 'border-red-500/30 hover:border-red-500',
-  }
-
-  const badgeColorMap: Record<string, string> = {
-    indigo: 'bg-indigo-500/10 text-indigo-400',
-    purple: 'bg-purple-500/10 text-purple-400',
-    orange: 'bg-orange-500/10 text-orange-400',
-    green: 'bg-green-500/10 text-green-400',
-    pink: 'bg-pink-500/10 text-pink-400',
-    red: 'bg-red-500/10 text-red-400',
-  }
-
   return (
-    <div className="max-w-6xl mx-auto pb-16 space-y-8">
+    <div className="max-w-6xl mx-auto pb-16 space-y-8 text-slate-900 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex justify-between items-center pb-6 border-b border-white/10">
+      <div className="flex justify-between items-center pb-6 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Career Roadmaps</h1>
-          <p className="text-gray-500 text-sm">Visual skill-trees that unlock based on your actual profile skills.</p>
+          <h1 className="text-3xl font-black text-slate-900 mb-1 tracking-tight">Career Roadmaps</h1>
+          <p className="text-slate-500 font-semibold text-sm">Visual skill-trees that unlock based on your actual profile skills.</p>
         </div>
-        <div className="bg-[#111118] border border-emerald-500/30 rounded-xl px-4 py-2.5 flex items-center gap-2">
-          <Star className="text-emerald-400 fill-emerald-400" size={18} />
+        <div className="bg-white border border-slate-200/80 shadow-sm rounded-2xl px-4 py-2.5 flex items-center gap-2">
+          <Star className="text-emerald-600 fill-emerald-600" size={18} />
           <div>
-            <p className="text-[9px] text-emerald-400 font-bold uppercase">Total XP</p>
-            <p className="text-white font-bold text-sm">{userXP}</p>
+            <p className="text-[9px] text-emerald-700 font-bold uppercase">Total XP</p>
+            <p className="text-slate-900 font-black text-sm">{userXP} XP</p>
           </div>
         </div>
       </div>
@@ -235,25 +201,25 @@ export default function RoadmapsPage() {
             const pct = Math.round((doneNodes / totalNodes) * 100)
             return (
               <div key={rm.id} onClick={() => openRoadmap(rm)}
-                className={`bg-[#111118] border rounded-2xl p-6 cursor-pointer transition-all hover:scale-[1.02] ${colorMap[rm.color]}`}>
+                className="bg-white border border-slate-200/80 rounded-3xl p-6 cursor-pointer transition-all hover:shadow-md hover:border-sky-300 shadow-sm group">
                 <div className="flex justify-between items-start mb-4">
-                  <span className="text-3xl">{rm.emoji}</span>
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badgeColorMap[rm.color]}`}>
+                  <span className="text-4xl p-2 bg-slate-50 rounded-2xl border border-slate-100">{rm.emoji}</span>
+                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-sky-100 text-sky-700 border border-sky-200">
                     {doneNodes}/{totalNodes} nodes
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{rm.title}</h3>
-                <p className="text-xs text-gray-500 leading-relaxed mb-4">{rm.description}</p>
+                <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-sky-600 transition-colors">{rm.title}</h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">{rm.description}</p>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs font-bold text-slate-600">
                     <span>Progress</span>
-                    <span className="text-white font-semibold">{pct}%</span>
+                    <span className="text-slate-900 font-extrabold">{pct}%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-600 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                  <div className="h-2 bg-slate-100 border border-slate-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-sky-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-xs text-gray-500 hover:text-white transition-colors">
+                <div className="mt-4 flex items-center gap-1 text-xs font-bold text-sky-600 group-hover:text-sky-800 transition-colors">
                   Open Roadmap <ChevronRight size={14} />
                 </div>
               </div>
@@ -262,70 +228,72 @@ export default function RoadmapsPage() {
         </div>
       )}
 
-      {/* REACT FLOW CANVAS */}
+      {/* ACTIVE ROADMAP INTERACTIVE CANVAS */}
       {activeRoadmap && (
         <div className="space-y-4">
-          <button onClick={() => { setActiveRoadmap(null); setSelectedNode(null) }}
-            className="flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-white transition-colors">
-            <ArrowLeft size={15} /> Back to Roadmaps
-          </button>
-
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-xl font-bold text-white">{activeRoadmap.emoji} {activeRoadmap.title}</h2>
-              <p className="text-xs text-gray-500 mt-1">Click an available node to view details. Green = your mastered skills unlock it.</p>
-            </div>
-            <div className="flex gap-3 text-xs">
-              <span className="flex items-center gap-1.5 text-emerald-400"><CheckCircle2 size={13} /> Completed</span>
-              <span className="flex items-center gap-1.5 text-indigo-400"><Circle size={13} /> Available</span>
-              <span className="flex items-center gap-1.5 text-gray-600"><Lock size={13} /> Locked</span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl overflow-hidden border border-white/10" style={{ height: 500 }}>
-            <ReactFlow
-              nodes={nodes} edges={edges}
-              onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
-              nodeTypes={nodeTypes}
-              fitView fitViewOptions={{ padding: 0.3 }}
-              proOptions={{ hideAttribution: true }}
+          <div className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <button
+              onClick={() => setActiveRoadmap(null)}
+              className="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1.5"
             >
-              <Background color="#ffffff08" gap={24} />
-              <Controls style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }} />
-              <MiniMap style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }} nodeColor="#6366f1" />
-            </ReactFlow>
+              <ArrowLeft size={16} /> Back to Roadmaps
+            </button>
+            <h2 className="text-base font-bold text-slate-900">{activeRoadmap.emoji} {activeRoadmap.title}</h2>
           </div>
 
-          {/* NODE DETAIL PANEL */}
-          {selectedNode && (
-            <div className="bg-[#111118] border border-indigo-500/30 rounded-2xl p-6 flex flex-col md:flex-row gap-6 justify-between items-start">
-              <div>
-                <h3 className="text-lg font-bold text-white mb-1">{selectedNode.label}</h3>
-                <p className="text-sm text-gray-400 mb-3">{selectedNode.description}</p>
-                {selectedNode.skills.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {selectedNode.skills.map(s => (
-                      <span key={s} className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${masteredSkills.includes(s) ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400' : 'border-white/10 bg-white/5 text-gray-500'}`}>
-                        {masteredSkills.includes(s) ? '✓' : '○'} {s}
-                      </span>
-                    ))}
+          <div className="h-[550px] bg-white border border-slate-200/80 rounded-3xl overflow-hidden relative shadow-sm">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              nodeTypes={nodeTypes}
+              fitView
+            >
+              <Background color="#cbd5e1" gap={20} />
+              <Controls />
+              <MiniMap nodeColor="#0284c7" maskColor="rgba(255, 255, 255, 0.7)" />
+            </ReactFlow>
+
+            {/* NODE DETAILS DRAWER */}
+            {selectedNode && (
+              <div className="absolute right-4 top-4 bottom-4 w-80 bg-white border border-slate-200 rounded-3xl p-5 shadow-2xl flex flex-col justify-between z-10 animate-in slide-in-from-right duration-300">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] font-extrabold text-sky-600 uppercase tracking-wider">ROADMAP NODE</span>
+                    <button onClick={() => setSelectedNode(null)} className="text-xs font-bold text-slate-400 hover:text-slate-700">✕</button>
                   </div>
-                )}
-                <p className="text-xs text-indigo-400 font-semibold">+{selectedNode.xp} XP on completion</p>
+                  <h3 className="text-lg font-bold text-slate-900">{selectedNode.label}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">{selectedNode.description}</p>
+                  
+                  {selectedNode.resources && (
+                    <div className="space-y-2 pt-2">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recommended Resources</span>
+                      {Array.isArray(selectedNode.resources) ? selectedNode.resources.map((r: any, i: number) => (
+                        <a key={i} href={r.url || '#'} target="_blank" rel="noreferrer" className="text-xs text-sky-600 hover:underline block truncate font-medium">
+                          🔗 {r.title || r}
+                        </a>
+                      )) : (
+                        <p className="text-xs text-slate-600 font-medium">{selectedNode.resources}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => completeNode(selectedNode)}
+                  disabled={completedNodes.has(selectedNode.id)}
+                  className={`w-full py-3 rounded-2xl text-xs font-extrabold transition-all shadow-md ${
+                    completedNodes.has(selectedNode.id)
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  }`}
+                >
+                  {completedNodes.has(selectedNode.id) ? '✓ Completed (+XP Claimed)' : `Complete Node (+${selectedNode.xp} XP)`}
+                </button>
               </div>
-              <div className="shrink-0">
-                {completedNodes.has(selectedNode.id)
-                  ? <span className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 px-5 py-2.5 rounded-xl text-xs font-bold">
-                      <CheckCircle2 size={15} /> Completed
-                    </span>
-                  : <button onClick={() => completeNode(selectedNode)}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
-                      <Star size={15} /> Mark Complete & Claim {selectedNode.xp} XP
-                    </button>
-                }
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
