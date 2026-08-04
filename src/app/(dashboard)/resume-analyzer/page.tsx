@@ -250,23 +250,23 @@ export default function ResumePage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500">
       {/* Top Header & Tab Switcher */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-white/10 print:hidden">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <FileText className="text-indigo-400" size={24} /> AI Resume Builder & Coach
+          <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+            <FileText className="text-sky-600" size={28} /> AI Resume Builder & Coach
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-slate-500 font-semibold text-sm mt-1">
             Build executive A4 resumes step-by-step with real-time live preview & ATS role optimization.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#111118] border border-white/10 p-1.5 rounded-2xl">
+        <div className="flex items-center gap-2 bg-white border border-slate-200/80 p-1.5 rounded-2xl shadow-sm">
           <button
             onClick={() => setActiveTab('builder')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'builder'
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-sky-600 text-white shadow-sm font-extrabold'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Sparkles size={14} /> Resume Builder & Live Preview
@@ -275,8 +275,8 @@ export default function ResumePage() {
             onClick={() => setActiveTab('analyzer')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'analyzer'
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-sky-600 text-white shadow-sm font-extrabold'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Target size={14} /> ATS Resume Scanner
@@ -288,7 +288,7 @@ export default function ResumePage() {
       {activeTab === 'builder' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT SIDE: MULTI-STEP FORM WIZARD (lg:col-span-5) */}
-          <div className="lg:col-span-5 bg-[#111118] border border-white/10 rounded-2xl p-6 space-y-6 print:hidden">
+          <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-6 space-y-6 print:hidden shadow-sm">
             {/* Steps Progress Header */}
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <div className="flex items-center gap-1.5">

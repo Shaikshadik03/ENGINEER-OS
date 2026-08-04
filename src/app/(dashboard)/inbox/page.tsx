@@ -29,7 +29,6 @@ export default function InboxPage() {
         const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
         if (p) {
           setProfile(p)
-          // Generate real notifications based on user's profile stats
           const items: NotificationItem[] = [
             {
               id: '1',
@@ -82,29 +81,29 @@ export default function InboxPage() {
   const filtered = notifications.filter(n => filter === 'all' || !n.read)
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500">
+    <div className="max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 text-slate-900">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-            <InboxIcon className="text-indigo-400" size={24} /> System Inbox & Alerts
+          <h1 className="text-3xl font-black text-slate-900 mb-1 flex items-center gap-2 tracking-tight">
+            <InboxIcon className="text-sky-600" size={28} /> System Inbox & Alerts
           </h1>
-          <p className="text-gray-500 text-sm">Notifications, XP milestones, and opportunity match alerts.</p>
+          <p className="text-slate-500 font-semibold text-sm">Notifications, XP milestones, and opportunity match alerts.</p>
         </div>
 
         <div className="flex gap-2">
           <button
             onClick={() => setFilter(filter === 'all' ? 'unread' : 'all')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
-              filter === 'unread' ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
+            className={`px-4 py-2 rounded-2xl text-xs font-bold border transition-all ${
+              filter === 'unread' ? 'bg-sky-600 text-white border-sky-500 shadow-sm font-extrabold' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
             }`}
           >
             {filter === 'all' ? 'Show Unread Only' : 'Show All'}
           </button>
           <button
             onClick={markAllRead}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all"
+            className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2 rounded-2xl transition-all shadow-sm"
           >
             Mark All as Read
           </button>
@@ -113,7 +112,7 @@ export default function InboxPage() {
 
       {/* Notifications Feed */}
       {filtered.length === 0 ? (
-        <div className="bg-[#111118] border border-white/10 rounded-2xl p-12 text-center text-gray-500">
+        <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-bold shadow-sm">
           No notifications in your inbox right now.
         </div>
       ) : (
@@ -121,35 +120,35 @@ export default function InboxPage() {
           {filtered.map(item => (
             <div
               key={item.id}
-              className={`p-5 rounded-2xl border transition-all flex justify-between items-start gap-4 ${
+              className={`p-5 rounded-3xl border transition-all flex justify-between items-start gap-4 shadow-sm ${
                 !item.read
-                  ? 'bg-indigo-500/5 border-indigo-500/30'
-                  : 'bg-[#111118] border-white/10 opacity-75'
+                  ? 'bg-sky-50/80 border-sky-200'
+                  : 'bg-white border-slate-200/80 opacity-80'
               }`}
             >
               <div className="flex items-start gap-4">
-                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-indigo-400 shrink-0">
-                  {item.type === 'xp' ? <Star size={18} className="text-emerald-400" />
-                    : item.type === 'match' ? <Briefcase size={18} className="text-indigo-400" />
-                    : item.type === 'streak' ? <Zap size={18} className="text-orange-400" />
-                    : <Bell size={18} className="text-purple-400" />}
+                <div className="p-2.5 rounded-2xl bg-white border border-slate-200 text-sky-600 shrink-0 shadow-sm">
+                  {item.type === 'xp' ? <Star size={18} className="text-emerald-600 fill-emerald-600" />
+                    : item.type === 'match' ? <Briefcase size={18} className="text-sky-600" />
+                    : item.type === 'streak' ? <Zap size={18} className="text-amber-500" />
+                    : <Bell size={18} className="text-purple-600" />}
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-sm text-white">{item.title}</h3>
+                    <h3 className="font-bold text-sm text-slate-900">{item.title}</h3>
                     {!item.read && (
-                      <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-sky-600 animate-pulse" />
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 leading-relaxed mb-2">{item.message}</p>
-                  <span className="text-[10px] text-gray-600 font-mono">{item.time}</span>
+                  <p className="text-xs text-slate-600 font-medium leading-relaxed mb-2">{item.message}</p>
+                  <span className="text-[10px] text-slate-400 font-mono font-semibold">{item.time}</span>
                 </div>
               </div>
 
               <button
                 onClick={() => deleteNotification(item.id)}
-                className="text-gray-600 hover:text-rose-400 transition-colors p-1"
+                className="text-slate-400 hover:text-rose-600 transition-colors p-1"
               >
                 <Trash2 size={16} />
               </button>

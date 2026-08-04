@@ -144,46 +144,45 @@ export default function ProfilePage() {
   const isPro = profile?.subscription_tier === 'pro'
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-16 animate-in fade-in duration-500">
-
-      {/* Header & Gamification Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-white/10">
+    <div className="max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 text-slate-900">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Student OS Identity & Profile</h1>
-          <p className="text-gray-500 text-sm">All learning, opportunity matching, and AI recommendations link directly to this profile.</p>
+          <h1 className="text-3xl font-black text-slate-900 mb-1 tracking-tight">Student OS Identity & Profile</h1>
+          <p className="text-slate-500 font-semibold text-sm">All learning, opportunity matching, and AI recommendations link directly to this profile.</p>
         </div>
 
         <div className="flex gap-3">
-          <div className="bg-[#111118] border border-orange-500/30 rounded-xl px-4 py-2 flex items-center gap-2.5">
-            <Flame className="text-orange-500" size={18} />
+          <div className="bg-white border border-slate-200/80 rounded-2xl px-4 py-2 flex items-center gap-2.5 shadow-sm">
+            <Flame className="text-amber-500" size={18} />
             <div>
-              <p className="text-[9px] font-bold text-orange-500 uppercase">Streak</p>
-              <p className="font-bold text-white text-sm">{profile?.streak || 0}d</p>
+              <p className="text-[9px] font-extrabold text-amber-600 uppercase">Streak</p>
+              <p className="font-black text-slate-900 text-sm">{profile?.streak || 0}d</p>
             </div>
           </div>
 
-          <div className="bg-[#111118] border border-emerald-500/30 rounded-xl px-4 py-2 flex items-center gap-2.5">
-            <Star className="text-emerald-400 fill-emerald-400" size={18} />
+          <div className="bg-white border border-slate-200/80 rounded-2xl px-4 py-2 flex items-center gap-2.5 shadow-sm">
+            <Star className="text-emerald-600 fill-emerald-600" size={18} />
             <div>
-              <p className="text-[9px] font-bold text-emerald-400 uppercase">XP</p>
-              <p className="font-bold text-white text-sm">{profile?.xp || 0}</p>
+              <p className="text-[9px] font-extrabold text-emerald-700 uppercase">XP</p>
+              <p className="font-black text-slate-900 text-sm">{profile?.xp || 0}</p>
             </div>
           </div>
 
-          <div className={`bg-[#111118] border rounded-xl px-4 py-2 flex items-center gap-2.5 ${
-            isPro ? 'border-amber-500/30 text-amber-400' : 'border-white/10 text-gray-400'
+          <div className={`bg-white border border-slate-200/80 rounded-2xl px-4 py-2 flex items-center gap-2.5 shadow-sm ${
+            isPro ? 'text-amber-700' : 'text-slate-500'
           }`}>
-            <Award size={18} className={isPro ? 'text-amber-400' : 'text-gray-500'} />
+            <Award size={18} className={isPro ? 'text-amber-600' : 'text-slate-400'} />
             <div>
-              <p className="text-[9px] font-bold uppercase">Plan</p>
-              <p className="font-bold text-white text-sm uppercase">{profile?.subscription_tier || 'FREE'}</p>
+              <p className="text-[9px] font-extrabold uppercase">Plan</p>
+              <p className="font-black text-slate-900 text-sm uppercase">{profile?.subscription_tier || 'PRO'}</p>
             </div>
           </div>
         </div>
       </div>
 
       {saveSuccess && (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold p-4 rounded-xl flex items-center gap-2">
+        <div className="bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold p-4 rounded-2xl flex items-center gap-2">
           <CheckCircle2 size={16} /> Saved to Database! Opportunity Matchmaker & Learning Hub are now updated with your new skills.
         </div>
       )}
@@ -203,8 +202,8 @@ export default function ProfilePage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
-                  isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-[#111118] text-gray-400 border border-white/10 hover:text-white'
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
+                  isActive ? 'bg-sky-600 text-white shadow-sm font-extrabold' : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50'
                 }`}
               >
                 <Icon size={16} /> {tab.name}
@@ -215,13 +214,11 @@ export default function ProfilePage() {
 
         {/* Form Content */}
         <div className="md:col-span-3">
-          <form onSubmit={handleSave} className="bg-[#111118] border border-white/10 rounded-2xl p-6 space-y-6">
+          <form onSubmit={handleSave} className="bg-white border border-slate-200/80 rounded-3xl p-6 space-y-6 shadow-sm">
 
             {/* TAB 1: PUBLIC INFO */}
             {activeTab === 'profile' && (
               <div className="space-y-4 animate-in fade-in duration-200">
-                <h3 className="text-base font-bold text-white mb-4">Basic Information</h3>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Full Name</label>
