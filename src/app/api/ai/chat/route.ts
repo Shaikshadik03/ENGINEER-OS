@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 })
     }
 
+    const GROQ_KEY = process.env.GROQ_API_KEY
     const GEMINI_KEY = process.env.GEMINI_API_KEY
 
     // Build context from user profile
@@ -30,74 +31,94 @@ ${profileContext}
 
 Platform Features you can guide users about:
 - /learning → B.Tech subject lectures & quizzes (all semesters)
+- /skills → Multi-tier skill trees & video lectures
 - /playground → Live code editor (Python, C, C++, Java, JavaScript, SQL)
 - /roadmaps → Career roadmaps (Full Stack, DSA, ML, Cloud)
-- /resume-analyzer → AI Resume review
+- /resume-analyzer → AI Resume review & A4 Preview
 - /opportunities → Real job & internship listings matched to skills
-- /tasks → Kanban task board (saves to database)
-- /calendar → Academic event calendar (saves to database)
+- /tasks → Kanban task board
+- /calendar → Academic event calendar
 - /analytics → XP, streaks, and learning analytics
 - /profile → Update skills, interests, and career goals
 
 Your personality:
-- Smart, concise, and encouraging
+- Smart, concise, encouraging, and highly technical
 - Use code blocks when showing code
 - Use bullet points for lists
 - Reference the user by name when possible
 - For coding questions, always provide working code examples
 - For career questions, give practical, India-specific advice
 - For DSA, explain with examples and complexity analysis
-- Keep responses under 400 words unless writing code
+- Keep responses clean and well-structured
 
 Respond in markdown format.`
 
-    if (!GEMINI_KEY) {
-      // Smart fallback responses without API key
-      const msg = message.toLowerCase()
-      let response = ''
+    // 1. Try Groq API (Ultra-Fast Llama 3.3 70B Versatile)
+    if (GROQ_KEY) {
+      try {
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${GROQ_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: message }
+            ],
+            temperature: 0.7,
+            max_tokens: 1024
+          })
+        })
 
-      if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
-        response = `Hey ${userProfile?.full_name?.split(' ')[0] || 'there'}! 👋 I'm your **Engineer OS Copilot**.\n\nI can help you with:\n- 📚 **Academics** — DSA, OS, DBMS, Networks, any subject\n- 💻 **Coding** — Python, C, C++, Java, JavaScript\n- 🎯 **Career** — Resume tips, internships, job prep\n- 🗺️ **Roadmaps** — What to learn next\n\nWhat can I help you with today?`
-      } else if (msg.includes('dsa') || msg.includes('array') || msg.includes('linked list') || msg.includes('tree') || msg.includes('graph')) {
-        response = `## DSA Practice Tips 🧠\n\nFor **${msg.includes('array') ? 'Arrays' : msg.includes('tree') ? 'Trees' : msg.includes('graph') ? 'Graphs' : 'DSA'}**:\n\n1. **Understand the concept** first — don't memorize code\n2. **Solve easy → medium → hard** on LeetCode\n3. **Common patterns**: Two Pointers, Sliding Window, BFS/DFS\n\nGo to your [Code Playground](/playground) to practice right now!\n\n> 💡 Tip: Add DSA practice as a daily task in your [Task Board](/tasks)`
-      } else if (msg.includes('resume') || msg.includes('cv')) {
-        response = `## Resume Tips for B.Tech Students 📄\n\nKey sections to include:\n- **Projects** (most important!)\n- **Technical Skills** — match to job description\n- **Education** — CGPA if > 7.5\n- **Internships/Certifications**\n\n**Use the [AI Resume Analyzer](/resume-analyzer)** → it will score your resume and suggest improvements!\n\nFor ${userProfile?.branch || 'CSE'} students: highlight GitHub projects, open source contributions, and coding platforms (LeetCode, CodeChef ratings).`
-      } else if (msg.includes('internship') || msg.includes('job') || msg.includes('placement')) {
-        response = `## Internship & Placement Guide 🎯\n\nFor ${userProfile?.semester ? `Semester ${userProfile.semester}` : 'B.Tech'} students:\n\n**Best platforms:**\n- **Internshala** — Internships\n- **LinkedIn** — Full-time & internships\n- **AngelList** — Startups\n- **Unstop** — Campus competitions\n\n**Preparation:**\n1. 150+ LeetCode problems (Easy + Medium)\n2. Projects on GitHub\n3. Strong resume\n\nCheck [Opportunities](/opportunities) — it's filtered to YOUR skills!`
-      } else if (msg.includes('code') || msg.includes('python') || msg.includes('c++') || msg.includes('java')) {
-        response = `## Code Help 💻\n\nI can help you write, debug, and explain code!\n\nTry the **[Code Playground](/playground)** to run code instantly — Python, C, C++, Java, JavaScript, and SQL all work live!\n\n**What specifically do you need?**\n- Write a program?\n- Debug an error?\n- Explain a concept?\n- Data structures?\n\nTell me more and I'll write the code for you! 🚀`
-      } else if (msg.includes('subject') || msg.includes('learn') || msg.includes('syllabus')) {
-        response = `## B.Tech Learning Path 📚\n\nCurrent Branch: **${userProfile?.branch || 'CSE'}** | Semester: **${userProfile?.semester || 1}**\n\nAll subjects available in [Learning Engine](/learning):\n- Semester 1-2: Programming in C, DSA, Engineering Maths\n- Semester 3-4: DBMS, OS, Computer Networks, OOP\n- Semester 5-6: System Design, ML, Cloud Computing\n- Semester 7-8: Capstone Project, Interview Prep\n\nYour learning progress is tracked with XP and streaks! 🔥`
-      } else {
-        response = `## Engineer OS Copilot 🤖\n\nI'm here to help with:\n- 📖 **Academic subjects** (DSA, OS, DBMS, Networks...)\n- 💻 **Coding** (write/debug/explain code)\n- 🎯 **Career guidance** (internships, placement prep)\n- 🗺️ **Study roadmaps**\n\nYour profile: **${userProfile?.branch || 'CSE'}** Sem ${userProfile?.semester || 1} | Skills: ${(userProfile?.mastered_skills || []).slice(0, 3).join(', ') || 'Update your profile!'}\n\nAsk me anything! 👇\n\n> 💡 Set your **GEMINI_API_KEY** in Vercel for full AI power!`
+        const groqData = await groqRes.json()
+        if (groqData.choices?.[0]?.message?.content) {
+          return NextResponse.json({ success: true, response: groqData.choices[0].message.content })
+        }
+      } catch (err) {
+        console.error('Groq API Error, trying fallback:', err)
       }
-
-      return NextResponse.json({ success: true, response })
     }
 
-    // Real Gemini API call
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: 'user', parts: [{ text: message }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 800,
-            topP: 0.9,
-          },
-        }),
+    // 2. Try Gemini API fallback
+    if (GEMINI_KEY) {
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ role: 'user', parts: [{ text: message }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 800,
+                topP: 0.9,
+              },
+            }),
+          }
+        )
+
+        const geminiData = await geminiRes.json()
+        const response = geminiData.candidates?.[0]?.content?.parts?.[0]?.text
+        if (response) {
+          return NextResponse.json({ success: true, response })
+        }
+      } catch (err) {
+        console.error('Gemini API Error:', err)
       }
-    )
+    }
 
-    const geminiData = await geminiRes.json()
-    const response = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.'
-
-    return NextResponse.json({ success: true, response })
+    // 3. Fallback response
+    return NextResponse.json({
+      success: true,
+      response: `Hey ${userProfile?.full_name || 'there'}! 👋 I am your **Engineer OS Copilot**.\n\nI can help you with:\n- 📖 **Academics & DSA**\n- 💻 **Coding in Python, C, C++, Java**\n- 🎯 **Resume & Placement Prep**\n\nWhat would you like to build or learn today?`
+    })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('AI Chat Error:', error)
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
   }
 }
