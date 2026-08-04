@@ -7,11 +7,11 @@ import {
   Code2, Cpu, Database, Cloud, Brain, Layers, BookOpen, ExternalLink, X,
   Calendar, Terminal, Check, Play, Zap, Flame, ShieldCheck, Lock, Unlock,
   MessageSquare, Users, Trophy, ChevronRight, ChevronDown, ChevronUp, Star, Compass, UserCheck,
-  BookMarked, HelpCircle, Layers3, Video, FileText, Code, CheckSquare
+  BookMarked, HelpCircle, Layers3, Video, FileText, Code, CheckSquare, MoreHorizontal
 } from 'lucide-react'
 
 // --- MULTI-TIER DRILLDOWN TAXONOMY ---
-// Skill (Square Card) -> Module -> Lesson -> Subtopic (Video, Notes, Code, Quiz)
+// Skill (Square Card / Sololearn Card) -> Module -> Lesson -> Subtopic (Video, Notes, Code, Quiz)
 
 interface QuizQuestion {
   question: string
@@ -62,6 +62,10 @@ interface SkillNode {
   name: string
   domain: 'Programming' | 'Core CS' | 'Dev Tools' | 'Web Dev' | 'AI & ML' | 'Communication' | 'Career Prep'
   icon: string
+  color: string
+  progress: number
+  completedLessons: number
+  totalLessons: number
   tier: 'Bronze' | 'Silver' | 'Gold' | 'Diamond'
   totalXp: number
   description: string
@@ -75,6 +79,10 @@ const SKILL_TREE: SkillNode[] = [
     name: 'Python 3 & Backend Scripting',
     domain: 'Programming',
     icon: '🐍',
+    color: 'from-emerald-500 to-teal-700',
+    progress: 23,
+    completedLessons: 4,
+    totalLessons: 18,
     tier: 'Gold',
     totalXp: 750,
     description: 'Complete Python journey from basic syntax and data structures to async concurrency, Pydantic, and FastAPI.',
@@ -131,7 +139,7 @@ const SKILL_TREE: SkillNode[] = [
               {
                 id: 'py-s2-1',
                 title: 'Topic 1: Declaring Variables & Primitive Types',
-                explanation: 'In Python, variables are created the moment you assign a value to them using =. You do not specify type keywords like int or String — Python automatically infers integers, floats, strings, and booleans.',
+                explanation: 'In Python, variables are created the moment you assign a value using =. You do not specify type keywords like int or String — Python automatically infers integers, floats, strings, and booleans.',
                 youtubeEmbedId: 'kqtD5dpn9C8',
                 codeSnippet: 'age = 19               # int\ngpa = 3.8              # float\nname = "Shadik"        # str\nis_enrolled = True     # bool\n\nprint(type(age))        # <class \'int\'>\nprint(type(gpa))        # <class \'float\'>\nprint(type(name))       # <class \'str\'>\nprint(type(is_enrolled))# <class \'bool\'>',
                 realWorldMatch: 'Configuring user metadata in Supabase profile auth state',
@@ -187,9 +195,13 @@ const SKILL_TREE: SkillNode[] = [
   },
   {
     id: 'c-programming',
-    name: 'C & Low-Level Memory Management',
+    name: 'Introduction to C & Memory Management',
     domain: 'Programming',
     icon: '©️',
+    color: 'from-blue-600 to-indigo-800',
+    progress: 9,
+    completedLessons: 4,
+    totalLessons: 45,
     tier: 'Silver',
     totalXp: 500,
     description: 'From variables and arrays to pointers, dereferencing, structs, and dynamic memory allocation (malloc/free).',
@@ -228,17 +240,107 @@ const SKILL_TREE: SkillNode[] = [
         }
       }
     ]
+  },
+  {
+    id: 'cpp-programming',
+    name: 'Introduction to C++',
+    domain: 'Programming',
+    icon: 'C++',
+    color: 'from-sky-500 to-blue-700',
+    progress: 9,
+    completedLessons: 4,
+    totalLessons: 45,
+    tier: 'Gold',
+    totalXp: 650,
+    description: 'Object-oriented C++ programming, classes, objects, pointers, and Standard Template Library (STL).',
+    modules: [
+      {
+        id: 'cpp-mod-1',
+        title: 'Module 1: C++ Basics & Object Orientation',
+        description: 'std::cout, cin, classes, constructors, and vectors.',
+        lessons: [
+          {
+            id: 'cpp-l1',
+            title: 'Lesson 1.1: C++ I/O & Classes',
+            duration: '6 min',
+            xp: 25,
+            takeaway: 'std::cout prints output; std::cin reads user input.',
+            subtopics: [
+              {
+                id: 'cpp-s1',
+                title: 'Topic 1: Classes & Objects',
+                explanation: 'Classes define object blueprints containing properties and methods.',
+                codeSnippet: '#include <iostream>\nclass Student {\npublic:\n    std::string name;\n};\nint main() {\n    Student s;\n    s.name = "Shadik";\n    std::cout << s.name;\n}'
+              }
+            ]
+          }
+        ],
+        challenge: {
+          id: 'cpp-ch-1',
+          title: 'Code Coach: C++ Vector Operations',
+          prompt: 'Create a vector<int>, push numbers 10 and 20, and print vector size.',
+          starterCode: '#include <iostream>\n#include <vector>\nint main() {\n    std::vector<int> v;\n    // Code here:\n}',
+          expectedKeywords: ['push_back', 'size', 'cout'],
+          xpReward: 60,
+          hint: 'v.push_back(10); v.push_back(20); cout << v.size();'
+        }
+      }
+    ]
+  },
+  {
+    id: 'react-webdev',
+    name: 'Web Development & Modern React',
+    domain: 'Web Dev',
+    icon: '⚛️',
+    color: 'from-cyan-500 to-blue-600',
+    progress: 25,
+    completedLessons: 27,
+    totalLessons: 108,
+    tier: 'Diamond',
+    totalXp: 850,
+    description: 'HTML5, CSS3, Modern JavaScript ES6+, React Hooks, State Management, and Next.js App Router.',
+    modules: [
+      {
+        id: 'react-mod-1',
+        title: 'Module 1: Modern React Hooks & JSX',
+        description: 'useState, useEffect, component props, and state lifting.',
+        lessons: [
+          {
+            id: 'react-l1',
+            title: 'Lesson 1.1: useState & Component State',
+            duration: '7 min',
+            xp: 25,
+            takeaway: 'useState holds reactive state variables that trigger UI re-renders on update.',
+            subtopics: [
+              {
+                id: 'react-s1',
+                title: 'Topic 1: Modern Component State',
+                explanation: 'State triggers dynamic re-renders whenever set state functions are invoked.',
+                codeSnippet: 'const [count, setCount] = useState(0);\nreturn <button onClick={() => setCount(count + 1)}>Count: {count}</button>;'
+              }
+            ]
+          }
+        ],
+        challenge: {
+          id: 'react-ch-1',
+          title: 'Code Coach: Toggle State Button',
+          prompt: 'Write a React component button that toggles isLiked state boolean.',
+          starterCode: 'const [isLiked, setIsLiked] = useState(false);\nreturn <button onClick={() => setIsLiked(!isLiked)}>{isLiked ? "Liked" : "Like"}</button>;',
+          expectedKeywords: ['useState', 'setIsLiked', 'onClick'],
+          xpReward: 70,
+          hint: 'onClick={() => setIsLiked(!isLiked)}'
+        }
+      }
+    ]
   }
 ]
-
-const DOMAINS = ['All', 'Programming', 'Core CS', 'Dev Tools', 'Web Dev', 'Communication', 'Career Prep']
 
 export default function GamifiedSkillsTreePage() {
   const supabase = createClient()
   const [profile, setProfile] = useState<any>(null)
   const [userXp, setUserXp] = useState(150)
   const [streak, setStreak] = useState(3)
-  const [selectedDomain, setSelectedDomain] = useState('All')
+  const [activeTab, setActiveTab] = useState<'in_progress' | 'complete'>('in_progress')
   const [searchQuery, setSearchQuery] = useState('')
 
   // Drilldown Navigation State:
@@ -337,62 +439,33 @@ export default function GamifiedSkillsTreePage() {
     }
   }
 
-  const filteredSkills = SKILL_TREE.filter(skill => {
-    const matchesDomain = selectedDomain === 'All' || skill.domain === selectedDomain
-    const matchesSearch = skill.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          skill.description.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesDomain && matchesSearch
-  })
+  const inProgressSkills = SKILL_TREE.filter(s => s.progress < 100)
+  const completedSkills = SKILL_TREE.filter(s => s.progress === 100)
+  const currentSkills = activeTab === 'in_progress' ? inProgressSkills : completedSkills
+
+  const filteredSkills = currentSkills.filter(skill => 
+    skill.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    skill.description.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const featuredCourse = SKILL_TREE.find(s => s.id === 'cpp-programming') || SKILL_TREE[0]
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500">
-      {/* Top Banner: Gamified XP & Level Header */}
-      <div className="bg-[#111118] border border-white/10 rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-2 max-w-xl">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-extrabold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={12} /> Sololearn-Style Learning Engine
-            </span>
-            <span className="text-[10px] font-extrabold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <Code2 size={12} /> Code Coach Practice
-            </span>
-          </div>
-          <h1 className="text-2xl font-bold text-white">Full-Stack & Python Skill Hub</h1>
-          <p className="text-xs text-gray-400 leading-relaxed">
-            Master Python 3 from basics to backend APIs with interactive quizzes, videos, and Code Coach tasks!
-          </p>
-        </div>
-
-        {/* User Stats Card */}
-        <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl shrink-0">
-          <div className="text-center pr-3 border-r border-white/10">
-            <span className="text-[10px] font-bold text-amber-400 flex items-center justify-center gap-1 uppercase">
-              <Flame size={13} /> STREAK
-            </span>
-            <span className="text-2xl font-extrabold text-white">{streak}d</span>
-          </div>
-          <div className="text-center pl-1">
-            <span className="text-[10px] font-bold text-emerald-400 flex items-center justify-center gap-1 uppercase">
-              <Trophy size={13} /> TOTAL XP
-            </span>
-            <span className="text-2xl font-extrabold text-emerald-400">{userXp} XP</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── BREADCRUMB NAVIGATION ── */}
-      {selectedSkill && (
-        <div className="bg-[#111118] border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4">
+    <div className="max-w-5xl mx-auto space-y-8 pb-16 animate-in fade-in duration-500">
+      
+      {/* ── BREADCRUMB / BACK BAR WHEN INSIDE A COURSE ── */}
+      {selectedSkill ? (
+        <div className="bg-[#111219] border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xl">
           <div className="flex items-center gap-2 text-xs font-bold flex-wrap">
             <button
               onClick={() => { setSelectedSkill(null); setSelectedModule(null); setSelectedLesson(null); setSelectedSubtopic(null); }}
-              className="text-indigo-400 hover:text-white flex items-center gap-1"
+              className="text-indigo-400 hover:text-white flex items-center gap-1 transition-colors"
             >
-              <ArrowLeft size={14} /> Skills Grid
+              <ArrowLeft size={14} /> My Courses
             </button>
             <span className="text-gray-600">/</span>
-            <span className="text-white flex items-center gap-1">
-              {selectedSkill.icon} {selectedSkill.name}
+            <span className="text-white flex items-center gap-1.5">
+              <span className="text-base">{selectedSkill.icon}</span> {selectedSkill.name}
             </span>
 
             {selectedModule && (
@@ -412,91 +485,163 @@ export default function GamifiedSkillsTreePage() {
 
           <button
             onClick={() => { setSelectedSkill(null); setSelectedModule(null); setSelectedLesson(null); setSelectedSubtopic(null); }}
-            className="text-xs font-bold text-gray-400 hover:text-white px-3 py-1 rounded-lg border border-white/10 hover:bg-white/10"
+            className="text-xs font-bold text-gray-400 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors"
           >
-            Exit Skill ✕
+            Exit Course ✕
           </button>
         </div>
-      )}
-
-      {/* ── VIEW 1: INITIAL CLEAN SQUARE SKILLS GRID ── */}
-      {!selectedSkill && (
+      ) : (
+        /* ── SOLOLEARN-STYLE "MY COURSES" HEADER ── */
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#111118] border border-white/10 rounded-2xl p-4">
-            <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto">
-              {DOMAINS.map(dom => (
-                <button
-                  key={dom}
-                  onClick={() => setSelectedDomain(dom)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    selectedDomain === dom
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-                      : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white'
-                  }`}
-                >
-                  {dom}
-                </button>
-              ))}
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-black text-white tracking-tight">My Courses</h1>
+            
+            {/* User Stats Pill */}
+            <div className="flex items-center gap-4 bg-[#111219] border border-white/10 px-4 py-2 rounded-2xl">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                <Flame size={15} /> <span>{streak}d Streak</span>
+              </div>
+              <div className="w-px h-4 bg-white/10" />
+              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                <Trophy size={15} /> <span>{userXp} XP</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Filter Tabs & Search Bar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 bg-white/5 p-1 rounded-2xl border border-white/10">
+              <button
+                onClick={() => setActiveTab('in_progress')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeTab === 'in_progress'
+                    ? 'bg-white text-black shadow-lg font-extrabold'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                In Progress <span className="bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{inProgressSkills.length}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('complete')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeTab === 'complete'
+                    ? 'bg-white text-black shadow-lg font-extrabold'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Complete <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{completedSkills.length}</span>
+              </button>
             </div>
 
-            <div className="relative shrink-0 md:w-60">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <div className="relative w-full sm:w-64">
+              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
               <input
+                type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search skill nodes..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                placeholder="Search my courses..."
+                className="w-full bg-[#111219] border border-white/10 rounded-2xl pl-10 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSkills.map(skill => {
-              const totalLessonsCount = skill.modules.reduce((acc, m) => acc + m.lessons.length, 0)
-
-              return (
-                <div
-                  key={skill.id}
-                  onClick={() => handleSelectSkill(skill)}
-                  className="bg-[#111118] border border-white/10 rounded-2xl p-6 cursor-pointer transition-all group hover:border-indigo-500/50 hover:bg-indigo-500/2 flex flex-col justify-between h-56"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <span className="text-4xl p-2 bg-white/5 rounded-2xl border border-white/8 shrink-0">{skill.icon}</span>
-                      <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-lg border ${
-                        skill.tier === 'Diamond' ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30' :
-                        skill.tier === 'Gold' ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' :
-                        'bg-slate-300/10 text-slate-200 border-slate-300/30'
-                      }`}>
-                        {skill.tier}
-                      </span>
-                    </div>
-
-                    <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors leading-snug">
-                      {skill.name}
-                    </h3>
-                    <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
-                      {skill.description}
-                    </p>
+          {/* ── FEATURED "CONTINUE" COURSE CARD (SOLOLEARN STYLE) ── */}
+          {activeTab === 'in_progress' && (
+            <div className="bg-[#111219] border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden group hover:border-indigo-500/40 transition-all">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  {/* Round Brand Icon Badge */}
+                  <div className={`w-14 h-14 rounded-full bg-gradient-to-tr ${featuredCourse.color} flex items-center justify-center font-black text-white text-lg shadow-xl shadow-blue-500/20 shrink-0`}>
+                    {featuredCourse.icon}
                   </div>
-
-                  <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-bold text-indigo-400 group-hover:text-indigo-300">
-                    <span className="text-[11px] font-semibold text-gray-400">{skill.modules.length} Modules • {totalLessonsCount} Lessons</span>
-                    <span className="flex items-center gap-1">Open <ChevronRight size={15} /></span>
+                  <div>
+                    <span className="text-[10px] font-extrabold text-sky-400 uppercase tracking-widest block">CONTINUE</span>
+                    <h2 className="text-xl font-bold text-white tracking-tight mt-0.5">{featuredCourse.name}</h2>
                   </div>
                 </div>
-              )
-            })}
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    onClick={() => handleSelectSkill(featuredCourse)}
+                    className="flex-1 sm:flex-none bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+                  >
+                    Resume →
+                  </button>
+                  <button className="p-3 rounded-2xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <MoreHorizontal size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress Bar & Stats */}
+              <div className="space-y-2">
+                <div className="flex items-baseline justify-between text-xs font-bold">
+                  <span className="text-2xl font-black text-white">{featuredCourse.progress}%</span>
+                  <span className="text-gray-400 font-semibold">{featuredCourse.completedLessons} of {featuredCourse.totalLessons} lessons</span>
+                </div>
+                <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
+                  <div 
+                    className="h-full bg-gradient-to-r from-sky-400 to-blue-600 rounded-full transition-all duration-500"
+                    style={{ width: `${featuredCourse.progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── COURSE LIST CARDS (SOLOLEARN STYLE) ── */}
+          <div className="space-y-4">
+            {filteredSkills.map(skill => (
+              <div
+                key={skill.id}
+                onClick={() => handleSelectSkill(skill)}
+                className="bg-[#111219] border border-white/10 hover:border-white/20 rounded-3xl p-5 cursor-pointer transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-full bg-gradient-to-tr ${skill.color} flex items-center justify-center font-black text-white text-base shadow-lg shrink-0`}>
+                    {skill.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white group-hover:text-sky-300 transition-colors leading-tight">
+                      {skill.name}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-1 font-medium">
+                      {skill.completedLessons} of {skill.totalLessons} lessons
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6 justify-between sm:justify-end">
+                  {/* Progress Bar */}
+                  <div className="w-36 sm:w-48 space-y-1.5">
+                    <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/8">
+                      <div 
+                        className={`h-full bg-gradient-to-r ${skill.color} rounded-full transition-all duration-500`}
+                        style={{ width: `${skill.progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <span className="text-xs font-bold text-gray-300 min-w-[32px] text-right">
+                    {skill.progress}%
+                  </span>
+
+                  <button className="p-2 rounded-xl text-gray-500 group-hover:text-white transition-colors">
+                    <MoreHorizontal size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ── VIEW 2: DEDICATED DEEP DRILLDOWN VIEW ── */}
+      {/* ── DEDICATED COURSE DRILLDOWN VIEW (Skill -> Module -> Lesson -> Topic) ── */}
       {selectedSkill && (
         <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
           {/* STEP 1: MODULE SELECTION BUTTONS */}
-          <div className="bg-[#111118] border border-white/10 rounded-2xl p-5 space-y-3">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">STEP 1: SELECT MODULE HEADING</span>
+          <div className="bg-[#111219] border border-white/10 rounded-2xl p-5 space-y-3 shadow-xl">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">STEP 1: SELECT MODULE</span>
             <div className="flex items-center gap-3 overflow-x-auto pb-1">
               {selectedSkill.modules.map((mod, idx) => {
                 const isActive = selectedModule?.id === mod.id
@@ -507,11 +652,11 @@ export default function GamifiedSkillsTreePage() {
                     onClick={() => handleSelectModule(mod)}
                     className={`px-5 py-3 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2.5 border ${
                       isActive
-                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20 scale-[1.02]'
+                        ? 'bg-sky-500 border-sky-400 text-white shadow-lg shadow-sky-500/20 scale-[1.02]'
                         : 'bg-white/5 border-white/10 text-gray-300 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    <Layers3 size={16} className={isActive ? 'text-white' : 'text-indigo-400'} />
+                    <Layers3 size={16} className={isActive ? 'text-white' : 'text-sky-400'} />
                     <span>Module {idx + 1}: {mod.title.split(':')[1] || mod.title}</span>
                   </button>
                 )
@@ -521,7 +666,7 @@ export default function GamifiedSkillsTreePage() {
 
           {/* STEP 2: LESSONS LIST UNDER SELECTED MODULE */}
           {selectedModule && (
-            <div className="bg-[#111118] border border-white/10 rounded-2xl p-5 space-y-4">
+            <div className="bg-[#111219] border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
               <div className="flex justify-between items-center border-b border-white/8 pb-3">
                 <div>
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">STEP 2: SELECT LESSON</span>
@@ -533,13 +678,13 @@ export default function GamifiedSkillsTreePage() {
                     setChallengeCode(selectedModule.challenge.starterCode)
                     setChallengeFeedback(null)
                   }}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-1.5"
+                  className="bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-lg shadow-sky-500/20 flex items-center gap-1.5"
                 >
                   <Terminal size={14} /> Code Coach Task (+{selectedModule.challenge.xpReward} XP)
                 </button>
               </div>
 
-              {/* Lessons Row / Grid */}
+              {/* Lessons Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {selectedModule.lessons.map(les => {
                   const isSelected = selectedLesson?.id === les.id
@@ -550,18 +695,18 @@ export default function GamifiedSkillsTreePage() {
                       onClick={() => handleSelectLesson(les)}
                       className={`p-4 rounded-xl border cursor-pointer transition-all flex justify-between items-center gap-3 ${
                         isSelected
-                          ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-lg'
+                          ? 'bg-sky-500/20 border-sky-400 text-white shadow-lg'
                           : 'bg-white/3 border-white/8 text-gray-300 hover:bg-white/5 hover:border-white/20'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <BookOpen size={18} className={isSelected ? 'text-indigo-400' : 'text-gray-400'} />
+                        <BookOpen size={18} className={isSelected ? 'text-sky-400' : 'text-gray-400'} />
                         <div>
                           <h4 className="text-xs font-bold text-white">{les.title}</h4>
                           <span className="text-[10px] text-gray-400">{les.subtopics.length} Topics • {les.duration} • +{les.xp} XP</span>
                         </div>
                       </div>
-                      <ChevronRight size={16} className={isSelected ? 'text-indigo-400' : 'text-gray-500'} />
+                      <ChevronRight size={16} className={isSelected ? 'text-sky-400' : 'text-gray-500'} />
                     </div>
                   )
                 })}
@@ -569,11 +714,11 @@ export default function GamifiedSkillsTreePage() {
             </div>
           )}
 
-          {/* STEP 3: TOPIC & SUBTOPIC DEEP DIVE (VIDEO, NOTES, CODE & QUIZ!) */}
+          {/* STEP 3: TOPIC & SUBTOPIC DEEP DIVE */}
           {selectedLesson && (
-            <div className="bg-[#111118] border border-indigo-500/40 rounded-2xl p-6 space-y-6">
+            <div className="bg-[#111219] border border-sky-500/40 rounded-2xl p-6 space-y-6 shadow-2xl">
               <div className="border-b border-white/10 pb-4">
-                <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">STEP 3: TOPIC & LESSON DEEP DIVE</span>
+                <span className="text-[10px] font-extrabold text-sky-400 uppercase tracking-wider">STEP 3: LESSON TOPIC CONTENT</span>
                 <h2 className="text-lg font-bold text-white mt-1">{selectedLesson.title}</h2>
                 <p className="text-xs text-gray-400 mt-1">💡 Key Takeaway: {selectedLesson.takeaway}</p>
               </div>
@@ -603,10 +748,10 @@ export default function GamifiedSkillsTreePage() {
                 })}
               </div>
 
-              {/* Selected Topic Content Breakdown */}
+              {/* Selected Topic Breakdown */}
               {selectedSubtopic && (
                 <div className="space-y-6 pt-2">
-                  {/* 1. Video Lecture Embed */}
+                  {/* Video Tutorial */}
                   {selectedSubtopic.youtubeEmbedId && (
                     <div className="space-y-2">
                       <h4 className="text-xs font-bold text-white flex items-center gap-2">
@@ -624,9 +769,9 @@ export default function GamifiedSkillsTreePage() {
                     </div>
                   )}
 
-                  {/* 2. Detailed Study Notes (Sololearn Style) */}
+                  {/* Study Notes (Sololearn Style) */}
                   <div className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-2">
-                    <h4 className="text-xs font-bold text-indigo-400 flex items-center gap-2 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-sky-400 flex items-center gap-2 uppercase tracking-wider">
                       <FileText size={15} /> Topic Explanation
                     </h4>
                     <p className="text-xs text-gray-300 leading-relaxed font-mono">
@@ -642,7 +787,7 @@ export default function GamifiedSkillsTreePage() {
                     )}
                   </div>
 
-                  {/* 3. Code Example */}
+                  {/* Code Example */}
                   {selectedSubtopic.codeSnippet && (
                     <div className="space-y-2">
                       <h4 className="text-xs font-bold text-white flex items-center gap-2">
@@ -654,10 +799,10 @@ export default function GamifiedSkillsTreePage() {
                     </div>
                   )}
 
-                  {/* 4. Sololearn-style Quiz Checkpoint */}
+                  {/* Sololearn Quiz Checkpoint */}
                   {selectedSubtopic.quiz && (
-                    <div className="bg-indigo-950/20 border border-indigo-500/30 rounded-2xl p-5 space-y-3">
-                      <h4 className="text-xs font-bold text-indigo-300 flex items-center gap-2 uppercase tracking-wider">
+                    <div className="bg-sky-950/20 border border-sky-500/30 rounded-2xl p-5 space-y-3">
+                      <h4 className="text-xs font-bold text-sky-300 flex items-center gap-2 uppercase tracking-wider">
                         <HelpCircle size={15} /> Topic Quiz Checkpoint
                       </h4>
                       <p className="text-xs font-semibold text-white">
@@ -730,43 +875,40 @@ export default function GamifiedSkillsTreePage() {
       {/* ── INTERACTIVE CODE COACH TASK MODAL ── */}
       {activeChallenge && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-60 flex items-center justify-center p-4">
-          <div className="bg-[#111118] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4">
+          <div className="bg-[#111219] border border-white/10 rounded-3xl p-6 w-full max-w-2xl shadow-2xl space-y-4">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">CODE COACH PRACTICE TASK</span>
+                <span className="text-[10px] font-extrabold text-sky-400 uppercase tracking-wider">CODE COACH PRACTICE TASK</span>
                 <h3 className="text-base font-bold text-white mt-1">{activeChallenge.challenge.title}</h3>
               </div>
               <button
                 onClick={() => setActiveChallenge(null)}
-                className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
+                className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5 text-xs text-gray-300 leading-relaxed font-mono">
+            <div className="bg-white/5 border border-white/8 rounded-2xl p-4 text-xs text-gray-300 leading-relaxed font-mono">
               💡 <strong className="text-white">Task:</strong> {activeChallenge.challenge.prompt}
             </div>
 
-            {/* Code Input */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Write Code Solution:</label>
               <textarea
                 rows={6}
                 value={challengeCode}
                 onChange={e => setChallengeCode(e.target.value)}
-                className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl p-4 text-xs font-mono text-emerald-300 leading-relaxed focus:outline-none focus:border-indigo-500"
+                className="w-full bg-[#0a0a0f] border border-white/10 rounded-2xl p-4 text-xs font-mono text-emerald-300 leading-relaxed focus:outline-none focus:border-sky-500"
               />
             </div>
 
-            {/* Hint */}
             <p className="text-[11px] text-gray-500">
               💡 <strong className="text-gray-400">Hint:</strong> {activeChallenge.challenge.hint}
             </p>
 
-            {/* Feedback */}
             {challengeFeedback && (
-              <div className={`p-3 rounded-xl text-xs font-bold ${
+              <div className={`p-3.5 rounded-2xl text-xs font-bold ${
                 challengeFeedback.success ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
               }`}>
                 {challengeFeedback.msg}
@@ -776,13 +918,13 @@ export default function GamifiedSkillsTreePage() {
             <div className="pt-2 flex justify-end gap-3">
               <button
                 onClick={() => setActiveChallenge(null)}
-                className="bg-white/5 border border-white/10 text-gray-400 hover:text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors"
+                className="bg-white/5 border border-white/10 text-gray-400 hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleVerifyChallenge}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
               >
                 <CheckCircle2 size={14} /> Submit & Claim +{activeChallenge.challenge.xpReward} XP
               </button>
