@@ -13,6 +13,13 @@ import {
 // --- MULTI-TIER DRILLDOWN TAXONOMY ---
 // Skill (Square Card) -> Module -> Lesson -> Subtopic (Video, Notes, Code, Quiz)
 
+interface QuizQuestion {
+  question: string
+  options: string[]
+  correctIndex: number
+  explanation: string
+}
+
 interface MiniChallenge {
   id: string
   title: string
@@ -30,6 +37,7 @@ interface SubTopic {
   youtubeEmbedId?: string
   codeSnippet?: string
   realWorldMatch?: string
+  quiz?: QuizQuestion
 }
 
 interface Lesson {
@@ -78,7 +86,7 @@ const SKILL_TREE: SkillNode[] = [
         lessons: [
           {
             id: 'py-l1',
-            title: 'Lesson 1.1: Variables, Inputs & f-string Formatting',
+            title: 'Lesson 1.1: Syntax & Hello World',
             duration: '5 min',
             xp: 20,
             takeaway: 'f-strings allow embedding expressions directly in strings using f"Hello {name}".',
@@ -89,7 +97,13 @@ const SKILL_TREE: SkillNode[] = [
                 explanation: 'Python uses dynamic typing. Variables do not require explicit type declarations when assigned.',
                 youtubeEmbedId: 'kqtD5dpn9C8',
                 codeSnippet: 'name = "Shadik"\nrole = "Forward Deployed Engineer"\nage = 19\nprint(type(name))  # <class \'str\'>',
-                realWorldMatch: 'AIRA-OS environment variable fetching: os.getenv("GEMINI_API_KEY")'
+                realWorldMatch: 'AIRA-OS environment variable fetching: os.getenv("GEMINI_API_KEY")',
+                quiz: {
+                  question: "What will print(type('Hello')) output in Python?",
+                  options: ["<class 'int'>", "<class 'str'>", "<class 'char'>", "<class 'text'>"],
+                  correctIndex: 1,
+                  explanation: "In Python, single or double quotes signify string data types ('str')."
+                }
               },
               {
                 id: 'py-s1-2',
@@ -97,77 +111,76 @@ const SKILL_TREE: SkillNode[] = [
                 explanation: 'f-strings (introduced in Python 3.6) allow executing Python expressions directly inside curly braces {}.',
                 youtubeEmbedId: 'vTX3y7p5JqU',
                 codeSnippet: 'user = "Shadik"\nscore = 95\nprint(f"User {user.upper()} achieved an ATS score of {score}%.")',
-                realWorldMatch: 'Formatting Gemini AI system prompt strings in /api/ai/chat'
+                realWorldMatch: 'Formatting Gemini AI system prompt strings in /api/ai/chat',
+                quiz: {
+                  question: "Which prefix is required before quotes to activate Python string interpolation?",
+                  options: ["$", "%", "f", "@"],
+                  correctIndex: 2,
+                  explanation: "Prefixing a string with 'f' (like f'Hello {name}') enables variable substitution inside {}."
+                }
               }
             ]
           },
           {
-            id: 'py-l2',
-            title: 'Lesson 1.2: Lists, Dictionaries & JSON Parsing',
+            id: 'py-l2-vars',
+            title: 'Lesson 2: Variables & Data Types',
             duration: '8 min',
-            xp: 25,
-            takeaway: 'Dictionaries store key-value pairs matching JSON API payloads.',
+            xp: 30,
+            takeaway: 'Python dynamically infers variable types (int, float, str, bool, list, dict). Use type() to inspect.',
             subtopics: [
               {
                 id: 'py-s2-1',
-                title: 'Topic 1: Python Lists & Mutability',
-                explanation: 'Lists are ordered, mutable sequences that store heterogeneous items.',
-                youtubeEmbedId: 'tw7ror9x32s',
-                codeSnippet: 'skills = ["Python", "C", "FastAPI"]\nskills.append("React")\nskills.sort()\nprint(skills)',
-                realWorldMatch: 'Managing student mastered_skills arrays in Supabase profiles'
+                title: 'Topic 1: Declaring Variables & Primitive Types',
+                explanation: 'In Python, variables are created the moment you assign a value to them using =. You do not specify type keywords like int or String — Python automatically infers integers, floats, strings, and booleans.',
+                youtubeEmbedId: 'kqtD5dpn9C8',
+                codeSnippet: 'age = 19               # int\ngpa = 3.8              # float\nname = "Shadik"        # str\nis_enrolled = True     # bool\n\nprint(type(age))        # <class \'int\'>\nprint(type(gpa))        # <class \'float\'>\nprint(type(name))       # <class \'str\'>\nprint(type(is_enrolled))# <class \'bool\'>',
+                realWorldMatch: 'Configuring user metadata in Supabase profile auth state',
+                quiz: {
+                  question: "What will print(type(3.0)) output in Python?",
+                  options: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'number'>"],
+                  correctIndex: 1,
+                  explanation: "Any number containing a decimal point in Python is stored as a float, even if it ends in .0."
+                }
               },
               {
                 id: 'py-s2-2',
-                title: 'Topic 2: Dictionaries & REST API JSON Payloads',
-                explanation: 'Python dictionaries map keys to values, forming the exact structure of JSON REST API responses.',
+                title: 'Topic 2: Type Conversion (Casting)',
+                explanation: 'When reading values from user inputs or web API responses, numbers often arrive as strings. Use int(), float(), and str() to convert between data types.',
                 youtubeEmbedId: 'daefaLgNkw0',
-                codeSnippet: 'payload = {\n    "user_id": "123",\n    "mastered_skills": ["Python", "FastAPI"]\n}\nprint(payload.get("mastered_skills"))',
-                realWorldMatch: 'Parsing Supabase database rows and Next.js backend JSON bodies'
-              }
-            ]
-          }
-        ],
-        challenge: {
-          id: 'py-ch-1',
-          title: 'Mini-Challenge: Build an API Payload Parser',
-          prompt: 'Write a Python script that takes a dictionary `user`, appends "FastAPI" to `user["skills"]`, and prints `f"User {user[\'name\']} has {len(user[\'skills\'])} skills"`.',
-          starterCode: 'user = {"name": "Shadik", "skills": ["Python"]}\n\n# Your code here:\n',
-          expectedKeywords: ['append', 'len', 'print'],
-          xpReward: 75,
-          hint: 'Use user["skills"].append("FastAPI") and format with f-string.'
-        }
-      },
-      {
-        id: 'py-mod-2',
-        title: 'Module 2: Functions, Decorators & OOP',
-        description: 'Functions with type hints, custom decorators, and Object-Oriented classes.',
-        lessons: [
-          {
-            id: 'py-l4',
-            title: 'Lesson 2.1: Functions, Default Args & Type Hints',
-            duration: '6 min',
-            xp: 25,
-            takeaway: 'Type hints improve IDE autocompletion and prevent runtime bugs.',
-            subtopics: [
+                codeSnippet: 'str_score = "95"\nnum_score = int(str_score)  # Converts "95" to integer 95\nprint(num_score + 5)        # Outputs: 100\n\n# Truncating decimals:\npi = 3.99\nprint(int(pi))              # Outputs: 3 (truncates without rounding)',
+                realWorldMatch: 'Parsing query parameters from Next.js URL requests',
+                quiz: {
+                  question: "Which expression converts string '20' to an integer so you can perform math (+ 10)?",
+                  options: ['int("20") + 10', '"20" + str(10)', 'eval("20 + 10")', 'int("20 + 10")'],
+                  correctIndex: 0,
+                  explanation: "int('20') converts '20' to number 20, allowing integer addition (20 + 10 = 30)."
+                }
+              },
               {
-                id: 'py-s4-1',
-                title: 'Topic 1: Type Hints & Function Signatures',
-                explanation: 'Python type hints specify parameter and return types for clarity.',
-                youtubeEmbedId: 'Q5A5l5ZubMs',
-                codeSnippet: 'from typing import List\ndef calculate_gpa(grades: List[float]) -> float:\n    return sum(grades) / len(grades)',
-                realWorldMatch: 'FastAPI route handler functions and parameters'
+                id: 'py-s2-3',
+                title: 'Topic 3: Containers — Lists, Tuples & Dictionaries',
+                explanation: 'For grouping multiple values: Lists [] store ordered mutable items, Tuples () store read-only fixed sequences, and Dictionaries {} store key-value lookup pairs matching JSON APIs.',
+                youtubeEmbedId: 'tw7ror9x32s',
+                codeSnippet: '# List (Mutable)\nskills = ["Python", "FastAPI"]\nskills.append("React")\n\n# Tuple (Read-only / Fixed)\nlocation = (17.3850, 78.4867)  # GPS Lat, Long\n\n# Dictionary (Key-Value Pairs)\nstudent = {"name": "Shadik", "xp": 250}\nprint(student["name"])  # Outputs: Shadik',
+                realWorldMatch: 'Handling JSON API payloads in FastAPI & Express routes',
+                quiz: {
+                  question: "Which data structure is ideal for storing unchangeable GPS coordinates (latitude, longitude)?",
+                  options: ["List []", "Tuple ()", "Dictionary {}", "Set {}"],
+                  correctIndex: 1,
+                  explanation: "Tuples () are immutable (cannot be modified after creation), making them perfect for fixed pairs like coordinates."
+                }
               }
             ]
           }
         ],
         challenge: {
-          id: 'py-ch-2',
-          title: 'Mini-Challenge: Create a Student Class',
-          prompt: 'Create a Python class `Student` with `__init__(self, name)` and a method `add_skill(self, skill)` that appends to `self.skills`.',
-          starterCode: 'class Student:\n    def __init__(self, name):\n        self.name = name\n        self.skills = []\n\n    # Add method here:\n',
-          expectedKeywords: ['def', 'add_skill', 'self', 'append'],
-          xpReward: 100,
-          hint: 'def add_skill(self, skill): self.skills.append(skill)'
+          id: 'py-ch-codecoach-1',
+          title: 'Code Coach: Profile Data Parser',
+          prompt: 'Fill in the code blanks to convert the raw string input "85" to an integer, add 15 bonus XP to it, and print the output formatted as "Total XP: 100".',
+          starterCode: 'raw_xp = "85"\n\n# Fill in blanks:\nnum_xp = int(raw_xp)\ntotal = num_xp + 15\nprint(f"Total XP: {total}")\n',
+          expectedKeywords: ['int', '15', 'total', 'print'],
+          xpReward: 50,
+          hint: 'Use int(raw_xp) to convert, add 15, and print using an f-string.'
         }
       }
     ]
@@ -215,94 +228,6 @@ const SKILL_TREE: SkillNode[] = [
         }
       }
     ]
-  },
-  {
-    id: 'dsa-mastery',
-    name: 'Data Structures & Algorithms (DSA)',
-    domain: 'Programming',
-    icon: '🧩',
-    tier: 'Diamond',
-    totalXp: 900,
-    description: 'Arrays, Two Pointers, Linked Lists, Trees, Graphs, and Dynamic Programming algorithms.',
-    modules: [
-      {
-        id: 'dsa-mod-1',
-        title: 'Module 1: Arrays, Two Pointers & Sliding Window',
-        description: 'Linear time O(N) array techniques to eliminate O(N^2) brute force loops.',
-        lessons: [
-          {
-            id: 'dsa-l1',
-            title: 'Lesson 1.1: Two Pointers & Sliding Window',
-            duration: '8 min',
-            xp: 25,
-            takeaway: 'Two pointers move inward from opposite ends of a sorted array.',
-            subtopics: [
-              {
-                id: 'dsa-s1-1',
-                title: 'Topic 1: Two Pointers Pattern',
-                explanation: 'Reduces O(N^2) search down to O(N) linear scan.',
-                youtubeEmbedId: 'On03HWe2tZM',
-                codeSnippet: 'def two_sum(nums, target):\n    l, r = 0, len(nums)-1\n    while l < r:\n        s = nums[l] + nums[r]\n        if s == target: return [l, r]\n        elif s < target: l += 1\n        else: r -= 1',
-                realWorldMatch: 'Optimizing search algorithms in backend databases'
-              }
-            ]
-          }
-        ],
-        challenge: {
-          id: 'dsa-ch-1',
-          title: 'Mini-Challenge: Binary Search O(log N)',
-          prompt: 'Write a Python function `binary_search(nums, target)` returning target index or -1.',
-          starterCode: 'def binary_search(nums, target):\n    left, right = 0, len(nums) - 1\n    # Loop here:\n',
-          expectedKeywords: ['while', 'mid', 'left', 'right'],
-          xpReward: 100,
-          hint: 'while left <= right: mid = (left + right) // 2 ...'
-        }
-      }
-    ]
-  },
-  {
-    id: 'tech-communication',
-    name: 'Technical Communication & Code Pitching',
-    domain: 'Communication',
-    icon: '🗣️',
-    tier: 'Gold',
-    totalXp: 600,
-    description: 'Master explaining project architecture, thinking out loud during DSA interviews, and technical presentations.',
-    modules: [
-      {
-        id: 'comm-mod-1',
-        title: 'Module 1: The 3-Step Technical Explanation Framework',
-        description: 'Goal -> High-Level Data Flow -> Technical Trade-offs.',
-        lessons: [
-          {
-            id: 'comm-l1',
-            title: 'Lesson 1.1: The 3-Step Code Explanation Framework',
-            duration: '6 min',
-            xp: 25,
-            takeaway: 'Step 1: Goal -> Step 2: Data Flow -> Step 3: Trade-offs.',
-            subtopics: [
-              {
-                id: 'comm-s1-1',
-                title: 'Topic 1: Explaining System Architecture Out Loud',
-                explanation: 'Start with high-level user goal, then walk through data flow, finish with latency/scale trade-offs.',
-                youtubeEmbedId: 'W21D4X8_mQc',
-                codeSnippet: 'Framework:\n1. Goal: Parse resumes into structured ATS metrics.\n2. Tech Stack: Next.js frontend -> FastAPI backend -> PyPDF -> Gemini 1.5 API.\n3. Result: Returns full ATS matrix in under 800ms.',
-                realWorldMatch: 'Explaining your Voice Agent & AIRA-OS architecture to tech recruiters'
-              }
-            ]
-          }
-        ],
-        challenge: {
-          id: 'comm-ch-1',
-          title: 'Mini-Challenge: Craft a 3-Sentence Technical Pitch',
-          prompt: 'Write a 3-sentence technical pitch explaining Engineer-OS to a tech interviewer using Goal, Tech Stack, and Impact.',
-          starterCode: '// Write your 3-sentence explanation:\n',
-          expectedKeywords: ['built', 'using', 'allows'],
-          xpReward: 80,
-          hint: 'Mention: "I built Engineer-OS using Next.js and Supabase. It allows students to track skills..."'
-        }
-      }
-    ]
   }
 ]
 
@@ -317,11 +242,11 @@ export default function GamifiedSkillsTreePage() {
   const [searchQuery, setSearchQuery] = useState('')
 
   // Drilldown Navigation State:
-  // selectedSkill -> selectedModule -> selectedLesson -> selectedSubtopic
   const [selectedSkill, setSelectedSkill] = useState<SkillNode | null>(null)
   const [selectedModule, setSelectedModule] = useState<Module | null>(null)
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
   const [selectedSubtopic, setSelectedSubtopic] = useState<SubTopic | null>(null)
+  const [selectedQuizAnswers, setSelectedQuizAnswers] = useState<Record<string, number>>({})
 
   const [activeChallenge, setActiveChallenge] = useState<{ challenge: MiniChallenge; skillId: string } | null>(null)
   const [challengeCode, setChallengeCode] = useState('')
@@ -385,7 +310,7 @@ export default function GamifiedSkillsTreePage() {
     }
   }
 
-  // Verify Mini-Challenge
+  // Verify Code Coach / Mini-Challenge
   const handleVerifyChallenge = async () => {
     if (!activeChallenge) return
     const { challenge } = activeChallenge
@@ -394,7 +319,7 @@ export default function GamifiedSkillsTreePage() {
     const missingKw = challenge.expectedKeywords.filter(kw => !codeLower.includes(kw.toLowerCase()))
 
     if (missingKw.length === 0) {
-      setChallengeFeedback({ success: true, msg: `🎉 Challenge Passed! +${challenge.xpReward} XP Awarded!` })
+      setChallengeFeedback({ success: true, msg: `🎉 Task Passed! +${challenge.xpReward} XP Awarded!` })
       setCompletedChallengeIds(prev => new Set([...prev, challenge.id]))
 
       const newXp = userXp + challenge.xpReward
@@ -426,15 +351,15 @@ export default function GamifiedSkillsTreePage() {
         <div className="space-y-2 max-w-xl">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-extrabold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={12} /> Deep Drilldown Architecture
+              <Sparkles size={12} /> Sololearn-Style Learning Engine
             </span>
             <span className="text-[10px] font-extrabold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <MessageSquare size={12} /> Soft Skills Included
+              <Code2 size={12} /> Code Coach Practice
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Full-Stack & Communication Skill Hub</h1>
+          <h1 className="text-2xl font-bold text-white">Full-Stack & Python Skill Hub</h1>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Click any skill card to drill down step-by-step: Modules → Lessons → Topics & Subtopics → Video Lectures & Code Examples!
+            Master Python 3 from basics to backend APIs with interactive quizzes, videos, and Code Coach tasks!
           </p>
         </div>
 
@@ -455,7 +380,7 @@ export default function GamifiedSkillsTreePage() {
         </div>
       </div>
 
-      {/* ── BREADCRUMB NAVIGATION (When inside a skill) ── */}
+      {/* ── BREADCRUMB NAVIGATION ── */}
       {selectedSkill && (
         <div className="bg-[#111118] border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-xs font-bold flex-wrap">
@@ -497,7 +422,6 @@ export default function GamifiedSkillsTreePage() {
       {/* ── VIEW 1: INITIAL CLEAN SQUARE SKILLS GRID ── */}
       {!selectedSkill && (
         <div className="space-y-6">
-          {/* Domain Navigation Filter & Search */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#111118] border border-white/10 rounded-2xl p-4">
             <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto">
               {DOMAINS.map(dom => (
@@ -526,7 +450,6 @@ export default function GamifiedSkillsTreePage() {
             </div>
           </div>
 
-          {/* Square Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSkills.map(skill => {
               const totalLessonsCount = skill.modules.reduce((acc, m) => acc + m.lessons.length, 0)
@@ -568,10 +491,10 @@ export default function GamifiedSkillsTreePage() {
         </div>
       )}
 
-      {/* ── VIEW 2: DEDICATED DEEP DRILLDOWN VIEW (Skill -> Module -> Lesson -> Topic) ── */}
+      {/* ── VIEW 2: DEDICATED DEEP DRILLDOWN VIEW ── */}
       {selectedSkill && (
         <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
-          {/* STEP 1: MODULE SELECTION BUTTONS IN A ROW */}
+          {/* STEP 1: MODULE SELECTION BUTTONS */}
           <div className="bg-[#111118] border border-white/10 rounded-2xl p-5 space-y-3">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">STEP 1: SELECT MODULE HEADING</span>
             <div className="flex items-center gap-3 overflow-x-auto pb-1">
@@ -601,7 +524,7 @@ export default function GamifiedSkillsTreePage() {
             <div className="bg-[#111118] border border-white/10 rounded-2xl p-5 space-y-4">
               <div className="flex justify-between items-center border-b border-white/8 pb-3">
                 <div>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">STEP 2: SELECT LESSON TO DRILL DOWN</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">STEP 2: SELECT LESSON</span>
                   <h2 className="text-base font-bold text-white mt-0.5">{selectedModule.title}</h2>
                 </div>
                 <button
@@ -612,7 +535,7 @@ export default function GamifiedSkillsTreePage() {
                   }}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-1.5"
                 >
-                  <Terminal size={14} /> Start Module Challenge (+{selectedModule.challenge.xpReward} XP)
+                  <Terminal size={14} /> Code Coach Task (+{selectedModule.challenge.xpReward} XP)
                 </button>
               </div>
 
@@ -635,7 +558,7 @@ export default function GamifiedSkillsTreePage() {
                         <BookOpen size={18} className={isSelected ? 'text-indigo-400' : 'text-gray-400'} />
                         <div>
                           <h4 className="text-xs font-bold text-white">{les.title}</h4>
-                          <span className="text-[10px] text-gray-400">{les.subtopics.length} Topics • {les.duration}</span>
+                          <span className="text-[10px] text-gray-400">{les.subtopics.length} Topics • {les.duration} • +{les.xp} XP</span>
                         </div>
                       </div>
                       <ChevronRight size={16} className={isSelected ? 'text-indigo-400' : 'text-gray-500'} />
@@ -687,7 +610,7 @@ export default function GamifiedSkillsTreePage() {
                   {selectedSubtopic.youtubeEmbedId && (
                     <div className="space-y-2">
                       <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                        <Video size={16} className="text-rose-400" /> Video Lecture & Tutorial
+                        <Video size={16} className="text-rose-400" /> Video Tutorial
                       </h4>
                       <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                         <iframe
@@ -701,10 +624,10 @@ export default function GamifiedSkillsTreePage() {
                     </div>
                   )}
 
-                  {/* 2. Detailed Study Notes */}
+                  {/* 2. Detailed Study Notes (Sololearn Style) */}
                   <div className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-2">
                     <h4 className="text-xs font-bold text-indigo-400 flex items-center gap-2 uppercase tracking-wider">
-                      <FileText size={15} /> Topic Concept & Study Notes
+                      <FileText size={15} /> Topic Explanation
                     </h4>
                     <p className="text-xs text-gray-300 leading-relaxed font-mono">
                       {selectedSubtopic.explanation}
@@ -719,15 +642,64 @@ export default function GamifiedSkillsTreePage() {
                     )}
                   </div>
 
-                  {/* 3. Code Example / Code Snippet */}
+                  {/* 3. Code Example */}
                   {selectedSubtopic.codeSnippet && (
                     <div className="space-y-2">
                       <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                        <Code size={16} className="text-emerald-400" /> Executable Code Example
+                        <Code size={16} className="text-emerald-400" /> Code Example
                       </h4>
                       <div className="bg-[#0a0a0f] border border-white/10 rounded-2xl p-4 text-xs font-mono text-emerald-300 leading-relaxed overflow-x-auto">
                         <pre>{selectedSubtopic.codeSnippet}</pre>
                       </div>
+                    </div>
+                  )}
+
+                  {/* 4. Sololearn-style Quiz Checkpoint */}
+                  {selectedSubtopic.quiz && (
+                    <div className="bg-indigo-950/20 border border-indigo-500/30 rounded-2xl p-5 space-y-3">
+                      <h4 className="text-xs font-bold text-indigo-300 flex items-center gap-2 uppercase tracking-wider">
+                        <HelpCircle size={15} /> Topic Quiz Checkpoint
+                      </h4>
+                      <p className="text-xs font-semibold text-white">
+                        {selectedSubtopic.quiz.question}
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                        {selectedSubtopic.quiz.options.map((opt, idx) => {
+                          const isSelected = selectedQuizAnswers[selectedSubtopic.id] === idx
+                          const isCorrect = idx === selectedSubtopic.quiz!.correctIndex
+                          const hasAnswered = selectedQuizAnswers[selectedSubtopic.id] !== undefined
+
+                          let btnStyle = 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                          if (hasAnswered) {
+                            if (isCorrect) btnStyle = 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                            else if (isSelected) btnStyle = 'bg-rose-500/20 border-rose-500 text-rose-300'
+                          }
+
+                          return (
+                            <button
+                              key={idx}
+                              disabled={hasAnswered}
+                              onClick={() => {
+                                setSelectedQuizAnswers(prev => ({ ...prev, [selectedSubtopic.id]: idx }))
+                              }}
+                              className={`p-3 rounded-xl text-xs text-left border transition-all ${btnStyle}`}
+                            >
+                              {opt}
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      {selectedQuizAnswers[selectedSubtopic.id] !== undefined && (
+                        <div className={`p-3 rounded-xl text-xs font-medium border ${
+                          selectedQuizAnswers[selectedSubtopic.id] === selectedSubtopic.quiz.correctIndex
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                            : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                        }`}>
+                          💡 {selectedSubtopic.quiz.explanation}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -755,13 +727,13 @@ export default function GamifiedSkillsTreePage() {
         </div>
       )}
 
-      {/* ── INTERACTIVE 10-LINE MINI-CHALLENGE MODAL ── */}
+      {/* ── INTERACTIVE CODE COACH TASK MODAL ── */}
       {activeChallenge && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-60 flex items-center justify-center p-4">
           <div className="bg-[#111118] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">INTERACTIVE MINI-CHALLENGE</span>
+                <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">CODE COACH PRACTICE TASK</span>
                 <h3 className="text-base font-bold text-white mt-1">{activeChallenge.challenge.title}</h3>
               </div>
               <button
@@ -778,7 +750,7 @@ export default function GamifiedSkillsTreePage() {
 
             {/* Code Input */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Write Code / Answer Solution:</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Write Code Solution:</label>
               <textarea
                 rows={6}
                 value={challengeCode}
