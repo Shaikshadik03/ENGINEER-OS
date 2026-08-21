@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Zap, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { Zap, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -32,24 +32,11 @@ export default function LoginPage() {
     }
   }
 
-  const handleGuestLogin = async () => {
+  const handleGuestLogin = () => {
     setGuestLoading(true)
     setError('')
-
-    // Set guest demo cookie immediately to guarantee 100% login success
+    // Set guest demo cookie immediately & navigate to app canvas
     document.cookie = "guest_demo_mode=true; path=/; max-age=86400"
-
-    // Try Supabase auth in background
-    try {
-      await supabase.auth.signInWithPassword({
-        email: 'shaikshadik003@gmail.com',
-        password: 'Shadik@123'
-      })
-    } catch (e) {
-      // Ignore background auth error, guest cookie handles access
-    }
-
-    // Direct redirect to dashboard
     window.location.href = '/'
   }
 
@@ -75,14 +62,14 @@ export default function LoginPage() {
         {/* Card Container */}
         <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-md space-y-5">
           
-          {/* ⚡ DIRECT GUEST LOGIN BUTTON FOR INSTANT TESTING */}
+          {/* ⚡ DIRECT GUEST LOGIN BUTTON FOR INSTANT 0.01s TESTING */}
           <button
             onClick={handleGuestLogin}
             disabled={guestLoading}
             className="w-full bg-[#0284c7] hover:bg-[#0369a1] disabled:opacity-50 text-white font-extrabold text-xs py-4 px-4 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
           >
             <Zap size={16} className="text-amber-300 fill-amber-300 animate-pulse" />
-            <span>{guestLoading ? 'Bypassing Login & Launching App...' : '⚡ Direct Guest Login (1-Click Instant Test)'}</span>
+            <span>{guestLoading ? 'Launching App...' : '⚡ Direct Guest Login (Instant Test Entry)'}</span>
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>
 

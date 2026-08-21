@@ -11,19 +11,18 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
   const cookieStore = await cookies();
   const isGuestMode = cookieStore.get("guest_demo_mode")?.value === "true";
 
-  // If neither logged-in Supabase user nor Guest Cookie is present, redirect to login
-  if (!user && !isGuestMode) {
-    redirect("/login");
-  }
+  // If NOT in guest demo mode, check Supabase user authentication
+  if (!isGuestMode) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  // Check if onboarding is complete for registered users
-  if (user && !isGuestMode) {
+    if (!user) {
+      redirect("/login");
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("onboarding_complete")
