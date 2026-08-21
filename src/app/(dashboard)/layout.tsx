@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import AICopilot from "@/components/AICopilot";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default async function DashboardLayout({
   children,
@@ -13,23 +14,29 @@ export default async function DashboardLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
+  const cookieStore = await cookies();
+  const isGuestMode = cookieStore.get("guest_demo_mode")?.value === "true";
+
+  // If neither logged-in Supabase user nor Guest Cookie is present, redirect to login
+  if (!user && !isGuestMode) {
     redirect("/login");
   }
 
-  // Check if onboarding is complete
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("onboarding_complete")
-    .eq("id", user.id)
-    .single();
+  // Check if onboarding is complete for registered users
+  if (user && !isGuestMode) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_complete")
+      .eq("id", user.id)
+      .single();
 
-  if (profile && !profile.onboarding_complete) {
-    redirect("/onboarding");
+    if (profile && profile.onboarding_complete === false) {
+      redirect("/onboarding");
+    }
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f8fafc] text-slate-900">
+    <div className="flex h-screen overflow-hidden bg-[#f8fafc] text-slate-900 font-sans">
       <Sidebar />
       <div className="flex-1 md:ml-64 flex flex-col h-screen relative">
         <Navbar />
