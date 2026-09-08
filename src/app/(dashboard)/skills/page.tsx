@@ -499,12 +499,12 @@ export default function GamifiedSkillsTreePage() {
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">My Courses</h1>
             
             {/* User Stats Pill */}
-            <div className="flex items-center gap-4 bg-white/70 backdrop-blur-xl border border-slate-200/80 px-4.5 py-2.5 rounded-2xl shadow-sm">
-              <div className="flex items-center gap-1.5 text-xs font-black text-amber-600">
+            <div className="flex items-center gap-4 bg-[#12121a]/90 backdrop-blur-xl border border-white/10 px-4.5 py-2.5 rounded-2xl shadow-xl">
+              <div className="flex items-center gap-1.5 text-xs font-black text-amber-400">
                 <Flame size={16} /> <span>{streak}d Streak</span>
               </div>
-              <div className="w-px h-4 bg-slate-200" />
-              <div className="flex items-center gap-1.5 text-xs font-black text-emerald-600">
+              <div className="w-px h-4 bg-white/10" />
+              <div className="flex items-center gap-1.5 text-xs font-black text-emerald-400">
                 <Trophy size={16} /> <span>{userXp} XP</span>
               </div>
             </div>
@@ -512,26 +512,26 @@ export default function GamifiedSkillsTreePage() {
 
           {/* Filter Tabs */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 bg-slate-200/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/60">
+            <div className="flex items-center gap-2 bg-[#12121a]/90 backdrop-blur-md p-1.5 rounded-2xl border border-white/10">
               <button
                 onClick={() => setActiveTab('in_progress')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'in_progress'
-                    ? 'bg-white text-slate-900 shadow-sm font-extrabold'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
-                In Progress <span className="bg-sky-100/90 text-sky-700 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{inProgressSkills.length}</span>
+                In Progress <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{inProgressSkills.length}</span>
               </button>
               <button
                 onClick={() => setActiveTab('complete')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'complete'
-                    ? 'bg-white text-slate-900 shadow-sm font-extrabold'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Complete <span className="bg-emerald-100/90 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{completedSkills.length}</span>
+                Complete <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{completedSkills.length}</span>
               </button>
             </div>
 
@@ -542,14 +542,14 @@ export default function GamifiedSkillsTreePage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search my courses..."
-                className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 shadow-sm transition-all"
+                className="w-full bg-[#12121a]/90 backdrop-blur-md border border-white/10 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-sm transition-all"
               />
             </div>
           </div>
 
-          {/* ── FEATURED "CONTINUE" COURSE CARD (SOLOLEARN GLASS MATCH) ── */}
+          {/* ── FEATURED "CONTINUE" COURSE CARD (DARK COSMIC MATCH) ── */}
           {activeTab === 'in_progress' && (
-            <div className="bg-white/75 backdrop-blur-xl border border-slate-200/70 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] transition-all relative overflow-hidden group">
+            <div className="bg-[#111118]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl hover:border-emerald-500/40 transition-all relative overflow-hidden group">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {/* Round Brand Icon Badge */}
@@ -557,19 +557,19 @@ export default function GamifiedSkillsTreePage() {
                     {featuredCourse.icon}
                   </div>
                   <div>
-                    <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest block">CONTINUE COURSE</span>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight mt-0.5">{featuredCourse.name}</h2>
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest block">CONTINUE COURSE</span>
+                    <h2 className="text-xl font-black text-white tracking-tight mt-0.5">{featuredCourse.name}</h2>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     onClick={() => handleSelectSkill(featuredCourse)}
-                    className="flex-1 sm:flex-none bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-extrabold text-xs px-7 py-3.5 rounded-2xl shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+                    className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs px-7 py-3.5 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.35)] transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]"
                   >
                     Resume →
                   </button>
-                  <button className="p-3.5 rounded-2xl border border-slate-200/80 bg-white/60 text-slate-400 hover:text-slate-700 hover:bg-white transition-colors shadow-sm">
+                  <button className="p-3.5 rounded-2xl border border-white/10 bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-colors shadow-sm">
                     <MoreHorizontal size={18} />
                   </button>
                 </div>
@@ -578,12 +578,12 @@ export default function GamifiedSkillsTreePage() {
               {/* Progress Bar & Stats */}
               <div className="space-y-2.5">
                 <div className="flex items-baseline gap-2 text-xs font-bold">
-                  <span className="text-2xl font-black text-slate-900">{featuredCourse.progress}%</span>
-                  <span className="text-slate-500 font-semibold">{featuredCourse.completedLessons} of {featuredCourse.totalLessons} lessons</span>
+                  <span className="text-2xl font-black text-white">{featuredCourse.progress}%</span>
+                  <span className="text-slate-400 font-medium">{featuredCourse.completedLessons} of {featuredCourse.totalLessons} lessons</span>
                 </div>
-                <div className="w-full h-3 bg-slate-100/90 rounded-full overflow-hidden p-0.5 border border-slate-200/80">
+                <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
                   <div 
-                    className="h-full bg-gradient-to-r from-sky-400 to-blue-600 rounded-full transition-all duration-500 shadow-sm"
+                    className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-500 shadow-[0_0_12px_#10b981]"
                     style={{ width: `${featuredCourse.progress}%` }}
                   />
                 </div>
@@ -591,13 +591,13 @@ export default function GamifiedSkillsTreePage() {
             </div>
           )}
 
-          {/* ── COURSE LIST CARDS (SOLOLEARN GLASS MATCH) ── */}
+          {/* ── COURSE LIST CARDS (DARK COSMIC MATCH) ── */}
           <div className="space-y-4">
             {otherCourses.map(skill => (
               <div
                 key={skill.id}
                 onClick={() => handleSelectSkill(skill)}
-                className="bg-white/75 backdrop-blur-xl border border-slate-200/70 hover:border-sky-300 rounded-3xl p-5 cursor-pointer transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] group"
+                className="bg-[#111118]/80 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 rounded-3xl p-5 cursor-pointer transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-xl group"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full ${skill.badgeColor} flex items-center justify-center font-black text-base shadow-sm shrink-0`}>

@@ -35,11 +35,18 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-sky-50/30 to-blue-50/40 text-slate-900 font-sans relative selection:bg-sky-500 selection:text-white">
-      {/* Ambient Glass Glow Orbs */}
-      <div className="fixed -top-40 -left-40 w-96 h-96 bg-sky-400/15 rounded-full blur-3xl pointer-events-none z-0" />
-      <div className="fixed top-1/3 right-0 w-[30rem] h-[30rem] bg-indigo-400/10 rounded-full blur-3xl pointer-events-none z-0" />
-      <div className="fixed -bottom-40 left-1/3 w-96 h-96 bg-blue-400/15 rounded-full blur-3xl pointer-events-none z-0" />
+    <div className="flex h-screen overflow-hidden bg-[#07070a] text-slate-100 font-sans relative selection:bg-emerald-500 selection:text-black">
+      {/* Dark Cosmic Glow Gradients matching shadik.lovable.app */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 opacity-80"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 85% 15%, rgba(147, 51, 234, 0.22), transparent 50%),
+            radial-gradient(circle at 45% 10%, rgba(16, 185, 129, 0.18), transparent 45%),
+            radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15), transparent 50%)
+          `
+        }}
+      />
 
       <Sidebar />
       <div className="flex-1 md:ml-64 flex flex-col h-screen relative z-10">
