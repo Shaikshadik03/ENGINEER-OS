@@ -4,6 +4,24 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
+  const pathname = request.nextUrl.pathname
+  const publicRoutes = ['/login', '/signup', '/auth']
+  const isPublicRoute = publicRoutes.some(r => pathname.startsWith(r))
+
+  // 1. Check if Guest Demo Cookie is present FIRST
+  const isGuestMode = request.cookies.get('guest_demo_mode')?.value === 'true'
+
+  if (isGuestMode) {
+    // If guest mode & trying to access login/signup -> redirect to home dashboard
+    if (pathname === '/login' || pathname === '/signup') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
+
+  // 2. Create Supabase client for registered user check
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -23,22 +41,22 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user || null
+  } catch (err) {
+    // Graceful network timeout fallback
+  }
 
-  const pathname = request.nextUrl.pathname
-
-  // Public routes that don't need auth
-  const publicRoutes = ['/login', '/signup', '/auth']
-  const isPublicRoute = publicRoutes.some(r => pathname.startsWith(r))
-
-  // If not logged in and not on a public route → redirect to login
+  // If not logged in and not on a public route -> redirect to login
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // If logged in and on login/signup → redirect to home dashboard
+  // If logged in and on login/signup -> redirect to home dashboard
   if (user && (pathname === '/login' || pathname === '/signup')) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
