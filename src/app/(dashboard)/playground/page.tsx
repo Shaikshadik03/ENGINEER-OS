@@ -149,44 +149,40 @@ export default function PlaygroundPage() {
     return logs
   }
 
-  // --- MAIN RUNNER ---
+  // --- SERVER-SIDE RUNNER (C, C++, Java, SQL) ---
   const handleRun = async () => {
-    if (!code.trim() || running) return
     setRunning(true)
-    setOutput([{ type: 'info', text: `▶ Executing ${selectedLang.label}...` }])
+    setOutput([])
     const startTime = performance.now()
 
-    // 1. Python in-browser engine (Instant, 0ms latency, zero OCI errors)
     if (selectedLang.id === 'python') {
       const logs = await runPythonLocally(code)
-      if (logs.length === 0) logs.push({ type: 'info', text: '✓ Program finished with no output.' })
       const elapsed = Math.round(performance.now() - startTime)
-      logs.push({ type: 'info', text: `\n✓ Executed locally in ${elapsed}ms (Browser Python Engine)` })
+      if (logs.length === 0) logs.push({ type: 'info', text: '✓ Program finished with no output.' })
+      logs.push({ type: 'info', text: `✓ Executed locally in ${elapsed}ms (Browser Python Engine)` })
       setOutput(logs)
       setRunning(false)
       return
     }
 
-    // 2. JavaScript in-browser engine (Instant, 0ms latency)
     if (selectedLang.id === 'javascript') {
       const logs = runJavaScriptLocally(code)
-      if (logs.length === 0) logs.push({ type: 'info', text: '✓ Program finished with no output.' })
       const elapsed = Math.round(performance.now() - startTime)
-      logs.push({ type: 'info', text: `\n✓ Executed locally in ${elapsed}ms (Browser JS Engine)` })
+      if (logs.length === 0) logs.push({ type: 'info', text: '✓ Program finished with no output.' })
+      logs.push({ type: 'info', text: `✓ Executed locally in ${elapsed}ms (Browser V8 Engine)` })
       setOutput(logs)
       setRunning(false)
       return
     }
 
-    // 3. C / C++ / Java / SQL via Server Multi-Engine Route
     try {
       const res = await fetch('/api/playground/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           language: selectedLang.id,
-          code: code,
-          stdin: input,
+          code,
+          input,
         }),
       })
 
@@ -206,7 +202,7 @@ export default function PlaygroundPage() {
 
       if (lines.length === 0) lines.push({ type: 'info', text: '✓ Program finished with no output.' })
       const elapsed = Math.round(performance.now() - startTime)
-      lines.push({ type: 'info', text: `\n✓ Executed in ${elapsed}ms` })
+      lines.push({ type: 'info', text: `✓ Executed in ${elapsed}ms` })
       setOutput(lines)
     } catch (e: any) {
       setOutput([{ type: 'stderr', text: 'Error executing code. Check syntax or internet connection.' }])
@@ -245,15 +241,20 @@ export default function PlaygroundPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] pb-4 animate-in fade-in duration-500">
+    <div className="flex flex-col h-[calc(100vh-5rem)] pb-4 animate-in fade-in duration-500 text-slate-900">
       {/* Top Bar */}
-      <div className="flex items-center justify-between mb-3 gap-3">
+      <div className="flex items-center justify-between mb-4 gap-3 bg-white border border-slate-200/80 rounded-3xl p-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Code2 size={20} className="text-indigo-400" />
-            <h1 className="text-base font-bold text-white">Code Playground</h1>
-            <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-              <Sparkles size={10} /> ZERO-LATENCY ENGINE
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200">
+              <Code2 size={20} />
+            </div>
+            <div>
+              <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">Code Playground</h1>
+              <span className="text-[10px] text-slate-400 font-extrabold tracking-wide uppercase">Multi-Language Live Execution Engine</span>
+            </div>
+            <span className="text-[10px] bg-emerald-100 border border-emerald-300 text-emerald-800 px-2.5 py-0.5 rounded-full font-black flex items-center gap-1">
+              <Sparkles size={11} /> ZERO-LATENCY ENGINE
             </span>
           </div>
 
@@ -261,19 +262,19 @@ export default function PlaygroundPage() {
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-2 bg-white/5 border border-white/10 hover:border-indigo-500/40 rounded-xl px-3 py-2 text-xs font-bold text-white transition-all"
+              className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 hover:border-sky-500 rounded-2xl px-3.5 py-2 text-xs font-extrabold text-slate-900 transition-all shadow-sm"
             >
               <span>{selectedLang.icon}</span>
               <span>{selectedLang.label}</span>
-              <ChevronDown size={12} className="text-gray-400" />
+              <ChevronDown size={14} className="text-slate-400" />
             </button>
             {showLangMenu && (
-              <div className="absolute top-full mt-1 left-0 bg-[#111118] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden min-w-[160px]">
+              <div className="absolute top-full mt-2 left-0 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden min-w-[170px] p-1.5 space-y-1">
                 {LANGUAGES.map(lang => (
                   <button
                     key={lang.id}
                     onClick={() => selectLanguage(lang)}
-                    className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold hover:bg-white/5 transition-colors text-left ${selectedLang.id === lang.id ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-300'}`}
+                    className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-bold rounded-xl transition-colors text-left ${selectedLang.id === lang.id ? 'text-sky-700 bg-sky-50 font-black' : 'text-slate-700 hover:bg-slate-50'}`}
                   >
                     <span>{lang.icon}</span> {lang.label}
                   </button>
@@ -284,42 +285,47 @@ export default function PlaygroundPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={handleReset} className="flex items-center gap-1.5 bg-white/5 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white text-xs font-bold px-3 py-2 rounded-xl transition-all">
-            <RotateCcw size={13} /> Reset
+          <button onClick={handleReset} className="flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 hover:bg-slate-200 text-slate-700 text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all">
+            <RotateCcw size={14} /> Reset
           </button>
-          <button onClick={handleExport} className="flex items-center gap-1.5 bg-white/5 border border-white/10 hover:border-white/20 text-gray-400 hover:text-white text-xs font-bold px-3 py-2 rounded-xl transition-all">
-            <Download size={13} /> Export
+          <button onClick={handleExport} className="flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 hover:bg-slate-200 text-slate-700 text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all">
+            <Download size={14} /> Export
           </button>
           <button
             onClick={handleRun}
             disabled={running}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-lg shadow-emerald-500/20"
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-black text-xs px-5 py-2.5 rounded-2xl transition-all shadow-md"
           >
-            {running ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-            {running ? 'Running...' : 'Run'} <span className="opacity-60 text-[10px]">Ctrl+Enter</span>
+            {running ? <Loader2 size={15} className="animate-spin" /> : <Play size={15} className="fill-white" />}
+            {running ? 'Running...' : 'Run'} <span className="opacity-70 text-[10px] font-mono">Ctrl+Enter</span>
           </button>
         </div>
       </div>
 
       {/* Editor + Output Split */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden min-h-0">
+        
         {/* CODE EDITOR */}
-        <div className="flex flex-col bg-[#0d0d12] border border-white/10 rounded-2xl overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/8 bg-[#111118]">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500/70" />
-              <div className="w-3 h-3 rounded-full bg-amber-500/70" />
-              <div className="w-3 h-3 rounded-full bg-emerald-500/70" />
+        <div className="flex flex-col bg-[#0d1117] border border-slate-300 rounded-3xl overflow-hidden shadow-md">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#161b22]">
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-rose-500" />
+                <div className="w-3 h-3 rounded-full bg-amber-500" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+              </div>
+              <span className="text-xs text-slate-400 font-mono font-bold ml-2">
+                {selectedLang.id === 'java' ? 'Main.java' : `main.${selectedLang.id}`}
+              </span>
             </div>
-            <span className="text-[11px] text-gray-500 font-mono ml-2">
-              {selectedLang.id === 'java' ? 'Main.java' : `main.${selectedLang.id}`}
-            </span>
+            <span className="text-[10px] text-slate-500 font-mono font-semibold uppercase">{selectedLang.version}</span>
           </div>
-          <div className="flex-1 relative overflow-hidden">
+          
+          <div className="flex-1 relative overflow-hidden bg-[#0d1117]">
             {/* Line Numbers */}
-            <div className="absolute left-0 top-0 bottom-0 w-10 bg-[#0d0d12] border-r border-white/5 flex flex-col pt-3 overflow-hidden pointer-events-none z-10">
+            <div className="absolute left-0 top-0 bottom-0 w-11 bg-[#0d1117] border-r border-slate-800 flex flex-col pt-3 overflow-hidden pointer-events-none z-10 select-none">
               {code.split('\n').map((_, i) => (
-                <div key={i} className="text-[11px] text-gray-600 text-right pr-2 leading-6 font-mono">{i + 1}</div>
+                <div key={i} className="text-[11px] text-slate-600 text-right pr-3 leading-6 font-mono">{i + 1}</div>
               ))}
             </div>
             <textarea
@@ -328,45 +334,52 @@ export default function PlaygroundPage() {
               onChange={e => setCode(e.target.value)}
               onKeyDown={handleKeyDown}
               spellCheck={false}
-              className="absolute inset-0 pl-12 pr-4 pt-3 pb-4 bg-transparent text-xs text-gray-200 font-mono leading-6 resize-none focus:outline-none w-full h-full"
+              className="absolute inset-0 pl-14 pr-4 pt-3 pb-4 bg-transparent text-xs text-slate-100 font-mono leading-6 resize-none focus:outline-none w-full h-full"
               style={{ tabSize: 4 }}
             />
           </div>
         </div>
 
         {/* OUTPUT + INPUT */}
-        <div className="flex flex-col gap-3 overflow-hidden min-h-0">
+        <div className="flex flex-col gap-4 overflow-hidden min-h-0">
+          
           {/* stdin input */}
-          <div className="bg-[#111118] border border-white/10 rounded-xl p-3 shrink-0">
-            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Standard Input (stdin)</label>
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-4 shrink-0 shadow-sm space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Standard Input (stdin)</label>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
               rows={2}
               placeholder="Enter input here if your program reads from stdin..."
-              className="w-full bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono resize-none focus:outline-none"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2 text-xs text-slate-900 font-mono resize-none focus:outline-none focus:border-sky-500"
             />
           </div>
 
-          {/* Output */}
-          <div className="flex-1 bg-[#0a0a0f] border border-white/10 rounded-2xl overflow-hidden flex flex-col min-h-0">
-            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/8 bg-[#111118] shrink-0">
-              <Terminal size={14} className="text-emerald-400" />
-              <span className="text-[11px] text-gray-400 font-mono font-bold">Output</span>
+          {/* Output Console */}
+          <div className="flex-1 bg-[#0f172a] border border-slate-300 rounded-3xl overflow-hidden flex flex-col min-h-0 shadow-md">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#1e293b] shrink-0">
+              <div className="flex items-center gap-2">
+                <Terminal size={15} className="text-emerald-400" />
+                <span className="text-xs text-slate-200 font-mono font-bold">Execution Output Console</span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400">Terminal UTF-8</span>
             </div>
-            <div ref={outputRef} className="flex-1 overflow-y-auto p-4 font-mono text-xs leading-6">
+
+            <div ref={outputRef} className="flex-1 overflow-y-auto p-4 font-mono text-xs leading-6 bg-[#0f172a]">
               {output.length === 0 ? (
-                <p className="text-gray-600">Click <span className="text-emerald-400 font-bold">Run</span> to execute your code...</p>
+                <p className="text-slate-500">Click <span className="text-emerald-400 font-bold">Run</span> to execute your code...</p>
               ) : (
                 output.map((line, i) => (
-                  <div key={i} className={`${line.type === 'stderr' ? 'text-red-400' : line.type === 'info' ? 'text-gray-500' : 'text-emerald-300'} whitespace-pre-wrap`}>
+                  <div key={i} className={`${line.type === 'stderr' ? 'text-rose-400 font-semibold' : line.type === 'info' ? 'text-slate-400' : 'text-emerald-400 font-medium'} whitespace-pre-wrap`}>
                     {line.text}
                   </div>
                 ))
               )}
             </div>
           </div>
+
         </div>
+
       </div>
     </div>
   )
