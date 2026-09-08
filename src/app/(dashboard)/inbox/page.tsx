@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useTheme } from '@/components/ThemeProvider'
 import {
-  Inbox as InboxIcon, Bell, Star, Zap, CheckCircle2,
-  Trash2, Filter, Rocket, Briefcase
+  Inbox as InboxIcon, Bell, Star, Zap, Trash2, Briefcase
 } from 'lucide-react'
 
 interface NotificationItem {
@@ -17,8 +17,8 @@ interface NotificationItem {
 }
 
 export default function InboxPage() {
+  const { isDark } = useTheme()
   const supabase = createClient()
-  const [profile, setProfile] = useState<any>(null)
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
 
@@ -28,7 +28,6 @@ export default function InboxPage() {
       if (user) {
         const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
         if (p) {
-          setProfile(p)
           const items: NotificationItem[] = [
             {
               id: '1',
@@ -80,30 +79,38 @@ export default function InboxPage() {
 
   const filtered = notifications.filter(n => filter === 'all' || !n.read)
 
+  const cardStyle = isDark
+    ? 'bg-[#111118]/80 border-white/10 text-white backdrop-blur-xl'
+    : 'bg-white/90 border-slate-200/80 text-slate-900 shadow-sm backdrop-blur-xl'
+
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 text-slate-900">
+    <div className={`max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-200">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 mb-1 flex items-center gap-2 tracking-tight">
-            <InboxIcon className="text-sky-600" size={28} /> System Inbox & Alerts
+          <h1 className={`text-3xl font-black mb-1 flex items-center gap-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <InboxIcon className="text-sky-500" size={28} /> System Inbox & Alerts
           </h1>
-          <p className="text-slate-500 font-semibold text-sm">Notifications, XP milestones, and opportunity match alerts.</p>
+          <p className={`font-semibold text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Notifications, XP milestones, and opportunity match alerts.</p>
         </div>
 
         <div className="flex gap-2">
           <button
             onClick={() => setFilter(filter === 'all' ? 'unread' : 'all')}
             className={`px-4 py-2 rounded-2xl text-xs font-bold border transition-all ${
-              filter === 'unread' ? 'bg-sky-600 text-white border-sky-500 shadow-sm font-extrabold' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+              filter === 'unread'
+                ? 'bg-sky-600 border-sky-500 text-white shadow-sm font-extrabold'
+                : isDark ? 'bg-[#0d0d12] border-white/10 text-slate-300 hover:bg-white/5' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
             }`}
           >
             {filter === 'all' ? 'Show Unread Only' : 'Show All'}
           </button>
           <button
             onClick={markAllRead}
-            className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2 rounded-2xl transition-all shadow-sm"
+            className={`text-xs font-bold px-4 py-2 rounded-2xl transition-all border shadow-sm ${
+              isDark ? 'bg-[#0d0d12] border-white/10 text-slate-300 hover:bg-white/5' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
           >
             Mark All as Read
           </button>
@@ -112,7 +119,7 @@ export default function InboxPage() {
 
       {/* Notifications Feed */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-bold shadow-sm">
+        <div className={`${cardStyle} rounded-3xl p-12 text-center font-bold border ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
           No notifications in your inbox right now.
         </div>
       ) : (
@@ -122,33 +129,35 @@ export default function InboxPage() {
               key={item.id}
               className={`p-5 rounded-3xl border transition-all flex justify-between items-start gap-4 shadow-sm ${
                 !item.read
-                  ? 'bg-sky-50/80 border-sky-200'
-                  : 'bg-white border-slate-200/80 opacity-80'
+                  ? isDark ? 'bg-sky-500/10 border-sky-500/30' : 'bg-sky-50/80 border-sky-200'
+                  : cardStyle
               }`}
             >
               <div className="flex items-start gap-4">
-                <div className="p-2.5 rounded-2xl bg-white border border-slate-200 text-sky-600 shrink-0 shadow-sm">
-                  {item.type === 'xp' ? <Star size={18} className="text-emerald-600 fill-emerald-600" />
-                    : item.type === 'match' ? <Briefcase size={18} className="text-sky-600" />
+                <div className={`p-2.5 rounded-2xl border shrink-0 shadow-sm ${
+                  isDark ? 'bg-[#0d0d12] border-white/10' : 'bg-white border-slate-200'
+                }`}>
+                  {item.type === 'xp' ? <Star size={18} className="text-emerald-500 fill-emerald-500" />
+                    : item.type === 'match' ? <Briefcase size={18} className="text-sky-500" />
                     : item.type === 'streak' ? <Zap size={18} className="text-amber-500" />
-                    : <Bell size={18} className="text-purple-600" />}
+                    : <Bell size={18} className="text-purple-500" />}
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-sm text-slate-900">{item.title}</h3>
+                    <h3 className={`font-bold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{item.title}</h3>
                     {!item.read && (
-                      <span className="w-2 h-2 rounded-full bg-sky-600 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
                     )}
                   </div>
-                  <p className="text-xs text-slate-600 font-medium leading-relaxed mb-2">{item.message}</p>
-                  <span className="text-[10px] text-slate-400 font-mono font-semibold">{item.time}</span>
+                  <p className={`text-xs font-medium leading-relaxed mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{item.message}</p>
+                  <span className={`text-[10px] font-mono font-semibold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{item.time}</span>
                 </div>
               </div>
 
               <button
                 onClick={() => deleteNotification(item.id)}
-                className="text-slate-400 hover:text-rose-600 transition-colors p-1"
+                className={`transition-colors p-1 ${isDark ? 'text-slate-500 hover:text-rose-400' : 'text-slate-400 hover:text-rose-600'}`}
               >
                 <Trash2 size={16} />
               </button>

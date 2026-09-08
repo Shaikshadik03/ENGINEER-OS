@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTheme } from '@/components/ThemeProvider'
 import { Newspaper, ExternalLink, RefreshCw, Flame, Code2, Cpu, Briefcase } from 'lucide-react'
 
 interface Article {
@@ -22,6 +23,7 @@ const CATEGORIES = [
 ]
 
 export default function NewsPage() {
+  const { isDark } = useTheme()
   const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState('technology')
@@ -52,22 +54,30 @@ export default function NewsPage() {
     return `${Math.floor(h / 24)}d ago`
   }
 
+  const cardStyle = isDark
+    ? 'bg-[#111118]/80 border-white/10 text-white backdrop-blur-xl'
+    : 'bg-white/90 border-slate-200/80 text-slate-900 shadow-sm backdrop-blur-xl'
+
   return (
-    <div className="max-w-4xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 text-slate-900">
+    <div className={`max-w-4xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
-            <Newspaper className="text-sky-600" size={28} /> Tech News & Hiring Trends
+          <h1 className={`text-3xl font-black flex items-center gap-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <Newspaper className="text-sky-500" size={28} /> Tech News & Hiring Trends
           </h1>
-          <p className="text-slate-500 font-semibold text-sm mt-1">
+          <p className={`font-semibold text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             Real-time news from {source === 'hackernews' ? 'Hacker News' : 'GNews API'} — refreshed every hour.
           </p>
         </div>
         <button
           onClick={() => fetchNews(category)}
           disabled={loading}
-          className="flex items-center gap-2 bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-2xl transition-all shadow-sm"
+          className={`flex items-center gap-2 border text-xs font-bold px-4 py-2.5 rounded-2xl transition-all shadow-sm ${
+            isDark
+              ? 'bg-[#0d0d12] border-white/10 text-slate-200 hover:bg-white/5'
+              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+          }`}
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
@@ -84,7 +94,9 @@ export default function NewsPage() {
               className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold border transition-all ${
                 category === cat.id
                   ? 'bg-sky-600 border-sky-500 text-white shadow-sm font-extrabold'
-                  : 'bg-white border-slate-200/80 text-slate-700 hover:bg-slate-50'
+                  : isDark
+                  ? 'bg-[#0d0d12] border-white/10 text-slate-300 hover:bg-white/5'
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
             >
               <Icon size={14} /> {cat.label}
@@ -97,15 +109,15 @@ export default function NewsPage() {
       {loading ? (
         <div className="space-y-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white border border-slate-200 rounded-3xl p-5 animate-pulse">
-              <div className="h-4 bg-slate-100 rounded-lg w-3/4 mb-3" />
-              <div className="h-3 bg-slate-100 rounded-lg w-full mb-2" />
-              <div className="h-3 bg-slate-100 rounded-lg w-1/2" />
+            <div key={i} className={`${cardStyle} rounded-3xl p-5 border animate-pulse`}>
+              <div className={`h-4 rounded-lg w-3/4 mb-3 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
+              <div className={`h-3 rounded-lg w-full mb-2 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
+              <div className={`h-3 rounded-lg w-1/2 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
             </div>
           ))}
         </div>
       ) : articles.length === 0 ? (
-        <div className="text-center text-slate-400 font-bold py-16">
+        <div className={`text-center font-bold py-16 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
           <Newspaper size={40} className="mx-auto mb-4 opacity-30" />
           <p>No articles found. Try refreshing!</p>
         </div>
@@ -117,24 +129,26 @@ export default function NewsPage() {
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block bg-white border border-slate-200/80 rounded-3xl p-6 hover:shadow-md transition-all group shadow-sm"
+              className={`block ${cardStyle} rounded-3xl p-6 hover:border-sky-500/40 transition-all group border`}
             >
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-extrabold text-sky-800 bg-sky-100 border border-sky-200 px-2.5 py-0.5 rounded-lg">
+                    <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg border ${
+                      isDark ? 'bg-sky-500/10 border-sky-500/20 text-sky-400' : 'text-sky-800 bg-sky-100 border-sky-200'
+                    }`}>
                       {article.source}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-semibold">{timeAgo(article.publishedAt)}</span>
+                    <span className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{timeAgo(article.publishedAt)}</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-sky-600 transition-colors leading-snug mb-2">
+                  <h3 className={`text-base font-bold group-hover:text-sky-500 transition-colors leading-snug mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {article.title}
                   </h3>
                   {article.description && (
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">{article.description}</p>
+                    <p className={`text-xs font-medium leading-relaxed line-clamp-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{article.description}</p>
                   )}
                 </div>
-                <ExternalLink size={16} className="text-slate-400 group-hover:text-sky-600 transition-colors shrink-0 mt-1" />
+                <ExternalLink size={16} className={`group-hover:text-sky-500 transition-colors shrink-0 mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
               </div>
             </a>
           ))}

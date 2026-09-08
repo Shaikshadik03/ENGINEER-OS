@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useTheme } from '@/components/ThemeProvider'
 import {
-  Briefcase, Code2, Trophy, Calendar, MapPin, ExternalLink,
-  Star, Filter, Search, Zap, CheckCircle2, Clock, Wifi,
-  User, AlertCircle, TrendingUp, RefreshCw, Radio
+  Briefcase, Code2, Trophy, Calendar, ExternalLink,
+  Filter, Search, RefreshCw, Radio, Wifi
 } from 'lucide-react'
 
 interface Opportunity {
@@ -81,13 +81,14 @@ function calculateMatchScore(opp: Opportunity, profile: UserProfile): { score: n
 }
 
 const TYPE_CONFIG = {
-  internship: { label: 'Internship', icon: Briefcase, bg: 'bg-sky-100 text-sky-700 border-sky-200' },
-  job:        { label: 'Full-Time Job', icon: Code2, bg: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  hackathon:  { label: 'Hackathon', icon: Trophy, bg: 'bg-amber-100 text-amber-700 border-amber-200' },
-  event:      { label: 'Tech Event', icon: Calendar, bg: 'bg-purple-100 text-purple-700 border-purple-200' },
+  internship: { label: 'Internship', icon: Briefcase, bgDark: 'bg-sky-500/10 text-sky-400 border-sky-500/20', bgLight: 'bg-sky-100 text-sky-700 border-sky-200' },
+  job:        { label: 'Full-Time Job', icon: Code2, bgDark: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', bgLight: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+  hackathon:  { label: 'Hackathon', icon: Trophy, bgDark: 'bg-amber-500/10 text-amber-400 border-amber-500/20', bgLight: 'bg-amber-100 text-amber-700 border-amber-200' },
+  event:      { label: 'Tech Event', icon: Calendar, bgDark: 'bg-purple-500/10 text-purple-400 border-purple-500/20', bgLight: 'bg-purple-100 text-purple-700 border-purple-200' },
 }
 
 export default function OpportunitiesPage() {
+  const { isDark } = useTheme()
   const supabase = createClient()
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -95,15 +96,13 @@ export default function OpportunitiesPage() {
   })
   const [loading, setLoading] = useState(true)
   const [fetchingLive, setFetchingLive] = useState(false)
-  const [liveCount, setLiveCount] = useState(0)
 
   // Filters
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
-  const [minMatch, setMinMatch] = useState<number>(0)
+  const [minMatch] = useState<number>(0)
   const [remoteOnly, setRemoteOnly] = useState(false)
-  const [sortBy, setSortBy] = useState<'match' | 'recent'>('match')
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [sortBy] = useState<'match' | 'recent'>('match')
 
   useEffect(() => {
     async function loadData() {
@@ -136,7 +135,6 @@ export default function OpportunitiesPage() {
       const res = await fetch('/api/opportunities/fetch-live')
       const json = await res.json()
       if (json.opportunities && json.opportunities.length > 0) {
-        setLiveCount(json.count)
         setOpportunities(prev => {
           const ids = new Set(prev.map(o => o.id))
           const newItems = json.opportunities.filter((o: any) => !ids.has(o.id))
@@ -184,18 +182,20 @@ export default function OpportunitiesPage() {
     liveCount: opportunities.filter(o => o.is_live_feed).length,
   }), [opportunities, scoredOpps])
 
-  const hasNoProfile = !userProfile.mastered_skills.length && !userProfile.learning_skills.length
+  const cardStyle = isDark
+    ? 'bg-[#111118]/80 border-white/10 text-white backdrop-blur-xl'
+    : 'bg-white/90 border-slate-200/80 text-slate-900 shadow-sm backdrop-blur-xl'
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 text-slate-900">
+    <div className={`max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <Briefcase size={28} className="text-sky-600" /> Career & Internship Opportunities
+          <h1 className={`text-3xl font-black tracking-tight flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <Briefcase size={28} className="text-sky-500" /> Career & Internship Opportunities
           </h1>
-          <p className="text-xs text-slate-500 font-semibold mt-1">
+          <p className={`text-xs font-semibold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             Real-time internships, hackathons & entry-level engineering roles matched with your skills.
           </p>
         </div>
@@ -203,7 +203,7 @@ export default function OpportunitiesPage() {
         <button
           onClick={fetchLiveWebFeed}
           disabled={fetchingLive}
-          className="bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white font-extrabold text-xs px-5 py-3 rounded-2xl transition-all shadow-md flex items-center gap-2"
+          className="bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-extrabold text-xs px-5 py-3 rounded-2xl transition-all shadow-md flex items-center gap-2"
         >
           <RefreshCw size={14} className={fetchingLive ? 'animate-spin' : ''} />
           {fetchingLive ? 'Fetching Web Feed...' : 'Sync Live Jobs Feed'}
@@ -212,42 +212,67 @@ export default function OpportunitiesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
-          <p className="text-2xl font-black text-emerald-600">{stats.high}</p>
-          <p className="text-xs text-slate-500 font-bold mt-1">Strong Match 80%+</p>
+        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
+          <p className="text-2xl font-black text-emerald-500">{stats.high}</p>
+          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Strong Match 80%+</p>
         </div>
-        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
-          <p className="text-2xl font-black text-amber-600">{stats.medium}</p>
-          <p className="text-xs text-slate-500 font-bold mt-1">Good Match 50-79%</p>
+        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
+          <p className="text-2xl font-black text-amber-500">{stats.medium}</p>
+          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Good Match 50-79%</p>
         </div>
-        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
-          <p className="text-2xl font-black text-purple-600">{stats.liveCount}</p>
-          <p className="text-xs text-slate-500 font-bold mt-1">Live Web Feed Items</p>
+        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
+          <p className="text-2xl font-black text-purple-500">{stats.liveCount}</p>
+          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Live Web Feed Items</p>
         </div>
-        <div className="bg-white border border-slate-200/80 rounded-3xl p-5 text-center shadow-sm">
-          <p className="text-2xl font-black text-slate-900">{stats.total}</p>
-          <p className="text-xs text-slate-500 font-bold mt-1">Total Showing</p>
+        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
+          <p className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{stats.total}</p>
+          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Total Showing</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-slate-200/80 rounded-3xl p-5 space-y-4 shadow-sm">
+      <div className={`${cardStyle} rounded-3xl p-5 space-y-4 border`}>
         <div className="relative">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input type="text" placeholder="Search role, company, keyword..." value={search}
+          <Search size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+          <input
+            type="text"
+            placeholder="Search role, company, keyword..."
+            value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all" />
+            className={`w-full rounded-2xl pl-10 pr-4 py-2.5 text-xs font-medium focus:outline-none focus:border-sky-500 transition-all border ${
+              isDark
+                ? 'bg-[#0d0d12] border-white/10 text-white placeholder-slate-500'
+                : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+            }`}
+          />
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <Filter size={13} className="text-slate-400" />
+          <Filter size={13} className={isDark ? 'text-slate-500' : 'text-slate-400'} />
           {(['all', 'internship', 'job', 'hackathon', 'event'] as const).map(t => (
-            <button key={t} onClick={() => setTypeFilter(t)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all ${typeFilter === t ? 'bg-sky-600 text-white font-extrabold shadow-sm' : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
+            <button
+              key={t}
+              onClick={() => setTypeFilter(t)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all border ${
+                typeFilter === t
+                  ? 'bg-sky-600 border-sky-500 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-[#0d0d12] border-white/10 text-slate-300 hover:bg-white/5'
+                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+              }`}
+            >
               {t === 'all' ? 'All' : t}
             </button>
           ))}
-          <button onClick={() => setRemoteOnly(!remoteOnly)}
-            className={`flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold transition-all ${remoteOnly ? 'bg-emerald-600 text-white font-extrabold shadow-sm' : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
+          <button
+            onClick={() => setRemoteOnly(!remoteOnly)}
+            className={`flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+              remoteOnly
+                ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm'
+                : isDark
+                ? 'bg-[#0d0d12] border-white/10 text-slate-300 hover:bg-white/5'
+                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
             <Wifi size={11} /> Remote
           </button>
         </div>
@@ -255,68 +280,82 @@ export default function OpportunitiesPage() {
 
       {/* Results */}
       {loading ? (
-        <div className="text-center text-slate-400 font-bold py-16">Loading opportunities...</div>
+        <div className={`text-center font-bold py-16 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Loading opportunities...</div>
       ) : (
         <div className="space-y-4">
           {processed.map(opp => {
-            const { icon: TypeIcon, bg } = TYPE_CONFIG[opp.type] || TYPE_CONFIG.job
-            const isExpanded = expandedId === opp.id
+            const config = TYPE_CONFIG[opp.type] || TYPE_CONFIG.job
+            const TypeIcon = config.icon
+            const bgClass = isDark ? config.bgDark : config.bgLight
+
             return (
-              <div key={opp.id} className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden hover:shadow-md transition-all shadow-sm">
-                <div className="p-6">
-                  <div className="flex gap-4 justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${bg}`}>
-                          <TypeIcon size={11} /> {TYPE_CONFIG[opp.type]?.label || 'Job'}
+              <div key={opp.id} className={`${cardStyle} rounded-3xl overflow-hidden hover:border-sky-500/40 transition-all border p-6`}>
+                <div className="flex gap-4 justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${bgClass}`}>
+                        <TypeIcon size={11} /> {config.label}
+                      </span>
+                      {opp.is_live_feed && (
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${
+                          isDark ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' : 'bg-purple-100 border-purple-200 text-purple-700'
+                        }`}>
+                          <Radio size={11} className="animate-pulse text-purple-500" /> LIVE API
                         </span>
-                        {opp.is_live_feed && (
-                          <span className="text-xs font-bold px-3 py-1 rounded-full border bg-purple-100 border-purple-200 text-purple-700 flex items-center gap-1">
-                            <Radio size={11} className="animate-pulse text-purple-600" /> LIVE API
-                          </span>
-                        )}
-                        {opp.is_remote && (
-                          <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800">
-                            🏠 Remote
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="text-lg font-bold text-slate-900 leading-tight mb-1">{opp.title}</h3>
-                      <p className="text-xs text-slate-600 font-bold mb-3">{opp.company} • {opp.location}</p>
-
-                      <div className="flex flex-wrap gap-2 text-xs font-bold text-slate-500 mb-4">
-                        <span className="text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">{opp.stipend_or_salary}</span>
-                        {opp.deadline && <span className="bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">Deadline: {opp.deadline}</span>}
-                      </div>
-
-                      {/* Required Skills */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {opp.required_skills.map((s, idx) => (
-                          <span key={idx} className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
+                      )}
+                      {opp.is_remote && (
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                          isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-emerald-100 border-emerald-200 text-emerald-800'
+                        }`}>
+                          🏠 Remote
+                        </span>
+                      )}
                     </div>
 
-                    <div className="flex flex-col items-end justify-between gap-3">
-                      <div className="text-right">
-                        <div className={`text-xl font-black ${opp.matchScore >= 80 ? 'text-emerald-600' : opp.matchScore >= 50 ? 'text-amber-600' : 'text-slate-400'}`}>
-                          {opp.matchScore}%
-                        </div>
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">AI MATCH</span>
-                      </div>
+                    <h3 className={`text-lg font-bold leading-tight mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{opp.title}</h3>
+                    <p className={`text-xs font-bold mb-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{opp.company} • {opp.location}</p>
 
-                      <a
-                        href={opp.apply_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-2xl transition-all shadow-sm flex items-center gap-1.5"
-                      >
-                        Apply <ExternalLink size={13} />
-                      </a>
+                    <div className="flex flex-wrap gap-2 text-xs font-bold mb-4">
+                      <span className={`px-2.5 py-1 rounded-lg border ${
+                        isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                      }`}>{opp.stipend_or_salary}</span>
+                      {opp.deadline && (
+                        <span className={`px-2.5 py-1 rounded-lg border ${
+                          isDark ? 'bg-white/5 border-white/10 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+                        }`}>Deadline: {opp.deadline}</span>
+                      )}
                     </div>
+
+                    {/* Required Skills */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {opp.required_skills.map((s, idx) => (
+                        <span key={idx} className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${
+                          isDark ? 'bg-white/5 border-white/10 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+                        }`}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end justify-between gap-3">
+                    <div className="text-right">
+                      <div className={`text-xl font-black ${
+                        opp.matchScore >= 80 ? 'text-emerald-500' : opp.matchScore >= 50 ? 'text-amber-500' : isDark ? 'text-slate-500' : 'text-slate-400'
+                      }`}>
+                        {opp.matchScore}%
+                      </div>
+                      <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>AI MATCH</span>
+                    </div>
+
+                    <a
+                      href={opp.apply_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-2xl transition-all shadow-sm flex items-center gap-1.5"
+                    >
+                      Apply <ExternalLink size={13} />
+                    </a>
                   </div>
                 </div>
               </div>

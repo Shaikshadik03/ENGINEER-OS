@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, RotateCcw, Download, ChevronDown, Terminal, Code2, Loader2, Sparkles, CheckCircle2 } from 'lucide-react'
+import { useTheme } from '@/components/ThemeProvider'
+import { Play, RotateCcw, Download, ChevronDown, Terminal, Code2, Loader2, Sparkles } from 'lucide-react'
 
 const LANGUAGES = [
   {
@@ -54,6 +55,7 @@ interface OutputLine {
 }
 
 export default function PlaygroundPage() {
+  const { isDark } = useTheme()
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0])
   const [code, setCode] = useState(LANGUAGES[0].defaultCode)
   const [input, setInput] = useState('')
@@ -141,7 +143,7 @@ export default function PlaygroundPage() {
       fn()
     } catch (err: any) {
       logs.push({ type: 'stderr', text: `Error: ${err.message}` })
-    } finally {
+    } fontFinally: {
       console.log = originalLog
       console.error = originalError
     }
@@ -240,20 +242,26 @@ export default function PlaygroundPage() {
     }
   }
 
+  const cardStyle = isDark
+    ? 'bg-[#111118]/80 border-white/10 text-white backdrop-blur-xl'
+    : 'bg-white/90 border-slate-200/80 text-slate-900 shadow-sm backdrop-blur-xl'
+
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] pb-4 animate-in fade-in duration-500 text-slate-900">
+    <div className={`flex flex-col h-[calc(100vh-5rem)] pb-4 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       {/* Top Bar */}
-      <div className="flex items-center justify-between mb-4 gap-3 bg-white border border-slate-200/80 rounded-3xl p-4 shadow-sm">
+      <div className={`flex items-center justify-between mb-4 gap-3 ${cardStyle} rounded-3xl p-4 border`}>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200">
+            <div className={`p-2 rounded-2xl border ${isDark ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-purple-50 text-purple-600 border-purple-200'}`}>
               <Code2 size={20} />
             </div>
             <div>
-              <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">Code Playground</h1>
-              <span className="text-[10px] text-slate-400 font-extrabold tracking-wide uppercase">Multi-Language Live Execution Engine</span>
+              <h1 className={`text-lg font-black tracking-tight leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>Code Playground</h1>
+              <span className={`text-[10px] font-extrabold tracking-wide uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Multi-Language Live Execution Engine</span>
             </div>
-            <span className="text-[10px] bg-emerald-100 border border-emerald-300 text-emerald-800 px-2.5 py-0.5 rounded-full font-black flex items-center gap-1">
+            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black flex items-center gap-1 border ${
+              isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-emerald-100 border-emerald-300 text-emerald-800'
+            }`}>
               <Sparkles size={11} /> ZERO-LATENCY ENGINE
             </span>
           </div>
@@ -262,19 +270,27 @@ export default function PlaygroundPage() {
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 hover:border-sky-500 rounded-2xl px-3.5 py-2 text-xs font-extrabold text-slate-900 transition-all shadow-sm"
+              className={`flex items-center gap-2 rounded-2xl px-3.5 py-2 text-xs font-extrabold transition-all border ${
+                isDark ? 'bg-[#0d0d12] border-white/10 text-white hover:border-sky-500' : 'bg-slate-50 border-slate-200 text-slate-900 hover:border-sky-500'
+              }`}
             >
               <span>{selectedLang.icon}</span>
               <span>{selectedLang.label}</span>
-              <ChevronDown size={14} className="text-slate-400" />
+              <ChevronDown size={14} className={isDark ? 'text-slate-400' : 'text-slate-500'} />
             </button>
             {showLangMenu && (
-              <div className="absolute top-full mt-2 left-0 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden min-w-[170px] p-1.5 space-y-1">
+              <div className={`absolute top-full mt-2 left-0 border rounded-2xl shadow-xl z-50 overflow-hidden min-w-[170px] p-1.5 space-y-1 ${
+                isDark ? 'bg-[#111118] border-white/10' : 'bg-white border-slate-200'
+              }`}>
                 {LANGUAGES.map(lang => (
                   <button
                     key={lang.id}
                     onClick={() => selectLanguage(lang)}
-                    className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-bold rounded-xl transition-colors text-left ${selectedLang.id === lang.id ? 'text-sky-700 bg-sky-50 font-black' : 'text-slate-700 hover:bg-slate-50'}`}
+                    className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-bold rounded-xl transition-colors text-left ${
+                      selectedLang.id === lang.id
+                        ? isDark ? 'text-sky-400 bg-sky-500/10 font-black' : 'text-sky-700 bg-sky-50 font-black'
+                        : isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-700 hover:bg-slate-50'
+                    }`}
                   >
                     <span>{lang.icon}</span> {lang.label}
                   </button>
@@ -285,16 +301,26 @@ export default function PlaygroundPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={handleReset} className="flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 hover:bg-slate-200 text-slate-700 text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all">
+          <button
+            onClick={handleReset}
+            className={`flex items-center gap-1.5 border text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all ${
+              isDark ? 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
             <RotateCcw size={14} /> Reset
           </button>
-          <button onClick={handleExport} className="flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 hover:bg-slate-200 text-slate-700 text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all">
+          <button
+            onClick={handleExport}
+            className={`flex items-center gap-1.5 border text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all ${
+              isDark ? 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
             <Download size={14} /> Export
           </button>
           <button
             onClick={handleRun}
             disabled={running}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-black text-xs px-5 py-2.5 rounded-2xl transition-all shadow-md"
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white font-black text-xs px-5 py-2.5 rounded-2xl transition-all shadow-md"
           >
             {running ? <Loader2 size={15} className="animate-spin" /> : <Play size={15} className="fill-white" />}
             {running ? 'Running...' : 'Run'} <span className="opacity-70 text-[10px] font-mono">Ctrl+Enter</span>
@@ -306,7 +332,7 @@ export default function PlaygroundPage() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden min-h-0">
         
         {/* CODE EDITOR */}
-        <div className="flex flex-col bg-[#0d1117] border border-slate-300 rounded-3xl overflow-hidden shadow-md">
+        <div className="flex flex-col bg-[#0d1117] border border-slate-800 rounded-3xl overflow-hidden shadow-md">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#161b22]">
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5">
@@ -344,19 +370,21 @@ export default function PlaygroundPage() {
         <div className="flex flex-col gap-4 overflow-hidden min-h-0">
           
           {/* stdin input */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-4 shrink-0 shadow-sm space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Standard Input (stdin)</label>
+          <div className={`${cardStyle} rounded-3xl p-4 shrink-0 border space-y-1.5`}>
+            <label className={`text-[10px] font-black uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Standard Input (stdin)</label>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
               rows={2}
               placeholder="Enter input here if your program reads from stdin..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2 text-xs text-slate-900 font-mono resize-none focus:outline-none focus:border-sky-500"
+              className={`w-full rounded-2xl px-3.5 py-2 text-xs font-mono resize-none focus:outline-none focus:border-sky-500 border ${
+                isDark ? 'bg-[#0d0d12] border-white/10 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+              }`}
             />
           </div>
 
           {/* Output Console */}
-          <div className="flex-1 bg-[#0f172a] border border-slate-300 rounded-3xl overflow-hidden flex flex-col min-h-0 shadow-md">
+          <div className="flex-1 bg-[#0f172a] border border-slate-800 rounded-3xl overflow-hidden flex flex-col min-h-0 shadow-md">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#1e293b] shrink-0">
               <div className="flex items-center gap-2">
                 <Terminal size={15} className="text-emerald-400" />

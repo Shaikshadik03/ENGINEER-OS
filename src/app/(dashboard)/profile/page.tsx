@@ -6,9 +6,11 @@ import {
   User, Mail, Shield, Bell, Lock, Globe, Link as LinkIcon,
   Camera, Save, CheckCircle2, Flame, Star, Award, Sparkles, BookOpen, ExternalLink
 } from 'lucide-react'
+import { useTheme } from '@/components/ThemeProvider'
 
 export default function ProfilePage() {
   const supabase = createClient()
+  const { isDark } = useTheme()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -110,48 +112,64 @@ export default function ProfilePage() {
     setTimeout(() => setSaveSuccess(false), 3000)
   }
 
-  const isPro = profile?.subscription_tier === 'pro'
+  const cardStyle = isDark 
+    ? 'bg-[#111118]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-white' 
+    : 'bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-sm text-slate-900'
+
+  const inputStyle = isDark
+    ? 'w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all'
+    : 'w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-semibold placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all'
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 text-white">
+    <div className={`max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-white/10">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b ${
+        isDark ? 'border-white/10' : 'border-slate-200/80'
+      }`}>
         <div>
-          <h1 className="text-3xl font-black text-white mb-1 tracking-tight">Student OS Identity & Profile</h1>
-          <p className="text-slate-400 font-medium text-sm">All learning, opportunity matching, and AI recommendations link directly to this profile.</p>
+          <h1 className={`text-3xl font-black mb-1 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Student OS Identity & Profile</h1>
+          <p className={`font-medium text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>All learning, opportunity matching, and AI recommendations link directly to this profile.</p>
         </div>
 
         <div className="flex gap-3">
-          <div className="bg-[#12121a]/90 backdrop-blur-xl border border-amber-500/40 rounded-2xl px-4.5 py-2.5 flex items-center gap-2.5 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-            <Flame className="text-amber-400" size={20} />
+          <div className={`border rounded-2xl px-4.5 py-2.5 flex items-center gap-2.5 shadow-sm ${
+            isDark ? 'bg-[#12121a]/90 border-amber-500/40' : 'bg-amber-50 border-amber-200'
+          }`}>
+            <Flame className="text-amber-500" size={20} />
             <div>
-              <p className="text-[9px] font-black text-amber-400 uppercase tracking-wider">Streak</p>
-              <p className="font-black text-white text-sm">{profile?.streak || 0} Days</p>
+              <p className="text-[9px] font-black text-amber-500 uppercase tracking-wider">Streak</p>
+              <p className={`font-black text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{profile?.streak || 0} Days</p>
             </div>
           </div>
 
-          <div className="bg-[#12121a]/90 backdrop-blur-xl border border-emerald-500/40 rounded-2xl px-4.5 py-2.5 flex items-center gap-2.5 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-            <Star className="text-emerald-400 fill-emerald-400" size={20} />
+          <div className={`border rounded-2xl px-4.5 py-2.5 flex items-center gap-2.5 shadow-sm ${
+            isDark ? 'bg-[#12121a]/90 border-emerald-500/40' : 'bg-emerald-50 border-emerald-200'
+          }`}>
+            <Star className="text-emerald-500 fill-emerald-500" size={20} />
             <div>
-              <p className="text-[9px] font-black text-emerald-400 uppercase tracking-wider">Total XP</p>
-              <p className="font-black text-white text-sm">{profile?.xp || 0} XP</p>
+              <p className="text-[9px] font-black text-emerald-500 uppercase tracking-wider">Total XP</p>
+              <p className={`font-black text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{profile?.xp || 0} XP</p>
             </div>
           </div>
 
-          <div className="bg-[#12121a]/90 backdrop-blur-xl border border-purple-500/40 rounded-2xl px-4.5 py-2.5 flex items-center gap-2.5 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
-            <Award size={20} className="text-purple-400" />
+          <div className={`border rounded-2xl px-4.5 py-2.5 flex items-center gap-2.5 shadow-sm ${
+            isDark ? 'bg-[#12121a]/90 border-purple-500/40' : 'bg-purple-50 border-purple-200'
+          }`}>
+            <Award size={20} className="text-purple-500" />
             <div>
-              <p className="text-[9px] font-black text-purple-400 uppercase tracking-wider">Member Plan</p>
-              <p className="font-black text-white text-sm uppercase">{profile?.subscription_tier || 'PRO'}</p>
+              <p className="text-[9px] font-black text-purple-500 uppercase tracking-wider">Member Plan</p>
+              <p className={`font-black text-sm uppercase ${isDark ? 'text-white' : 'text-slate-900'}`}>{profile?.subscription_tier || 'PRO'}</p>
             </div>
           </div>
         </div>
       </div>
 
       {saveSuccess && (
-        <div className="bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 text-xs font-bold p-4 rounded-2xl flex items-center gap-2 shadow-lg shadow-emerald-500/10 backdrop-blur-xl">
-          <CheckCircle2 size={18} className="text-emerald-400" /> Saved to Database! Opportunity Matchmaker & Learning Hub are now updated with your new skills.
+        <div className={`border text-xs font-bold p-4 rounded-2xl flex items-center gap-2 shadow-sm ${
+          isDark ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' : 'bg-emerald-50 border-emerald-300 text-emerald-900'
+        }`}>
+          <CheckCircle2 size={18} className="text-emerald-500" /> Saved to Database! Opportunity Matchmaker & Learning Hub are now updated with your new skills.
         </div>
       )}
 
@@ -172,8 +190,12 @@ export default function ProfilePage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`w-full flex items-center gap-3 px-4.5 py-3.5 rounded-2xl text-xs font-bold transition-all ${
                   isActive 
-                    ? 'bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-transparent text-emerald-400 border border-emerald-500/50 font-extrabold shadow-[0_0_20px_rgba(16,185,129,0.2)] scale-[1.02]' 
-                    : 'bg-[#111118]/80 backdrop-blur-xl text-slate-400 border border-white/10 hover:text-white hover:border-white/20'
+                    ? isDark 
+                      ? 'bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-transparent text-emerald-400 border border-emerald-500/50 font-extrabold shadow-sm scale-[1.02]' 
+                      : 'bg-sky-600 text-white shadow-md font-black scale-[1.02]'
+                    : isDark 
+                      ? 'bg-[#111118]/80 text-slate-400 border border-white/10 hover:text-white hover:border-white/20'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
                 <Icon size={16} /> {tab.name}
@@ -184,12 +206,12 @@ export default function ProfilePage() {
 
         {/* Form Card */}
         <div className="md:col-span-3">
-          <form onSubmit={handleSave} className="bg-[#111118]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl hover:border-white/20 transition-all">
+          <form onSubmit={handleSave} className={`${cardStyle} rounded-3xl p-6 sm:p-8 space-y-6`}>
 
             {/* TAB 1: PUBLIC INFO */}
             {activeTab === 'profile' && (
               <div className="space-y-5 animate-in fade-in duration-200">
-                <h3 className="text-base font-black text-white mb-2">Basic Profile Information</h3>
+                <h3 className={`text-base font-black mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Basic Profile Information</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -198,7 +220,7 @@ export default function ProfilePage() {
                       type="text"
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
-                      className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                      className={inputStyle}
                     />
                   </div>
 
@@ -208,7 +230,9 @@ export default function ProfilePage() {
                       type="text"
                       disabled
                       value={profile?.email || 'shaikshadik003@gmail.com'}
-                      className="w-full bg-[#14141e] border border-white/5 rounded-2xl px-4 py-3 text-xs text-slate-500 font-semibold cursor-not-allowed"
+                      className={`w-full border rounded-2xl px-4 py-3 text-xs font-semibold cursor-not-allowed ${
+                        isDark ? 'bg-[#14141e] border-white/5 text-slate-500' : 'bg-slate-100 border-slate-200 text-slate-400'
+                      }`}
                     />
                   </div>
                 </div>
@@ -220,7 +244,7 @@ export default function ProfilePage() {
                     placeholder="e.g. Malla Reddy University / IIT Hyderabad"
                     value={university}
                     onChange={e => setUniversity(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
 
@@ -230,10 +254,10 @@ export default function ProfilePage() {
                     <select
                       value={branch}
                       onChange={e => setBranch(e.target.value)}
-                      className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                      className={inputStyle}
                     >
                       {['CSE', 'IT', 'ECE', 'EEE', 'AIML', 'Data Science', 'Mechanical', 'Civil'].map(b => (
-                        <option key={b} value={b} className="bg-[#111118] text-white">{b}</option>
+                        <option key={b} value={b} className={isDark ? 'bg-[#111118] text-white' : 'bg-white text-slate-900'}>{b}</option>
                       ))}
                     </select>
                   </div>
@@ -243,10 +267,10 @@ export default function ProfilePage() {
                     <select
                       value={semester}
                       onChange={e => setSemester(Number(e.target.value))}
-                      className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                      className={inputStyle}
                     >
                       {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
-                        <option key={s} value={s} className="bg-[#111118] text-white">Semester {s}</option>
+                        <option key={s} value={s} className={isDark ? 'bg-[#111118] text-white' : 'bg-white text-slate-900'}>Semester {s}</option>
                       ))}
                     </select>
                   </div>
@@ -259,7 +283,7 @@ export default function ProfilePage() {
                     placeholder="Tell us about yourself..."
                     value={bio}
                     onChange={e => setBio(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl p-4 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none"
+                    className={`${inputStyle} resize-none`}
                   />
                 </div>
               </div>
@@ -269,51 +293,51 @@ export default function ProfilePage() {
             {activeTab === 'skills' && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div>
-                  <h3 className="text-base font-black text-white mb-1">Skills & Matchmaker Calibration</h3>
-                  <p className="text-xs text-slate-400 font-medium">These skills drive your Opportunity Matchmaker score, AI Resume Analysis, and Visual Roadmap unlocks.</p>
+                  <h3 className={`text-base font-black mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Skills & Matchmaker Calibration</h3>
+                  <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>These skills drive your Opportunity Matchmaker score, AI Resume Analysis, and Visual Roadmap unlocks.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-slate-300 uppercase tracking-wider mb-1.5">Target Career Goal</label>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">Target Career Goal</label>
                   <input
                     type="text"
                     placeholder="e.g. Forward Deployed Engineer / Entrepreneur"
                     value={careerGoal}
                     onChange={e => setCareerGoal(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-emerald-400 uppercase tracking-wider mb-1.5">Mastered Skills (comma-separated)</label>
+                  <label className="block text-xs font-black text-emerald-500 uppercase tracking-wider mb-1.5">Mastered Skills (comma-separated)</label>
                   <input
                     type="text"
                     placeholder="e.g. Python, React, JavaScript, SQL, DSA"
                     value={masteredInput}
                     onChange={e => setMasteredInput(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-amber-400 uppercase tracking-wider mb-1.5">Currently Learning Skills (comma-separated)</label>
+                  <label className="block text-xs font-black text-amber-500 uppercase tracking-wider mb-1.5">Currently Learning Skills (comma-separated)</label>
                   <input
                     type="text"
                     placeholder="e.g. Node.js, Next.js, Docker, Machine Learning"
                     value={learningInput}
                     onChange={e => setLearningInput(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-purple-400 uppercase tracking-wider mb-1.5">Tech Interests & Domains (comma-separated)</label>
+                  <label className="block text-xs font-black text-purple-500 uppercase tracking-wider mb-1.5">Tech Interests & Domains (comma-separated)</label>
                   <input
                     type="text"
                     placeholder="e.g. Web Development, AI/ML, Startups, Cloud"
                     value={interestsInput}
                     onChange={e => setInterestsInput(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
               </div>
@@ -322,7 +346,7 @@ export default function ProfilePage() {
             {/* TAB 3: SOCIAL LINKS */}
             {activeTab === 'social' && (
               <div className="space-y-5 animate-in fade-in duration-200">
-                <h3 className="text-base font-black text-white mb-2">Portfolio & Social Profiles</h3>
+                <h3 className={`text-base font-black mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Portfolio & Social Profiles</h3>
 
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">GitHub Profile URL</label>
@@ -331,7 +355,7 @@ export default function ProfilePage() {
                     placeholder="https://github.com/Shaikshadik03"
                     value={githubUrl}
                     onChange={e => setGithubUrl(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
 
@@ -342,7 +366,7 @@ export default function ProfilePage() {
                     placeholder="https://linkedin.com/in/username"
                     value={linkedinUrl}
                     onChange={e => setLinkedinUrl(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
 
@@ -353,20 +377,25 @@ export default function ProfilePage() {
                     placeholder="https://yourportfolio.com"
                     value={portfolioUrl}
                     onChange={e => setPortfolioUrl(e.target.value)}
-                    className="w-full bg-[#181824]/90 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={inputStyle}
                   />
                 </div>
               </div>
             )}
 
-            {/* Save Button */}
-            <div className="pt-4 border-t border-white/10 flex justify-end">
+            {/* Submit Button */}
+            <div className={`pt-4 border-t flex justify-end ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 disabled:opacity-50 text-slate-950 font-black text-xs px-8 py-3.5 rounded-2xl flex items-center gap-2 transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.02]"
+                className={`font-black text-xs px-8 py-3.5 rounded-2xl transition-all flex items-center gap-2 ${
+                  isDark 
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.35)]' 
+                    : 'bg-sky-600 hover:bg-sky-500 text-white shadow-md'
+                }`}
               >
-                <Save size={16} /> {saving ? 'Saving Changes...' : 'Save Profile Changes'}
+                <Save size={16} />
+                {saving ? 'Saving Profile...' : 'Save Profile Changes'}
               </button>
             </div>
 
@@ -374,6 +403,7 @@ export default function ProfilePage() {
         </div>
 
       </div>
+
     </div>
   )
 }

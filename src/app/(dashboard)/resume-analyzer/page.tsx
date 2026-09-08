@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useTheme } from '@/components/ThemeProvider'
 import {
-  FileText, Sparkles, CheckCircle2, Plus, Trash2, Printer, Download,
-  User, Briefcase, GraduationCap, Code2, Award, ArrowRight, ArrowLeft,
-  Target, HelpCircle, AlertCircle, RefreshCw, Layers
+  FileText, Sparkles, CheckCircle2, Plus, Trash2, Printer,
+  User, Briefcase, GraduationCap, Code2, ArrowRight, ArrowLeft,
+  Target, AlertCircle, RefreshCw, Layers
 } from 'lucide-react'
 
 interface Project {
@@ -106,6 +107,7 @@ const TARGET_ROLES = [
 ]
 
 export default function ResumePage() {
+  const { isDark } = useTheme()
   const supabase = createClient()
   const [activeTab, setActiveTab] = useState<'builder' | 'analyzer'>('builder')
   const [step, setStep] = useState(1)
@@ -247,36 +249,46 @@ export default function ResumePage() {
     setAnalyzing(false)
   }
 
+  const cardStyle = isDark
+    ? 'bg-[#111118]/80 border-white/10 text-white backdrop-blur-xl'
+    : 'bg-white/90 border-slate-200/80 text-slate-900 shadow-sm backdrop-blur-xl'
+
+  const inputStyle = isDark
+    ? 'bg-[#0d0d12] border-white/10 text-white placeholder-slate-500'
+    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500">
+    <div className={`max-w-7xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       {/* Top Header & Tab Switcher */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200 print:hidden">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-slate-200'} print:hidden`}>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
-            <FileText className="text-sky-600" size={28} /> AI Resume Builder & Coach
+          <h1 className={`text-3xl font-black flex items-center gap-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <FileText className="text-sky-500" size={28} /> AI Resume Builder & Coach
           </h1>
-          <p className="text-slate-500 font-semibold text-sm mt-1">
+          <p className={`font-semibold text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             Build executive A4 resumes step-by-step with real-time live preview & ATS role optimization.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-white border border-slate-200/80 p-1.5 rounded-2xl shadow-sm">
+        <div className={`flex items-center gap-2 border p-1.5 rounded-2xl ${
+          isDark ? 'bg-[#0d0d12] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+        }`}>
           <button
             onClick={() => setActiveTab('builder')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
               activeTab === 'builder'
-                ? 'bg-sky-600 text-white shadow-sm font-extrabold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-sky-600 border-sky-500 text-white shadow-sm font-extrabold'
+                : isDark ? 'text-slate-400 hover:text-white border-transparent' : 'text-slate-600 hover:text-slate-900 border-transparent'
             }`}
           >
             <Sparkles size={14} /> Resume Builder & Live Preview
           </button>
           <button
             onClick={() => setActiveTab('analyzer')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
               activeTab === 'analyzer'
-                ? 'bg-sky-600 text-white shadow-sm font-extrabold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-sky-600 border-sky-500 text-white shadow-sm font-extrabold'
+                : isDark ? 'text-slate-400 hover:text-white border-transparent' : 'text-slate-600 hover:text-slate-900 border-transparent'
             }`}
           >
             <Target size={14} /> ATS Resume Scanner
@@ -288,9 +300,9 @@ export default function ResumePage() {
       {activeTab === 'builder' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT SIDE: MULTI-STEP FORM WIZARD (lg:col-span-5) */}
-          <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-6 space-y-6 print:hidden shadow-sm">
+          <div className={`lg:col-span-5 ${cardStyle} rounded-3xl p-6 space-y-6 print:hidden border`}>
             {/* Steps Progress Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+            <div className={`flex items-center justify-between pb-4 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
               <div className="flex items-center gap-1.5">
                 {[1, 2, 3, 4, 5, 6].map(s => (
                   <button
@@ -298,10 +310,10 @@ export default function ResumePage() {
                     onClick={() => setStep(s)}
                     className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all ${
                       step === s
-                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                        ? 'bg-sky-600 text-white shadow-md'
                         : step > s
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-white/5 text-gray-500 border border-white/10'
+                        ? isDark ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                        : isDark ? 'bg-white/5 text-slate-500 border border-white/10' : 'bg-slate-100 text-slate-400 border border-slate-200'
                     }`}
                   >
                     {step > s ? '✓' : s}
@@ -310,7 +322,9 @@ export default function ResumePage() {
               </div>
               <button
                 onClick={handlePreFillProfile}
-                className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all"
+                className={`text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all border ${
+                  isDark ? 'text-sky-400 bg-sky-500/10 border-sky-500/20 hover:text-white' : 'text-sky-700 bg-sky-50 border-sky-200 hover:bg-sky-100'
+                }`}
               >
                 <Sparkles size={12} /> Sync Profile
               </button>
@@ -319,63 +333,63 @@ export default function ResumePage() {
             {/* STEP 1: PERSONAL INFO */}
             {step === 1 && (
               <div className="space-y-4 animate-in fade-in duration-300">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <User size={16} className="text-indigo-400" /> Step 1: Personal Details
+                <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <User size={16} className="text-sky-500" /> Step 1: Personal Details
                 </h3>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1">Full Name *</label>
+                  <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Full Name *</label>
                   <input
                     value={resume.fullName}
                     onChange={e => setResume({ ...resume, fullName: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className={`w-full rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1">Target Job Title *</label>
+                  <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Target Job Title *</label>
                   <input
                     value={resume.targetRole}
                     onChange={e => setResume({ ...resume, targetRole: e.target.value })}
                     placeholder="e.g. Forward Deployed Engineer / Full Stack Developer"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className={`w-full rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">Phone</label>
+                    <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Phone</label>
                     <input
                       value={resume.phone}
                       onChange={e => setResume({ ...resume, phone: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className={`w-full rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">Email</label>
+                    <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Email</label>
                     <input
                       value={resume.email}
                       onChange={e => setResume({ ...resume, email: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className={`w-full rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">LinkedIn URL</label>
+                    <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>LinkedIn URL</label>
                     <input
                       value={resume.linkedin}
                       onChange={e => setResume({ ...resume, linkedin: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className={`w-full rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">GitHub URL</label>
+                    <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>GitHub URL</label>
                     <input
                       value={resume.github}
                       onChange={e => setResume({ ...resume, github: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className={`w-full rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                     />
                   </div>
                 </div>
@@ -386,13 +400,15 @@ export default function ResumePage() {
             {step === 2 && (
               <div className="space-y-4 animate-in fade-in duration-300">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <FileText size={16} className="text-indigo-400" /> Step 2: Professional Summary
+                  <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    <FileText size={16} className="text-sky-500" /> Step 2: Professional Summary
                   </h3>
                   <button
                     onClick={handleAiSummary}
                     disabled={aiGenerating}
-                    className="text-[10px] font-bold text-indigo-400 hover:text-white bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all"
+                    className={`text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all border ${
+                      isDark ? 'text-sky-400 bg-sky-500/10 border-sky-500/20 hover:text-white' : 'text-sky-700 bg-sky-50 border-sky-200 hover:bg-sky-100'
+                    }`}
                   >
                     <Sparkles size={12} className={aiGenerating ? 'animate-spin' : ''} /> {aiGenerating ? 'Writing...' : 'AI Auto-Write'}
                   </button>
@@ -404,7 +420,7 @@ export default function ResumePage() {
                     value={resume.summary}
                     onChange={e => setResume({ ...resume, summary: e.target.value })}
                     placeholder="Write 2-3 sentences about your B.Tech specialization, key technical strengths, and career ambitions..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 leading-relaxed"
+                    className={`w-full rounded-xl p-3 text-xs focus:outline-none focus:border-sky-500 leading-relaxed border ${inputStyle}`}
                   />
                 </div>
               </div>
@@ -413,28 +429,28 @@ export default function ResumePage() {
             {/* STEP 3: SKILLS */}
             {step === 3 && (
               <div className="space-y-4 animate-in fade-in duration-300">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Code2 size={16} className="text-indigo-400" /> Step 3: Skills & Developer Tools
+                <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <Code2 size={16} className="text-sky-500" /> Step 3: Skills & Developer Tools
                 </h3>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1">Languages & Core Tools (Comma Separated)</label>
+                  <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Languages & Core Tools (Comma Separated)</label>
                   <textarea
                     rows={3}
                     value={resume.skills}
                     onChange={e => setResume({ ...resume, skills: e.target.value })}
                     placeholder="Python, C, Java, HTML, CSS, JavaScript, React, SQL, Git..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 leading-relaxed"
+                    className={`w-full rounded-xl p-3 text-xs focus:outline-none focus:border-sky-500 leading-relaxed border ${inputStyle}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1">Developer Software & Tools</label>
+                  <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Developer Software & Tools</label>
                   <input
                     value={resume.tools}
                     onChange={e => setResume({ ...resume, tools: e.target.value })}
                     placeholder="VS Code, GitHub, Figma, MS Excel, ChatGPT..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className={`w-full rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                   />
                 </div>
               </div>
@@ -443,46 +459,46 @@ export default function ResumePage() {
             {/* STEP 4: EXPERIENCE */}
             {step === 4 && (
               <div className="space-y-4 animate-in fade-in duration-300">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Briefcase size={16} className="text-indigo-400" /> Step 4: Experience / Role
+                <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <Briefcase size={16} className="text-sky-500" /> Step 4: Experience / Role
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">Role Title</label>
+                    <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Role Title</label>
                     <input
                       value={resume.experienceRole}
                       onChange={e => setResume({ ...resume, experienceRole: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className={`w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">Company / Organization</label>
+                    <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Company / Organization</label>
                     <input
                       value={resume.experienceCompany}
                       onChange={e => setResume({ ...resume, experienceCompany: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className={`w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1">Dates</label>
+                  <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Dates</label>
                   <input
                     value={resume.experienceDates}
                     onChange={e => setResume({ ...resume, experienceDates: e.target.value })}
                     placeholder="Jul 2026 – Present"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className={`w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-sky-500 border ${inputStyle}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1">Bullet Points (One per line)</label>
+                  <label className={`block text-xs font-bold mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Bullet Points (One per line)</label>
                   <textarea
                     rows={4}
                     value={resume.experienceBullets.join('\n')}
                     onChange={e => setResume({ ...resume, experienceBullets: e.target.value.split('\n') })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 leading-relaxed font-mono"
+                    className={`w-full rounded-xl p-3 text-xs focus:outline-none focus:border-sky-500 leading-relaxed font-mono border ${inputStyle}`}
                   />
                 </div>
               </div>
@@ -492,23 +508,27 @@ export default function ResumePage() {
             {step === 5 && (
               <div className="space-y-4 animate-in fade-in duration-300">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Layers size={16} className="text-indigo-400" /> Step 5: Projects
+                  <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    <Layers size={16} className="text-sky-500" /> Step 5: Projects
                   </h3>
                   <button
                     onClick={addProject}
-                    className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg flex items-center gap-1"
+                    className={`text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 border ${
+                      isDark ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                    }`}
                   >
                     <Plus size={12} /> Add Project
                   </button>
                 </div>
 
                 {resume.projects.map((proj, idx) => (
-                  <div key={proj.id} className="bg-white/3 border border-white/8 rounded-xl p-3.5 space-y-2.5 relative">
+                  <div key={proj.id} className={`rounded-xl p-3.5 space-y-2.5 relative border ${
+                    isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">PROJECT #{idx + 1}</span>
+                      <span className="text-[10px] font-extrabold text-sky-500 uppercase tracking-wider">PROJECT #{idx + 1}</span>
                       {resume.projects.length > 1 && (
-                        <button onClick={() => deleteProject(proj.id)} className="text-red-400 hover:text-red-300 p-1">
+                        <button onClick={() => deleteProject(proj.id)} className="text-rose-400 hover:text-rose-300 p-1">
                           <Trash2 size={13} />
                         </button>
                       )}
@@ -516,39 +536,39 @@ export default function ResumePage() {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[10px] text-gray-400 mb-0.5">Project Name *</label>
+                        <label className={`block text-[10px] mb-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Project Name *</label>
                         <input
                           value={proj.name}
                           onChange={e => updateProject(proj.id, 'name', e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                          className={`w-full rounded-lg px-2.5 py-1.5 text-xs focus:outline-none border ${inputStyle}`}
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] text-gray-400 mb-0.5">Tech Stack *</label>
+                        <label className={`block text-[10px] mb-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Tech Stack *</label>
                         <input
                           value={proj.techStack}
                           onChange={e => updateProject(proj.id, 'techStack', e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                          className={`w-full rounded-lg px-2.5 py-1.5 text-xs focus:outline-none border ${inputStyle}`}
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[10px] text-gray-400 mb-0.5">Project Link (Optional)</label>
+                      <label className={`block text-[10px] mb-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Project Link (Optional)</label>
                       <input
                         value={proj.link}
                         onChange={e => updateProject(proj.id, 'link', e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                        className={`w-full rounded-lg px-2.5 py-1.5 text-xs focus:outline-none border ${inputStyle}`}
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] text-gray-400 mb-0.5">Description *</label>
+                      <label className={`block text-[10px] mb-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Description *</label>
                       <textarea
                         rows={2}
                         value={proj.description}
                         onChange={e => updateProject(proj.id, 'description', e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none leading-relaxed"
+                        className={`w-full rounded-lg p-2 text-xs focus:outline-none leading-relaxed border ${inputStyle}`}
                       />
                     </div>
                   </div>
@@ -559,13 +579,15 @@ export default function ResumePage() {
             {/* STEP 6: EDUCATION & CERTS */}
             {step === 6 && (
               <div className="space-y-4 animate-in fade-in duration-300">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <GraduationCap size={16} className="text-indigo-400" /> Step 6: Education & Certifications
+                <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <GraduationCap size={16} className="text-sky-500" /> Step 6: Education & Certifications
                 </h3>
 
                 {resume.education.map((edu, idx) => (
-                  <div key={edu.id} className="bg-white/3 border border-white/8 rounded-xl p-3 space-y-2">
-                    <span className="text-[10px] font-extrabold text-indigo-400 uppercase">EDUCATION #{idx + 1}</span>
+                  <div key={edu.id} className={`rounded-xl p-3 space-y-2 border ${
+                    isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className="text-[10px] font-extrabold text-sky-500 uppercase">EDUCATION #{idx + 1}</span>
                     <div className="grid grid-cols-2 gap-2">
                       <input
                         value={edu.degree}
@@ -575,7 +597,7 @@ export default function ResumePage() {
                           setResume({ ...resume, education: updated })
                         }}
                         placeholder="Degree / Stream"
-                        className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                        className={`rounded-lg px-2.5 py-1.5 text-xs focus:outline-none border ${inputStyle}`}
                       />
                       <input
                         value={edu.institution}
@@ -585,7 +607,7 @@ export default function ResumePage() {
                           setResume({ ...resume, education: updated })
                         }}
                         placeholder="School / College Name"
-                        className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                        className={`rounded-lg px-2.5 py-1.5 text-xs focus:outline-none border ${inputStyle}`}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -597,7 +619,7 @@ export default function ResumePage() {
                           setResume({ ...resume, education: updated })
                         }}
                         placeholder="Years (e.g. 2024-2028)"
-                        className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                        className={`rounded-lg px-2.5 py-1.5 text-xs focus:outline-none border ${inputStyle}`}
                       />
                       <input
                         value={edu.grade}
@@ -607,7 +629,7 @@ export default function ResumePage() {
                           setResume({ ...resume, education: updated })
                         }}
                         placeholder="GPA / Grade"
-                        className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                        className={`rounded-lg px-2.5 py-1.5 text-xs focus:outline-none border ${inputStyle}`}
                       />
                     </div>
                   </div>
@@ -615,17 +637,17 @@ export default function ResumePage() {
 
                 {/* Certifications */}
                 <div className="pt-2 space-y-2">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Certifications</label>
+                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Certifications</label>
                   <div className="flex gap-2">
                     <input
                       value={newCert}
                       onChange={e => setNewCert(e.target.value)}
                       placeholder="Add certification (e.g. AWS Certified Developer)"
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                      className={`flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none border ${inputStyle}`}
                     />
                     <button
                       onClick={addCert}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-3 rounded-xl"
+                      className="bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs px-3 rounded-xl"
                     >
                       Add
                     </button>
@@ -633,9 +655,11 @@ export default function ResumePage() {
 
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {resume.certifications.map((c, i) => (
-                      <span key={i} className="text-[10px] font-bold bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                      <span key={i} className={`text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border ${
+                        isDark ? 'bg-sky-500/10 border-sky-500/25 text-sky-300' : 'bg-sky-100 border-sky-200 text-sky-800'
+                      }`}>
                         {c}
-                        <button onClick={() => deleteCert(i)} className="text-gray-400 hover:text-red-400">×</button>
+                        <button onClick={() => deleteCert(i)} className={isDark ? 'text-slate-400 hover:text-rose-400' : 'text-slate-500 hover:text-rose-600'}>×</button>
                       </span>
                     ))}
                   </div>
@@ -644,11 +668,13 @@ export default function ResumePage() {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center pt-4 border-t border-white/10">
+            <div className={`flex justify-between items-center pt-4 border-t ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
               <button
                 disabled={step === 1}
                 onClick={() => setStep(s => s - 1)}
-                className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-white disabled:opacity-30 transition-colors"
+                className={`flex items-center gap-1.5 text-xs font-bold disabled:opacity-30 transition-colors ${
+                  isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+                }`}
               >
                 <ArrowLeft size={14} /> Back
               </button>
@@ -656,7 +682,7 @@ export default function ResumePage() {
               <div className="flex gap-2">
                 <button
                   onClick={handlePrint}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5"
                 >
                   <Printer size={14} /> Print / Save PDF
                 </button>
@@ -664,7 +690,7 @@ export default function ResumePage() {
                 {step < 6 && (
                   <button
                     onClick={() => setStep(s => s + 1)}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-1.5"
+                    className="bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5"
                   >
                     Next <ArrowRight size={14} />
                   </button>
@@ -825,9 +851,9 @@ export default function ResumePage() {
       {activeTab === 'analyzer' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Input */}
-          <div className="lg:col-span-2 bg-[#111118] border border-white/10 rounded-2xl p-6 space-y-4">
+          <div className={`lg:col-span-2 ${cardStyle} rounded-2xl p-6 space-y-4 border`}>
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Select Target Job Role</label>
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Select Target Job Role</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {TARGET_ROLES.map(role => (
                   <button
@@ -835,8 +861,8 @@ export default function ResumePage() {
                     onClick={() => setSelectedRole(role.id)}
                     className={`p-3 rounded-xl text-xs font-bold border transition-all text-left ${
                       selectedRole === role.id
-                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
-                        : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
+                        ? 'bg-sky-600 border-sky-500 text-white shadow-md'
+                        : isDark ? 'bg-white/5 border-white/10 text-slate-400 hover:text-white' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                     }`}
                   >
                     {role.label}
@@ -846,20 +872,20 @@ export default function ResumePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Paste Resume Content or Bullet Points</label>
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Paste Resume Content or Bullet Points</label>
               <textarea
                 rows={10}
                 value={resumeText}
                 onChange={e => setResumeText(e.target.value)}
                 placeholder="Paste your full resume text or project bullet points here..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 leading-relaxed font-mono"
+                className={`w-full rounded-xl p-4 text-xs font-mono leading-relaxed border ${inputStyle}`}
               />
             </div>
 
             <button
               onClick={handleAnalyze}
               disabled={analyzing}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
+              className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
             >
               {analyzing ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
               {analyzing ? 'Scanning Resume ATS Score...' : 'Run AI Resume & ATS Analysis'}
@@ -869,22 +895,24 @@ export default function ResumePage() {
           {/* Right Results */}
           <div className="space-y-4">
             {atsResult ? (
-              <div className="bg-[#111118] border border-white/10 rounded-2xl p-6 space-y-4">
-                <div className="text-center pb-4 border-b border-white/10">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">ATS MATCH SCORE</span>
-                  <div className="text-4xl font-extrabold text-emerald-400 mt-1">{atsResult.score}%</div>
-                  <span className="text-xs text-gray-400 font-semibold mt-1 block">
+              <div className={`${cardStyle} rounded-2xl p-6 space-y-4 border`}>
+                <div className={`text-center pb-4 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>ATS MATCH SCORE</span>
+                  <div className="text-4xl font-extrabold text-emerald-500 mt-1">{atsResult.score}%</div>
+                  <span className={`text-xs font-semibold mt-1 block ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     {atsResult.score >= 85 ? '🌟 Excellent ATS Compatibility' : atsResult.score >= 65 ? '👍 Good — Minor keywords missing' : '⚠️ Needs Optimization'}
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <CheckCircle2 size={14} /> Matched Role Keywords
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {atsResult.matched.map((kw: string) => (
-                      <span key={kw} className="text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 px-2 py-0.5 rounded">
+                      <span key={kw} className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                        isDark ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-emerald-100 border-emerald-200 text-emerald-800'
+                      }`}>
                         {kw}
                       </span>
                     ))}
@@ -893,12 +921,14 @@ export default function ResumePage() {
 
                 {atsResult.missing.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-bold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-rose-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                       <AlertCircle size={14} /> Missing Role Keywords
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
                       {atsResult.missing.map((kw: string) => (
-                        <span key={kw} className="text-[10px] font-bold bg-rose-500/10 border border-rose-500/25 text-rose-300 px-2 py-0.5 rounded">
+                        <span key={kw} className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                          isDark ? 'bg-rose-500/10 border-rose-500/25 text-rose-400' : 'bg-rose-100 border-rose-200 text-rose-800'
+                        }`}>
                           + {kw}
                         </span>
                       ))}
@@ -907,9 +937,9 @@ export default function ResumePage() {
                 )}
               </div>
             ) : (
-              <div className="bg-[#111118] border border-white/10 rounded-2xl p-6 text-center text-gray-500 py-16 space-y-3">
-                <Target size={36} className="mx-auto opacity-30 text-indigo-400" />
-                <p className="text-xs">Select a target job role & click <strong className="text-white">Run AI Analysis</strong> to view your ATS score!</p>
+              <div className={`${cardStyle} rounded-2xl p-6 text-center py-16 space-y-3 border`}>
+                <Target size={36} className={`mx-auto opacity-30 ${isDark ? 'text-sky-400' : 'text-sky-600'}`} />
+                <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Select a target job role & click <strong className={isDark ? 'text-white' : 'text-slate-900'}>Run AI Analysis</strong> to view your ATS score!</p>
               </div>
             )}
           </div>
