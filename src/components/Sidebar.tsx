@@ -28,29 +28,29 @@ const Sidebar = () => {
   const pathname = usePathname()
   
   const mainSystem = [
-    { name: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/', color: 'text-sky-500 bg-sky-50' },
-    { name: 'Learning Engine', icon: <BookOpen size={18} />, path: '/learning', color: 'text-emerald-500 bg-emerald-50' },
-    { name: 'Skills Hub', icon: <Award size={18} />, path: '/skills', badge: 'Solo', color: 'text-amber-500 bg-amber-50' },
-    { name: 'Career Roadmaps', icon: <Map size={18} />, path: '/roadmaps', color: 'text-indigo-500 bg-indigo-50' },
-    { name: 'Opportunities', icon: <Briefcase size={18} />, path: '/opportunities', color: 'text-rose-500 bg-rose-50' },
-    { name: 'Startup Scout', icon: <Rocket size={18} />, path: '/projects', color: 'text-orange-500 bg-orange-50' },
-    { name: 'LeetCode Sync', icon: <Code size={18} />, path: '/leetcode', color: 'text-amber-600 bg-amber-50' },
-    { name: 'Resources', icon: <Folder size={18} />, path: '/resources', color: 'text-cyan-500 bg-cyan-50' },
-    { name: 'Tech News', icon: <Newspaper size={18} />, path: '/news', color: 'text-teal-500 bg-teal-50' },
+    { name: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/', color: 'text-sky-500 bg-sky-50/80' },
+    { name: 'Learning Engine', icon: <BookOpen size={18} />, path: '/learning', color: 'text-emerald-500 bg-emerald-50/80' },
+    { name: 'Skills Hub', icon: <Award size={18} />, path: '/skills', badge: 'Solo', color: 'text-amber-500 bg-amber-50/80' },
+    { name: 'Career Roadmaps', icon: <Map size={18} />, path: '/roadmaps', color: 'text-indigo-500 bg-indigo-50/80' },
+    { name: 'Opportunities', icon: <Briefcase size={18} />, path: '/opportunities', color: 'text-rose-500 bg-rose-50/80' },
+    { name: 'Startup Scout', icon: <Rocket size={18} />, path: '/projects', color: 'text-orange-500 bg-orange-50/80' },
+    { name: 'LeetCode Sync', icon: <Code size={18} />, path: '/leetcode', color: 'text-amber-600 bg-amber-50/80' },
+    { name: 'Resources', icon: <Folder size={18} />, path: '/resources', color: 'text-cyan-500 bg-cyan-50/80' },
+    { name: 'Tech News', icon: <Newspaper size={18} />, path: '/news', color: 'text-teal-500 bg-teal-50/80' },
   ];
 
   const tools = [
-    { name: 'Code Playground', icon: <Terminal size={18} />, path: '/playground', color: 'text-purple-500 bg-purple-50' },
-    { name: 'AI Resume Coach', icon: <FileText size={18} />, path: '/resume-analyzer', color: 'text-blue-500 bg-blue-50' },
-    { name: 'Analytics', icon: <BarChart size={18} />, path: '/analytics', color: 'text-violet-500 bg-violet-50' },
-    { name: 'Calendar', icon: <Calendar size={18} />, path: '/calendar', color: 'text-pink-500 bg-pink-50' },
-    { name: 'Tasks', icon: <CheckSquare size={18} />, path: '/tasks', color: 'text-emerald-600 bg-emerald-50' },
-    { name: 'Inbox', icon: <Inbox size={18} />, path: '/inbox', color: 'text-indigo-600 bg-indigo-50' },
+    { name: 'Code Playground', icon: <Terminal size={18} />, path: '/playground', color: 'text-purple-500 bg-purple-50/80' },
+    { name: 'AI Resume Coach', icon: <FileText size={18} />, path: '/resume-analyzer', color: 'text-blue-500 bg-blue-50/80' },
+    { name: 'Analytics', icon: <BarChart size={18} />, path: '/analytics', color: 'text-violet-500 bg-violet-50/80' },
+    { name: 'Calendar', icon: <Calendar size={18} />, path: '/calendar', color: 'text-pink-500 bg-pink-50/80' },
+    { name: 'Tasks', icon: <CheckSquare size={18} />, path: '/tasks', color: 'text-emerald-600 bg-emerald-50/80' },
+    { name: 'Inbox', icon: <Inbox size={18} />, path: '/inbox', color: 'text-indigo-600 bg-indigo-50/80' },
   ];
 
   const account = [
-    { name: 'Profile', icon: <User size={18} />, path: '/profile', color: 'text-sky-600 bg-sky-50' },
-    { name: 'Settings & Billing', icon: <Settings size={18} />, path: '/settings', color: 'text-slate-600 bg-slate-100' },
+    { name: 'Profile', icon: <User size={18} />, path: '/profile', color: 'text-sky-600 bg-sky-50/80' },
+    { name: 'Settings & Billing', icon: <Settings size={18} />, path: '/settings', color: 'text-slate-600 bg-slate-100/80' },
   ];
 
   const isActive = (path: string) => pathname === path
@@ -63,13 +63,13 @@ const Sidebar = () => {
           <li key={item.name}>
             <Link href={item.path} className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl transition-all font-bold text-xs relative group ${
               active
-                ? 'bg-sky-600 text-white shadow-md shadow-sky-500/20 font-extrabold'
-                : 'text-slate-700 hover:bg-slate-100/90 hover:text-slate-900 border border-transparent'
+                ? 'bg-gradient-to-r from-sky-500/90 to-blue-600/90 text-white font-extrabold shadow-md shadow-sky-500/25 rounded-2xl scale-[1.02]'
+                : 'text-slate-700 hover:bg-white/80 hover:text-slate-900 border border-transparent hover:border-slate-200/50'
             }`}>
               <span className={`p-1.5 rounded-xl transition-all ${
                 active 
                   ? 'bg-white/20 text-white' 
-                  : `${item.color} group-hover:scale-110`
+                  : `${item.color} group-hover:scale-110 shadow-sm`
               }`}>
                 {item.icon}
               </span>
@@ -77,7 +77,7 @@ const Sidebar = () => {
 
               {item.badge && (
                 <span className={`ml-auto text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                  active ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700 border border-amber-300'
+                  active ? 'bg-white/20 text-white' : 'bg-amber-100/90 text-amber-700 border border-amber-300/80 backdrop-blur-sm'
                 }`}>
                   {item.badge}
                 </span>
@@ -94,10 +94,10 @@ const Sidebar = () => {
   );
 
   return (
-    <aside className="w-64 h-screen fixed left-0 top-0 border-r border-slate-200/80 bg-white overflow-y-auto hidden md:flex flex-col z-50 shadow-sm">
-      <div className="p-6 pb-4 border-b border-slate-100">
+    <aside className="w-64 h-screen fixed left-0 top-0 border-r border-slate-200/60 bg-white/70 backdrop-blur-2xl overflow-y-auto hidden md:flex flex-col z-50 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+      <div className="p-6 pb-4 border-b border-slate-200/50">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center font-black text-white text-base shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-sky-500/30 group-hover:scale-105 transition-transform">
             EOS
           </div>
           <div>
@@ -127,14 +127,14 @@ const Sidebar = () => {
         </div>
       </nav>
 
-      {/* Pro Plan Card */}
-      <div className="p-4 m-3 mt-auto rounded-3xl bg-gradient-to-br from-sky-50 to-blue-50/50 border border-sky-100 text-center space-y-2 shadow-sm">
+      {/* Pro Plan Glass Card */}
+      <div className="p-4 m-3 mt-auto rounded-3xl bg-white/60 backdrop-blur-xl border border-white/80 text-center space-y-2 shadow-sm">
         <div className="flex items-center justify-center gap-1 text-sky-700 text-xs font-black uppercase tracking-wider">
           <Sparkles size={14} className="text-amber-500 fill-amber-500" /> PRO STUDENT TIER
         </div>
         <p className="text-[11px] text-slate-600 font-medium leading-tight">Unlimited Sololearn modules, AI review & live code execution.</p>
         <div className="pt-1">
-          <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full uppercase">
+          <span className="text-[10px] font-black text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-3 py-1 rounded-full uppercase backdrop-blur-sm">
             Active Member
           </span>
         </div>

@@ -116,14 +116,14 @@ export default function ProfilePage() {
     <div className="max-w-5xl mx-auto pb-16 space-y-6 animate-in fade-in duration-500 text-slate-900">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-slate-200">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-slate-200/80">
         <div>
           <h1 className="text-3xl font-black text-slate-900 mb-1 tracking-tight">Student OS Identity & Profile</h1>
           <p className="text-slate-500 font-semibold text-sm">All learning, opportunity matching, and AI recommendations link directly to this profile.</p>
         </div>
 
         <div className="flex gap-3">
-          <div className="bg-white border border-slate-200/80 rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-sm">
+          <div className="bg-white/70 backdrop-blur-xl border border-slate-200/80 rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-sm">
             <Flame className="text-amber-500" size={20} />
             <div>
               <p className="text-[9px] font-black text-amber-600 uppercase tracking-wider">Streak</p>
@@ -131,7 +131,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200/80 rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-sm">
+          <div className="bg-white/70 backdrop-blur-xl border border-slate-200/80 rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-sm">
             <Star className="text-emerald-600 fill-emerald-600" size={20} />
             <div>
               <p className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Total XP</p>
@@ -139,7 +139,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className={`bg-white border border-slate-200/80 rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-sm ${
+          <div className={`bg-white/70 backdrop-blur-xl border border-slate-200/80 rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-sm ${
             isPro ? 'text-amber-700' : 'text-slate-500'
           }`}>
             <Award size={20} className={isPro ? 'text-amber-600' : 'text-slate-400'} />
@@ -152,14 +152,14 @@ export default function ProfilePage() {
       </div>
 
       {saveSuccess && (
-        <div className="bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold p-4 rounded-2xl flex items-center gap-2 shadow-sm">
+        <div className="bg-emerald-100/90 backdrop-blur-md border border-emerald-300 text-emerald-900 text-xs font-bold p-4 rounded-2xl flex items-center gap-2 shadow-sm">
           <CheckCircle2 size={18} className="text-emerald-700" /> Saved to Database! Opportunity Matchmaker & Learning Hub are now updated with your new skills.
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 
-        {/* Sidebar Tabs */}
+        {/* Sidebar Glass Tabs */}
         <div className="md:col-span-1 space-y-2">
           {[
             { id: 'profile', name: 'Public Info', icon: User },
@@ -174,8 +174,8 @@ export default function ProfilePage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-xs font-bold transition-all ${
                   isActive 
-                    ? 'bg-sky-600 text-white shadow-md shadow-sky-500/20 font-extrabold' 
-                    : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50'
+                    ? 'bg-gradient-to-r from-sky-500/90 to-blue-600/90 text-white font-extrabold shadow-md shadow-sky-500/25 scale-[1.02]' 
+                    : 'bg-white/70 backdrop-blur-md text-slate-700 border border-slate-200/80 hover:bg-white'
                 }`}
               >
                 <Icon size={16} /> {tab.name}
@@ -184,9 +184,9 @@ export default function ProfilePage() {
           })}
         </div>
 
-        {/* Form Content */}
+        {/* Glassmorphic Form Card */}
         <div className="md:col-span-3">
-          <form onSubmit={handleSave} className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+          <form onSubmit={handleSave} className="bg-white/75 backdrop-blur-xl border border-slate-200/70 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
 
             {/* TAB 1: PUBLIC INFO */}
             {activeTab === 'profile' && (
@@ -200,7 +200,7 @@ export default function ProfilePage() {
                       type="text"
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                      className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                     />
                   </div>
 
@@ -210,7 +210,7 @@ export default function ProfilePage() {
                       type="text"
                       disabled
                       value={profile?.email || 'shaikshadik003@gmail.com'}
-                      className="w-full bg-slate-100 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-500 font-bold cursor-not-allowed"
+                      className="w-full bg-slate-100/80 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-500 font-bold cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export default function ProfilePage() {
                     placeholder="e.g. Malla Reddy University / IIT Hyderabad"
                     value={university}
                     onChange={e => setUniversity(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
 
@@ -232,7 +232,7 @@ export default function ProfilePage() {
                     <select
                       value={branch}
                       onChange={e => setBranch(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                      className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                     >
                       {['CSE', 'IT', 'ECE', 'EEE', 'AIML', 'Data Science', 'Mechanical', 'Civil'].map(b => (
                         <option key={b} value={b} className="bg-white text-slate-900">{b}</option>
@@ -245,7 +245,7 @@ export default function ProfilePage() {
                     <select
                       value={semester}
                       onChange={e => setSemester(Number(e.target.value))}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                      className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                     >
                       {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
                         <option key={s} value={s} className="bg-white text-slate-900">Semester {s}</option>
@@ -261,7 +261,7 @@ export default function ProfilePage() {
                     placeholder="Tell us about yourself..."
                     value={bio}
                     onChange={e => setBio(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all resize-none"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all resize-none"
                   />
                 </div>
               </div>
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                     placeholder="e.g. Forward Deployed Engineer / Entrepreneur"
                     value={careerGoal}
                     onChange={e => setCareerGoal(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
 
@@ -293,7 +293,7 @@ export default function ProfilePage() {
                     placeholder="e.g. Python, React, JavaScript, SQL, DSA"
                     value={masteredInput}
                     onChange={e => setMasteredInput(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
 
@@ -304,7 +304,7 @@ export default function ProfilePage() {
                     placeholder="e.g. Node.js, Next.js, Docker, Machine Learning"
                     value={learningInput}
                     onChange={e => setLearningInput(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
 
@@ -315,7 +315,7 @@ export default function ProfilePage() {
                     placeholder="e.g. Web Development, AI/ML, Startups, Cloud"
                     value={interestsInput}
                     onChange={e => setInterestsInput(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
               </div>
@@ -333,7 +333,7 @@ export default function ProfilePage() {
                     placeholder="https://github.com/Shaikshadik03"
                     value={githubUrl}
                     onChange={e => setGithubUrl(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
 
@@ -344,7 +344,7 @@ export default function ProfilePage() {
                     placeholder="https://linkedin.com/in/username"
                     value={linkedinUrl}
                     onChange={e => setLinkedinUrl(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
 
@@ -355,7 +355,7 @@ export default function ProfilePage() {
                     placeholder="https://yourportfolio.com"
                     value={portfolioUrl}
                     onChange={e => setPortfolioUrl(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white transition-all"
+                    className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-3 text-xs text-slate-900 font-bold focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all"
                   />
                 </div>
               </div>
@@ -366,7 +366,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white font-extrabold text-xs px-7 py-3.5 rounded-2xl flex items-center gap-2 transition-all shadow-md"
+                className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:opacity-50 text-white font-black text-xs px-8 py-3.5 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-sky-500/25"
               >
                 <Save size={16} /> {saving ? 'Saving Changes...' : 'Save Profile Changes'}
               </button>

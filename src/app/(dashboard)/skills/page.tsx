@@ -499,20 +499,20 @@ export default function GamifiedSkillsTreePage() {
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">My Courses</h1>
             
             {/* User Stats Pill */}
-            <div className="flex items-center gap-4 bg-white border border-slate-200/80 px-4 py-2 rounded-2xl shadow-sm">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600">
-                <Flame size={15} /> <span>{streak}d Streak</span>
+            <div className="flex items-center gap-4 bg-white/70 backdrop-blur-xl border border-slate-200/80 px-4.5 py-2.5 rounded-2xl shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs font-black text-amber-600">
+                <Flame size={16} /> <span>{streak}d Streak</span>
               </div>
               <div className="w-px h-4 bg-slate-200" />
-              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-                <Trophy size={15} /> <span>{userXp} XP</span>
+              <div className="flex items-center gap-1.5 text-xs font-black text-emerald-600">
+                <Trophy size={16} /> <span>{userXp} XP</span>
               </div>
             </div>
           </div>
 
           {/* Filter Tabs */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 bg-slate-200/60 p-1 rounded-2xl">
+            <div className="flex items-center gap-2 bg-slate-200/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/60">
               <button
                 onClick={() => setActiveTab('in_progress')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
@@ -521,7 +521,7 @@ export default function GamifiedSkillsTreePage() {
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                In Progress <span className="bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{inProgressSkills.length}</span>
+                In Progress <span className="bg-sky-100/90 text-sky-700 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{inProgressSkills.length}</span>
               </button>
               <button
                 onClick={() => setActiveTab('complete')}
@@ -531,59 +531,59 @@ export default function GamifiedSkillsTreePage() {
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Complete <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{completedSkills.length}</span>
+                Complete <span className="bg-emerald-100/90 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{completedSkills.length}</span>
               </button>
             </div>
 
             <div className="relative w-full sm:w-64">
-              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search my courses..."
-                className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-500 shadow-sm transition-all"
+                className="w-full bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 shadow-sm transition-all"
               />
             </div>
           </div>
 
-          {/* ── FEATURED "CONTINUE" COURSE CARD (SOLOLEARN MATCH) ── */}
+          {/* ── FEATURED "CONTINUE" COURSE CARD (SOLOLEARN GLASS MATCH) ── */}
           {activeTab === 'in_progress' && (
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="bg-white/75 backdrop-blur-xl border border-slate-200/70 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] transition-all relative overflow-hidden group">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {/* Round Brand Icon Badge */}
-                  <div className={`w-14 h-14 rounded-full ${featuredCourse.badgeColor} flex items-center justify-center font-black text-lg shadow-md shrink-0`}>
+                  <div className={`w-14 h-14 rounded-full ${featuredCourse.badgeColor} flex items-center justify-center font-black text-lg shadow-lg shrink-0`}>
                     {featuredCourse.icon}
                   </div>
                   <div>
-                    <span className="text-[10px] font-extrabold text-sky-600 uppercase tracking-widest block">CONTINUE</span>
-                    <h2 className="text-xl font-bold text-slate-900 tracking-tight mt-0.5">{featuredCourse.name}</h2>
+                    <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest block">CONTINUE COURSE</span>
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight mt-0.5">{featuredCourse.name}</h2>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     onClick={() => handleSelectSkill(featuredCourse)}
-                    className="flex-1 sm:flex-none bg-[#0284c7] hover:bg-[#0369a1] text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+                    className="flex-1 sm:flex-none bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-extrabold text-xs px-7 py-3.5 rounded-2xl shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]"
                   >
                     Resume →
                   </button>
-                  <button className="p-3 rounded-2xl border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors">
+                  <button className="p-3.5 rounded-2xl border border-slate-200/80 bg-white/60 text-slate-400 hover:text-slate-700 hover:bg-white transition-colors shadow-sm">
                     <MoreHorizontal size={18} />
                   </button>
                 </div>
               </div>
 
               {/* Progress Bar & Stats */}
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 <div className="flex items-baseline gap-2 text-xs font-bold">
                   <span className="text-2xl font-black text-slate-900">{featuredCourse.progress}%</span>
                   <span className="text-slate-500 font-semibold">{featuredCourse.completedLessons} of {featuredCourse.totalLessons} lessons</span>
                 </div>
-                <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                <div className="w-full h-3 bg-slate-100/90 rounded-full overflow-hidden p-0.5 border border-slate-200/80">
                   <div 
-                    className="h-full bg-sky-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-sky-400 to-blue-600 rounded-full transition-all duration-500 shadow-sm"
                     style={{ width: `${featuredCourse.progress}%` }}
                   />
                 </div>
@@ -591,13 +591,13 @@ export default function GamifiedSkillsTreePage() {
             </div>
           )}
 
-          {/* ── COURSE LIST CARDS (SOLOLEARN MATCH) ── */}
+          {/* ── COURSE LIST CARDS (SOLOLEARN GLASS MATCH) ── */}
           <div className="space-y-4">
             {otherCourses.map(skill => (
               <div
                 key={skill.id}
                 onClick={() => handleSelectSkill(skill)}
-                className="bg-white border border-slate-200/80 hover:border-slate-300 rounded-3xl p-5 cursor-pointer transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-sm hover:shadow-md group"
+                className="bg-white/75 backdrop-blur-xl border border-slate-200/70 hover:border-sky-300 rounded-3xl p-5 cursor-pointer transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] group"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full ${skill.badgeColor} flex items-center justify-center font-black text-base shadow-sm shrink-0`}>
