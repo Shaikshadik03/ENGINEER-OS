@@ -336,8 +336,11 @@ const SKILL_TREE: SkillNode[] = [
   }
 ]
 
+import { useTheme } from '@/components/ThemeProvider'
+
 export default function GamifiedSkillsTreePage() {
   const supabase = createClient()
+  const { isDark } = useTheme()
   const [profile, setProfile] = useState<any>(null)
   const [userXp, setUserXp] = useState(150)
   const [streak, setStreak] = useState(3)
@@ -453,57 +456,69 @@ export default function GamifiedSkillsTreePage() {
   const otherCourses = filteredSkills.filter(s => s.id !== featuredCourse.id)
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-16 animate-in fade-in duration-500 text-slate-900">
+    <div className={`max-w-5xl mx-auto space-y-8 pb-16 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       
       {/* ── BREADCRUMB NAVIGATION (INSIDE A COURSE) ── */}
       {selectedSkill ? (
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-sm">
+        <div className={`border rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors ${
+          isDark 
+            ? 'bg-[#111118]/80 backdrop-blur-xl border-white/10 text-white shadow-xl' 
+            : 'bg-white/90 backdrop-blur-xl border-slate-200 text-slate-900 shadow-sm'
+        }`}>
           <div className="flex items-center gap-2 text-xs font-bold flex-wrap">
             <button
               onClick={() => { setSelectedSkill(null); setSelectedModule(null); setSelectedLesson(null); setSelectedSubtopic(null); }}
-              className="text-sky-600 hover:text-sky-800 flex items-center gap-1 transition-colors"
+              className={`${isDark ? 'text-sky-400 hover:text-sky-300' : 'text-sky-600 hover:text-sky-800'} flex items-center gap-1 transition-colors`}
             >
               <ArrowLeft size={14} /> My Courses
             </button>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900 flex items-center gap-1.5">
+            <span className={isDark ? 'text-slate-600' : 'text-slate-300'}>/</span>
+            <span className={`flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               <span className="text-base">{selectedSkill.icon}</span> {selectedSkill.name}
             </span>
 
             {selectedModule && (
               <>
-                <span className="text-slate-300">/</span>
-                <span className="text-sky-700">{selectedModule.title.split(':')[0]}</span>
+                <span className={isDark ? 'text-slate-600' : 'text-slate-300'}>/</span>
+                <span className={isDark ? 'text-sky-400' : 'text-sky-700'}>{selectedModule.title.split(':')[0]}</span>
               </>
             )}
 
             {selectedLesson && (
               <>
-                <span className="text-slate-300">/</span>
-                <span className="text-emerald-700">{selectedLesson.title.split(':')[0]}</span>
+                <span className={isDark ? 'text-slate-600' : 'text-slate-300'}>/</span>
+                <span className={isDark ? 'text-emerald-400' : 'text-emerald-700'}>{selectedLesson.title.split(':')[0]}</span>
               </>
             )}
           </div>
 
           <button
             onClick={() => { setSelectedSkill(null); setSelectedModule(null); setSelectedLesson(null); setSelectedSubtopic(null); }}
-            className="text-xs font-bold text-slate-500 hover:text-slate-900 px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors"
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl border transition-colors ${
+              isDark 
+                ? 'text-slate-400 hover:text-white border-white/10 hover:bg-white/10' 
+                : 'text-slate-500 hover:text-slate-900 border-slate-200 hover:bg-slate-100'
+            }`}
           >
             Exit Course ✕
           </button>
         </div>
       ) : (
-        /* ── EXACT SOLOLEARN WHITE THEME "MY COURSES" PAGE ── */
+        /* ── MY COURSES PAGE ── */
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">My Courses</h1>
+            <h1 className={`text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>My Courses</h1>
             
             {/* User Stats Pill */}
-            <div className="flex items-center gap-4 bg-[#12121a]/90 backdrop-blur-xl border border-white/10 px-4.5 py-2.5 rounded-2xl shadow-xl">
+            <div className={`flex items-center gap-4 border px-4.5 py-2.5 rounded-2xl transition-colors ${
+              isDark 
+                ? 'bg-[#12121a]/90 backdrop-blur-xl border-white/10 text-white shadow-xl' 
+                : 'bg-white/90 backdrop-blur-xl border-slate-200/80 text-slate-900 shadow-sm'
+            }`}>
               <div className="flex items-center gap-1.5 text-xs font-black text-amber-400">
                 <Flame size={16} /> <span>{streak}d Streak</span>
               </div>
-              <div className="w-px h-4 bg-white/10" />
+              <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-200'}`} />
               <div className="flex items-center gap-1.5 text-xs font-black text-emerald-400">
                 <Trophy size={16} /> <span>{userXp} XP</span>
               </div>
@@ -512,26 +527,36 @@ export default function GamifiedSkillsTreePage() {
 
           {/* Filter Tabs */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 bg-[#12121a]/90 backdrop-blur-md p-1.5 rounded-2xl border border-white/10">
+            <div className={`flex items-center gap-2 border p-1.5 rounded-2xl ${
+              isDark ? 'bg-[#12121a]/90 backdrop-blur-md border-white/10' : 'bg-slate-100/80 backdrop-blur-md border-slate-200'
+            }`}>
               <button
                 onClick={() => setActiveTab('in_progress')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'in_progress'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                    : 'text-slate-400 hover:text-white'
+                    ? isDark 
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                      : 'bg-white text-sky-700 border border-sky-300 font-extrabold shadow-sm'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                In Progress <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{inProgressSkills.length}</span>
+                In Progress <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                  isDark ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-sky-100 text-sky-700 border border-sky-200'
+                }`}>{inProgressSkills.length}</span>
               </button>
               <button
                 onClick={() => setActiveTab('complete')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'complete'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                    : 'text-slate-400 hover:text-white'
+                    ? isDark 
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                      : 'bg-white text-sky-700 border border-sky-300 font-extrabold shadow-sm'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Complete <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full text-[10px] font-extrabold">{completedSkills.length}</span>
+                Complete <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                  isDark ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-sky-100 text-sky-700 border border-sky-200'
+                }`}>{completedSkills.length}</span>
               </button>
             </div>
 
@@ -542,14 +567,22 @@ export default function GamifiedSkillsTreePage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search my courses..."
-                className="w-full bg-[#12121a]/90 backdrop-blur-md border border-white/10 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-sm transition-all"
+                className={`w-full rounded-2xl pl-10 pr-4 py-2.5 text-xs font-semibold placeholder-slate-400 focus:outline-none transition-all ${
+                  isDark 
+                    ? 'bg-[#12121a]/90 backdrop-blur-md border border-white/10 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20' 
+                    : 'bg-white border border-slate-200 text-slate-900 focus:border-sky-500 shadow-sm'
+                }`}
               />
             </div>
           </div>
 
-          {/* ── FEATURED "CONTINUE" COURSE CARD (DARK COSMIC MATCH) ── */}
+          {/* ── FEATURED "CONTINUE" COURSE CARD ── */}
           {activeTab === 'in_progress' && (
-            <div className="bg-[#111118]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl hover:border-emerald-500/40 transition-all relative overflow-hidden group">
+            <div className={`border rounded-3xl p-6 sm:p-8 space-y-6 transition-all relative overflow-hidden group ${
+              isDark 
+                ? 'bg-[#111118]/80 backdrop-blur-xl border-white/10 shadow-2xl hover:border-emerald-500/40' 
+                : 'bg-white/90 backdrop-blur-xl border-slate-200/90 shadow-md hover:border-sky-300'
+            }`}>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {/* Round Brand Icon Badge */}
@@ -557,19 +590,25 @@ export default function GamifiedSkillsTreePage() {
                     {featuredCourse.icon}
                   </div>
                   <div>
-                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest block">CONTINUE COURSE</span>
-                    <h2 className="text-xl font-black text-white tracking-tight mt-0.5">{featuredCourse.name}</h2>
+                    <span className={`text-[10px] font-black uppercase tracking-widest block ${isDark ? 'text-emerald-400' : 'text-sky-600'}`}>CONTINUE COURSE</span>
+                    <h2 className={`text-xl font-black tracking-tight mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>{featuredCourse.name}</h2>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     onClick={() => handleSelectSkill(featuredCourse)}
-                    className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs px-7 py-3.5 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.35)] transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+                    className={`flex-1 sm:flex-none font-black text-xs px-7 py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] ${
+                      isDark 
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.35)]' 
+                        : 'bg-sky-600 hover:bg-sky-500 text-white shadow-md'
+                    }`}
                   >
                     Resume →
                   </button>
-                  <button className="p-3.5 rounded-2xl border border-white/10 bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-colors shadow-sm">
+                  <button className={`p-3.5 rounded-2xl border transition-colors shadow-sm ${
+                    isDark ? 'border-white/10 bg-white/5 text-slate-400 hover:text-white hover:bg-white/10' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'
+                  }`}>
                     <MoreHorizontal size={18} />
                   </button>
                 </div>
@@ -578,12 +617,16 @@ export default function GamifiedSkillsTreePage() {
               {/* Progress Bar & Stats */}
               <div className="space-y-2.5">
                 <div className="flex items-baseline gap-2 text-xs font-bold">
-                  <span className="text-2xl font-black text-white">{featuredCourse.progress}%</span>
+                  <span className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{featuredCourse.progress}%</span>
                   <span className="text-slate-400 font-medium">{featuredCourse.completedLessons} of {featuredCourse.totalLessons} lessons</span>
                 </div>
-                <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
+                <div className={`w-full h-3 rounded-full overflow-hidden p-0.5 border ${
+                  isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'
+                }`}>
                   <div 
-                    className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-500 shadow-[0_0_12px_#10b981]"
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isDark ? 'bg-gradient-to-r from-emerald-400 to-teal-400 shadow-[0_0_12px_#10b981]' : 'bg-sky-500'
+                    }`}
                     style={{ width: `${featuredCourse.progress}%` }}
                   />
                 </div>
@@ -591,23 +634,29 @@ export default function GamifiedSkillsTreePage() {
             </div>
           )}
 
-          {/* ── COURSE LIST CARDS (DARK COSMIC MATCH) ── */}
+          {/* ── COURSE LIST CARDS ── */}
           <div className="space-y-4">
             {otherCourses.map(skill => (
               <div
                 key={skill.id}
                 onClick={() => handleSelectSkill(skill)}
-                className="bg-[#111118]/80 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 rounded-3xl p-5 cursor-pointer transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-xl group"
+                className={`border rounded-3xl p-5 cursor-pointer transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-xl group ${
+                  isDark 
+                    ? 'bg-[#111118]/80 backdrop-blur-xl border-white/10 hover:border-emerald-500/40 text-white' 
+                    : 'bg-white/90 backdrop-blur-xl border-slate-200/90 hover:border-sky-300 text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full ${skill.badgeColor} flex items-center justify-center font-black text-base shadow-sm shrink-0`}>
                     {skill.icon}
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-sky-600 transition-colors leading-tight">
+                    <h3 className={`text-base font-bold transition-colors leading-tight ${
+                      isDark ? 'text-white group-hover:text-emerald-400' : 'text-slate-900 group-hover:text-sky-600'
+                    }`}>
                       {skill.name}
                     </h3>
-                    <p className="text-xs text-slate-500 mt-1 font-medium">
+                    <p className={`text-xs mt-1 font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                       {skill.completedLessons} of {skill.totalLessons} lessons
                     </p>
                   </div>
@@ -616,19 +665,21 @@ export default function GamifiedSkillsTreePage() {
                 <div className="flex items-center gap-6 justify-between sm:justify-end">
                   {/* Progress Bar */}
                   <div className="w-36 sm:w-48 space-y-1.5">
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                    <div className={`w-full h-2 rounded-full overflow-hidden border ${
+                      isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'
+                    }`}>
                       <div 
-                        className="h-full bg-sky-500 rounded-full transition-all duration-500"
+                        className={`h-full rounded-full transition-all duration-500 ${isDark ? 'bg-emerald-400 shadow-[0_0_8px_#10b981]' : 'bg-sky-500'}`}
                         style={{ width: `${skill.progress}%` }}
                       />
                     </div>
                   </div>
 
-                  <span className="text-xs font-bold text-slate-900 min-w-[32px] text-right">
+                  <span className={`text-xs font-bold min-w-[32px] text-right ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {skill.progress}%
                   </span>
 
-                  <button className="p-2 rounded-xl text-slate-300 group-hover:text-slate-600 transition-colors">
+                  <button className="p-2 rounded-xl text-slate-400 group-hover:text-slate-200 transition-colors">
                     <MoreHorizontal size={18} />
                   </button>
                 </div>

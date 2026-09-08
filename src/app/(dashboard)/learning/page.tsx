@@ -105,8 +105,11 @@ const QUIZZES_DATA: Record<string, Quiz[]> = {
   ]
 }
 
+import { useTheme } from '@/components/ThemeProvider'
+
 export default function LearningDashboard() {
   const supabase = createClient()
+  const { isDark } = useTheme()
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [selectedBranch, setSelectedBranch] = useState('CSE')
@@ -222,31 +225,39 @@ export default function LearningDashboard() {
     }
   }
 
+  const cardStyle = isDark 
+    ? 'bg-[#111118]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-white' 
+    : 'bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-sm text-slate-900'
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 text-slate-900">
+    <div className={`max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-slate-200/80'}`}>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
-            <BookOpen className="text-sky-600" size={26} /> Learning Engine
+          <h1 className={`text-3xl font-black flex items-center gap-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <BookOpen className={isDark ? 'text-emerald-400' : 'text-sky-600'} size={26} /> Learning Engine
           </h1>
-          <p className="text-slate-500 font-semibold text-sm mt-1">
+          <p className={`font-semibold text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             Full 8-Semester syllabus across CSE, IT, ECE, & AIML with video lectures and quizzes.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-white border border-slate-200/80 px-4 py-2 rounded-2xl text-xs font-extrabold text-amber-600 shadow-sm">
+          <div className={`flex items-center gap-1.5 border px-4 py-2 rounded-2xl text-xs font-extrabold shadow-sm ${
+            isDark ? 'bg-[#12121a] border-white/10 text-amber-400' : 'bg-white border-slate-200 text-amber-600'
+          }`}>
             <Flame size={15} /> {profile?.streak || 0}d Streak
           </div>
-          <div className="flex items-center gap-1.5 bg-white border border-slate-200/80 px-4 py-2 rounded-2xl text-xs font-extrabold text-emerald-600 shadow-sm">
+          <div className={`flex items-center gap-1.5 border px-4 py-2 rounded-2xl text-xs font-extrabold shadow-sm ${
+            isDark ? 'bg-[#12121a] border-white/10 text-emerald-400' : 'bg-white border-slate-200 text-emerald-600'
+          }`}>
             <Star size={15} /> {profile?.xp || 0} XP
           </div>
         </div>
       </div>
 
       {/* Branch & Semester Selector */}
-      <div className="bg-white border border-slate-200/80 rounded-3xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+      <div className={`${cardStyle} rounded-3xl p-5 flex flex-wrap items-center justify-between gap-4`}>
         {/* Branches */}
         <div className="flex items-center gap-2">
           <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mr-1">BRANCH:</span>
@@ -256,8 +267,8 @@ export default function LearningDashboard() {
               onClick={() => { setSelectedBranch(b); setActiveSubject(null) }}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedBranch === b
-                  ? 'bg-sky-600 text-white shadow-md font-extrabold'
-                  : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  ? isDark ? 'bg-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)] font-black' : 'bg-sky-600 text-white shadow-md font-extrabold'
+                  : isDark ? 'bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10' : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
               }`}
             >
               {b}
@@ -274,8 +285,8 @@ export default function LearningDashboard() {
               onClick={() => { setSelectedSemester(s); setActiveSubject(null) }}
               className={`w-9 h-9 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${
                 selectedSemester === s
-                  ? 'bg-sky-600 text-white shadow-md font-extrabold'
-                  : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  ? isDark ? 'bg-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)] font-black' : 'bg-sky-600 text-white shadow-md font-extrabold'
+                  : isDark ? 'bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10' : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
               }`}
             >
               {s}
@@ -294,7 +305,7 @@ export default function LearningDashboard() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white border border-slate-200 rounded-3xl p-5 animate-pulse h-40" />
+                <div key={i} className={`${cardStyle} rounded-3xl p-5 animate-pulse h-40`} />
               ))}
             </div>
           ) : (
@@ -305,26 +316,30 @@ export default function LearningDashboard() {
                   <div
                     key={subject.id}
                     onClick={() => openSubject(subject)}
-                    className="bg-white border border-slate-200/80 hover:border-sky-300 rounded-3xl p-6 cursor-pointer transition-all group flex flex-col justify-between shadow-sm hover:shadow-md"
+                    className={`${cardStyle} rounded-3xl p-6 cursor-pointer transition-all group flex flex-col justify-between hover:border-emerald-500/40`}
                   >
                     <div>
                       <div className="flex justify-between items-start mb-3">
-                        <div className="p-3 rounded-2xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                        <div className={`p-3 rounded-2xl ${isDark ? 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-black' : 'bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white'} transition-colors`}>
                           <IconComp size={20} />
                         </div>
-                        <span className="text-[10px] font-extrabold text-sky-700 bg-sky-100 border border-sky-200 px-2.5 py-1 rounded-lg font-mono">
+                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-lg font-mono border ${
+                          isDark ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-sky-100 border-sky-200 text-sky-700'
+                        }`}>
                           {subject.code}
                         </span>
                       </div>
-                      <h3 className="text-base font-bold text-slate-900 group-hover:text-sky-600 transition-colors mb-1">
+                      <h3 className={`text-base font-bold transition-colors mb-1 ${isDark ? 'text-white group-hover:text-emerald-400' : 'text-slate-900 group-hover:text-sky-600'}`}>
                         {subject.name}
                       </h3>
-                      <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
+                      <p className={`text-xs font-medium leading-relaxed line-clamp-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         {subject.description}
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-sky-600 group-hover:text-sky-800">
+                    <div className={`flex items-center justify-between mt-4 pt-3 border-t text-xs font-bold ${
+                      isDark ? 'border-white/10 text-emerald-400 group-hover:text-emerald-300' : 'border-slate-100 text-sky-600 group-hover:text-sky-800'
+                    }`}>
                       <span>Start Module</span>
                       <ChevronRight size={15} className="group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -339,23 +354,25 @@ export default function LearningDashboard() {
       {/* ── VIEW 2: CHAPTERS & SUBTOPICS ── */}
       {activeSubject && !activeSubtopic && (
         <div className="space-y-5">
-          <button onClick={() => setActiveSubject(null)} className="flex items-center gap-2 text-xs font-bold text-sky-600 hover:text-sky-800">
+          <button onClick={() => setActiveSubject(null)} className={`flex items-center gap-2 text-xs font-bold ${isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-sky-600 hover:text-sky-800'}`}>
             <ArrowLeft size={15} /> Back to Subjects
           </button>
 
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm">
-            <span className="text-[10px] font-mono font-bold text-sky-700 bg-sky-100 border border-sky-200 px-2.5 py-1 rounded-lg">
+          <div className={`${cardStyle} rounded-3xl p-6`}>
+            <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg border ${
+              isDark ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-sky-100 border-sky-200 text-sky-700'
+            }`}>
               {activeSubject.code}
             </span>
-            <h2 className="text-xl font-bold text-slate-900 mt-2 mb-1">{activeSubject.name}</h2>
-            <p className="text-xs text-slate-500 font-medium">{activeSubject.description}</p>
+            <h2 className={`text-xl font-bold mt-2 mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeSubject.name}</h2>
+            <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{activeSubject.description}</p>
           </div>
 
           <div className="space-y-4">
             {chapters.map(chap => (
-              <div key={chap.id} className="bg-white border border-slate-200/80 rounded-3xl p-6 space-y-3 shadow-sm">
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <Sparkles size={15} className="text-sky-600" /> {chap.title}
+              <div key={chap.id} className={`${cardStyle} rounded-3xl p-6 space-y-3`}>
+                <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <Sparkles size={15} className={isDark ? 'text-emerald-400' : 'text-sky-600'} /> {chap.title}
                 </h3>
 
                 <div className="space-y-2">
@@ -365,17 +382,23 @@ export default function LearningDashboard() {
                       <div
                         key={sub.id}
                         onClick={() => openSubtopic(sub)}
-                        className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-sky-300 cursor-pointer transition-all group"
+                        className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all group ${
+                          isDark
+                            ? 'bg-[#181824]/90 border-white/10 hover:border-emerald-500/40 hover:bg-[#202030]'
+                            : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-sky-300'
+                        }`}
                       >
                         <div className="flex items-center gap-3">
                           {isDone
-                            ? <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                            : <PlayCircle size={18} className="text-slate-400 group-hover:text-sky-600 shrink-0 transition-colors" />}
-                          <span className={`text-xs font-bold ${isDone ? 'text-slate-400 line-through' : 'text-slate-800'}`}>{sub.title}</span>
+                            ? <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+                            : <PlayCircle size={18} className={`shrink-0 transition-colors ${isDark ? 'text-slate-500 group-hover:text-emerald-400' : 'text-slate-400 group-hover:text-sky-600'}`} />}
+                          <span className={`text-xs font-bold ${isDone ? 'text-slate-500 line-through' : isDark ? 'text-white' : 'text-slate-800'}`}>{sub.title}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-md border border-emerald-200">+ {sub.xp_reward} XP</span>
-                          <ChevronRight size={14} className="text-slate-400 group-hover:text-slate-700" />
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border ${
+                            isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                          }`}>+ {sub.xp_reward} XP</span>
+                          <ChevronRight size={14} className={isDark ? 'text-slate-500 group-hover:text-white' : 'text-slate-400 group-hover:text-slate-700'} />
                         </div>
                       </div>
                     )
@@ -390,19 +413,23 @@ export default function LearningDashboard() {
       {/* ── VIEW 3: VIDEO + NOTES + QUIZ ── */}
       {activeSubtopic && (
         <div className="space-y-5">
-          <button onClick={() => setActiveSubtopic(null)} className="flex items-center gap-2 text-xs font-bold text-sky-600 hover:text-sky-800">
+          <button onClick={() => setActiveSubtopic(null)} className={`flex items-center gap-2 text-xs font-bold ${isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-sky-600 hover:text-sky-800'}`}>
             <ArrowLeft size={15} /> Back to Chapters
           </button>
 
           {/* Subtopic Header */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+          <div className={`${cardStyle} rounded-3xl p-6 flex flex-wrap items-center justify-between gap-4`}>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 mb-1">{activeSubtopic.title}</h2>
-              <p className="text-xs text-sky-700 font-bold">Earn +{activeSubtopic.xp_reward} XP on completion</p>
+              <h2 className={`text-xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeSubtopic.title}</h2>
+              <p className={`text-xs font-bold ${isDark ? 'text-emerald-400' : 'text-sky-700'}`}>Earn +{activeSubtopic.xp_reward} XP on completion</p>
             </div>
             {completedIds.has(activeSubtopic.id)
-              ? <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2"><CheckCircle2 size={15} /> Completed</span>
-              : <button onClick={completeSubtopic} className="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-5 py-2.5 rounded-2xl flex items-center gap-2 transition-all shadow-md">
+              ? <span className={`border px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 ${
+                  isDark ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300' : 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                }`}><CheckCircle2 size={15} /> Completed</span>
+              : <button onClick={completeSubtopic} className={`text-xs font-bold px-5 py-2.5 rounded-2xl flex items-center gap-2 transition-all shadow-md ${
+                  isDark ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-sky-600 hover:bg-sky-700 text-white'
+                }`}>
                   <Sparkles size={15} /> Mark Complete & Claim XP
                 </button>
             }
@@ -410,12 +437,12 @@ export default function LearningDashboard() {
 
           {/* Video */}
           {activeSubtopic.video_url && (
-            <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm">
-              <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
-                <PlayCircle size={15} className="text-sky-600" />
-                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Video Lecture</span>
+            <div className={`${cardStyle} rounded-3xl overflow-hidden`}>
+              <div className={`px-5 py-3 border-b flex items-center gap-2 ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+                <PlayCircle size={15} className={isDark ? 'text-emerald-400' : 'text-sky-600'} />
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Video Lecture</span>
               </div>
-              <div className="aspect-video w-full bg-slate-900">
+              <div className="aspect-video w-full bg-slate-950">
                 <iframe src={activeSubtopic.video_url} title={activeSubtopic.title}
                   className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen />
@@ -425,12 +452,14 @@ export default function LearningDashboard() {
 
           {/* Notes */}
           {activeSubtopic.notes_markdown && (
-            <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm">
-              <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
-                <BookOpen size={15} className="text-sky-600" />
-                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Study Notes</span>
+            <div className={`${cardStyle} rounded-3xl overflow-hidden`}>
+              <div className={`px-5 py-3 border-b flex items-center gap-2 ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+                <BookOpen size={15} className={isDark ? 'text-emerald-400' : 'text-sky-600'} />
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Study Notes</span>
               </div>
-              <div className="p-6 text-xs text-slate-800 leading-relaxed whitespace-pre-wrap font-mono bg-slate-50">
+              <div className={`p-6 text-xs leading-relaxed whitespace-pre-wrap font-mono ${
+                isDark ? 'bg-[#181824]/90 text-slate-200' : 'bg-slate-50 text-slate-800'
+              }`}>
                 {activeSubtopic.notes_markdown}
               </div>
             </div>
@@ -438,25 +467,27 @@ export default function LearningDashboard() {
 
           {/* Quiz */}
           {quizzes.length > 0 && (
-            <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm">
-              <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
-                <HelpCircle size={15} className="text-emerald-600" />
-                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Practice Quiz</span>
+            <div className={`${cardStyle} rounded-3xl overflow-hidden`}>
+              <div className={`px-5 py-3 border-b flex items-center gap-2 ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+                <HelpCircle size={15} className="text-emerald-400" />
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Practice Quiz</span>
               </div>
               <div className="p-6 space-y-5">
                 {quizzes.map((q, idx) => (
-                  <div key={q.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
-                    <p className="text-xs font-bold text-slate-900">{idx + 1}. {q.question}</p>
+                  <div key={q.id} className={`border rounded-2xl p-5 space-y-3 ${
+                    isDark ? 'bg-[#181824]/90 border-white/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <p className={`text-xs font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{idx + 1}. {q.question}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {q.options.map((opt, oi) => {
                         const isSelected = selectedAnswers[q.id] === oi
                         const isCorrect = q.correct_index === oi
-                        let cls = 'bg-white border-slate-200 text-slate-800 hover:bg-slate-100'
+                        let cls = isDark ? 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10' : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-100'
                         if (quizSubmitted) {
-                          cls = isCorrect ? 'bg-emerald-100 border-emerald-400 text-emerald-900 font-bold'
-                            : isSelected ? 'bg-rose-100 border-rose-400 text-rose-900' : 'bg-white border-slate-200 text-slate-400'
+                          cls = isCorrect ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                            : isSelected ? 'bg-rose-500/20 border-rose-500 text-rose-300' : isDark ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-white border-slate-200 text-slate-400'
                         } else if (isSelected) {
-                          cls = 'bg-sky-100 border-sky-400 text-sky-900 font-bold'
+                          cls = isDark ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 font-bold' : 'bg-sky-100 border-sky-400 text-sky-900 font-bold'
                         }
                         return (
                           <button key={oi} disabled={quizSubmitted} onClick={() => setSelectedAnswers(p => ({ ...p, [q.id]: oi }))}
@@ -471,10 +502,14 @@ export default function LearningDashboard() {
 
                 {!quizSubmitted
                   ? <button onClick={submitQuiz} disabled={Object.keys(selectedAnswers).length < quizzes.length}
-                      className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold px-6 py-3 rounded-2xl transition-all shadow-md">
+                      className={`text-xs font-bold px-6 py-3 rounded-2xl transition-all shadow-md disabled:opacity-50 ${
+                        isDark ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      }`}>
                       Submit Quiz & Claim XP
                     </button>
-                  : <div className="bg-emerald-100 border border-emerald-300 rounded-2xl px-5 py-3 text-emerald-900 text-xs font-bold flex items-center gap-2">
+                  : <div className={`border rounded-2xl px-5 py-3 text-xs font-bold flex items-center gap-2 ${
+                      isDark ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300' : 'bg-emerald-100 border-emerald-300 text-emerald-900'
+                    }`}>
                       <CheckCircle2 size={16} /> Quiz Done! +{quizScore} XP added to your profile.
                     </div>
                 }
@@ -486,3 +521,4 @@ export default function LearningDashboard() {
     </div>
   )
 }
+
