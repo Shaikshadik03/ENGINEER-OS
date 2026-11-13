@@ -55,32 +55,48 @@ INSTRUCTIONS FOR RESPONDING:
 - Whenever applicable, point them to the exact page link (e.g. [Code Playground](/playground), [Skills Hub](/skills), [AI Resume Coach](/resume-analyzer)).
 - Keep responses short, helpful, friendly, and action-oriented! No long fluff!`
 
-    // 1. Try Groq API (Ultra-Fast Llama 3.3 70B Versatile)
+    // 1. Try Groq API with robust candidate models
     if (GROQ_KEY) {
-      try {
-        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${GROQ_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: message }
-            ],
-            temperature: 0.7,
-            max_tokens: 1024
-          })
-        })
+      const candidateModels = [
+        process.env.GROQ_MODEL,
+        'openai/gpt-oss-120b',
+        'openai/gpt-oss-20b',
+        'qwen/qwen3.8-27b',
+        'llama-3.3-70b-versatile',
+        'llama-3.1-8b-instant'
+      ].filter(Boolean) as string[]
 
-        const groqData = await groqRes.json()
-        if (groqData.choices?.[0]?.message?.content) {
-          return NextResponse.json({ success: true, response: groqData.choices[0].message.content })
+      for (const model of candidateModels) {
+        try {
+          const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${GROQ_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: message }
+              ],
+              temperature: 0.7,
+              max_tokens: 1024
+            })
+          })
+
+          const groqData = await groqRes.json()
+          if (groqData.error) {
+            console.error(`Groq error for model "${model}":`, groqData.error.message || groqData.error)
+            continue
+          }
+
+          if (groqData.choices?.[0]?.message?.content) {
+            return NextResponse.json({ success: true, response: groqData.choices[0].message.content })
+          }
+        } catch (err) {
+          console.error(`Groq API exception for model "${model}":`, err)
         }
-      } catch (err) {
-        console.error('Groq API Error, trying fallback:', err)
       }
     }
 
@@ -114,11 +130,11 @@ INSTRUCTIONS FOR RESPONDING:
       }
     }
 
-    // 3. Fallback response
+    // 3. If all providers fail, log clearly and return an error message to the UI
+    console.error('AI Chat Error: All providers failed. Keys present - GROQ_API_KEY:', Boolean(GROQ_KEY), 'GEMINI_API_KEY:', Boolean(GEMINI_KEY))
     return NextResponse.json({
-      success: true,
-      response: `Hey ${userProfile?.full_name || 'there'}! 👋 I am your **Engineer OS Copilot**.\n\nI can help you with:\n- 📖 **Academics & DSA**\n- 💻 **Coding in Python, C, C++, Java**\n- 🎯 **Resume & Placement Prep**\n\nWhat would you like to build or learn today?`
-    })
+      error: 'AI Copilot could not reach the language model. Please verify that GROQ_API_KEY is configured in your Vercel project settings.'
+    }, { status: 502 })
   } catch (error: any) {
     console.error('AI Chat Error:', error)
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })

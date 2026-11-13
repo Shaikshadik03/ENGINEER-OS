@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/components/ThemeProvider'
 import {
   Briefcase, Code2, Trophy, Calendar, ExternalLink,
-  Filter, Search, RefreshCw, Radio, Wifi
+  Filter, Search, RefreshCw, Radio, Globe
 } from 'lucide-react'
 
 interface Opportunity {
@@ -51,10 +51,10 @@ function calculateMatchScore(opp: Opportunity, profile: UserProfile): { score: n
     const normSkill = skill.toLowerCase()
     if (mastered_skills.some(s => s.toLowerCase() === normSkill)) {
       earned += 1.0
-      reasons.push(`✓ You know ${skill}`)
+      reasons.push(`Matches ${skill}`)
     } else if (learning_skills.some(s => s.toLowerCase() === normSkill)) {
       earned += 0.4
-      reasons.push(`~ Learning ${skill}`)
+      reasons.push(`Learning ${skill}`)
     }
   })
 
@@ -65,7 +65,7 @@ function calculateMatchScore(opp: Opportunity, profile: UserProfile): { score: n
         opp.title.toLowerCase().includes(interest.toLowerCase())) {
       if (interestBonus < 15) {
         interestBonus += 5
-        reasons.push(`🎯 Matches interest in ${interest}`)
+        reasons.push(`Matches interest: ${interest}`)
       }
     }
   })
@@ -74,17 +74,17 @@ function calculateMatchScore(opp: Opportunity, profile: UserProfile): { score: n
   const finalScore = Math.min(100, basePct + interestBonus)
 
   if (reasons.length === 0) {
-    reasons.push('General engineering opportunity')
+    reasons.push('General engineering listing')
   }
 
   return { score: finalScore, reasons }
 }
 
 const TYPE_CONFIG = {
-  internship: { label: 'Internship', icon: Briefcase, bgDark: 'bg-sky-500/10 text-sky-400 border-sky-500/20', bgLight: 'bg-sky-100 text-sky-700 border-sky-200' },
-  job:        { label: 'Full-Time Job', icon: Code2, bgDark: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', bgLight: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  hackathon:  { label: 'Hackathon', icon: Trophy, bgDark: 'bg-amber-500/10 text-amber-400 border-amber-500/20', bgLight: 'bg-amber-100 text-amber-700 border-amber-200' },
-  event:      { label: 'Tech Event', icon: Calendar, bgDark: 'bg-purple-500/10 text-purple-400 border-purple-500/20', bgLight: 'bg-purple-100 text-purple-700 border-purple-200' },
+  internship: { label: 'Internship', icon: Briefcase },
+  job:        { label: 'Full-Time', icon: Code2 },
+  hackathon:  { label: 'Hackathon', icon: Trophy },
+  event:      { label: 'Event', icon: Calendar },
 }
 
 export default function OpportunitiesPage() {
@@ -182,179 +182,170 @@ export default function OpportunitiesPage() {
     liveCount: opportunities.filter(o => o.is_live_feed).length,
   }), [opportunities, scoredOpps])
 
-  const cardStyle = isDark
-    ? 'bg-[#111118]/80 border-white/10 text-white backdrop-blur-xl'
-    : 'bg-white/90 border-slate-200/80 text-slate-900 shadow-sm backdrop-blur-xl'
+  const card = isDark
+    ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-xl'
+    : 'bg-white border border-zinc-200 text-zinc-900 rounded-xl shadow-sm'
 
   return (
-    <div className={`max-w-6xl mx-auto space-y-6 pb-16 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+    <div className="max-w-6xl mx-auto space-y-6 pb-16">
       
       {/* Top Banner */}
-      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
         <div>
-          <h1 className={`text-3xl font-black tracking-tight flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            <Briefcase size={28} className="text-sky-500" /> Career & Internship Opportunities
+          <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
+            Career & Internship Opportunities
           </h1>
-          <p className={`text-xs font-semibold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Real-time internships, hackathons & entry-level engineering roles matched with your skills.
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Curated listings matched against your current semester skills and interests.
           </p>
         </div>
 
         <button
           onClick={fetchLiveWebFeed}
           disabled={fetchingLive}
-          className="bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-extrabold text-xs px-5 py-3 rounded-2xl transition-all shadow-md flex items-center gap-2"
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium text-xs px-4 py-2.5 rounded-lg transition-colors duration-150"
         >
           <RefreshCw size={14} className={fetchingLive ? 'animate-spin' : ''} />
-          {fetchingLive ? 'Fetching Web Feed...' : 'Sync Live Jobs Feed'}
+          {fetchingLive ? 'Updating feed...' : 'Sync Live Feed'}
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
-          <p className="text-2xl font-black text-emerald-500">{stats.high}</p>
-          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Strong Match 80%+</p>
+        <div className={`${card} p-4`}>
+          <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Strong Fit (80%+)</div>
+          <div className="text-2xl font-semibold text-blue-600 dark:text-blue-400">{stats.high}</div>
         </div>
-        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
-          <p className="text-2xl font-black text-amber-500">{stats.medium}</p>
-          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Good Match 50-79%</p>
+        <div className={`${card} p-4`}>
+          <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Moderate Fit (50-79%)</div>
+          <div className="text-2xl font-semibold text-zinc-700 dark:text-zinc-300">{stats.medium}</div>
         </div>
-        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
-          <p className="text-2xl font-black text-purple-500">{stats.liveCount}</p>
-          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Live Web Feed Items</p>
+        <div className={`${card} p-4`}>
+          <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Live Feed Listings</div>
+          <div className="text-2xl font-semibold text-zinc-700 dark:text-zinc-300">{stats.liveCount}</div>
         </div>
-        <div className={`${cardStyle} rounded-3xl p-5 text-center border`}>
-          <p className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{stats.total}</p>
-          <p className={`text-xs font-bold mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Total Showing</p>
+        <div className={`${card} p-4`}>
+          <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Total Available</div>
+          <div className="text-2xl font-semibold">{stats.total}</div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className={`${cardStyle} rounded-3xl p-5 space-y-4 border`}>
+      <div className={`${card} p-4 space-y-3`}>
         <div className="relative">
-          <Search size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
-            placeholder="Search role, company, keyword..."
+            placeholder="Filter by role, company, or required skill..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className={`w-full rounded-2xl pl-10 pr-4 py-2.5 text-xs font-medium focus:outline-none focus:border-sky-500 transition-all border ${
+            className={`w-full rounded-lg pl-10 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors border ${
               isDark
-                ? 'bg-[#0d0d12] border-white/10 text-white placeholder-slate-500'
-                : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-500'
+                : 'bg-zinc-50 border-zinc-200 text-zinc-900 placeholder-zinc-400'
             }`}
           />
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <Filter size={13} className={isDark ? 'text-slate-500' : 'text-slate-400'} />
+          <Filter size={13} className="text-zinc-400 mr-1" />
           {(['all', 'internship', 'job', 'hackathon', 'event'] as const).map(t => (
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all border ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors border ${
                 typeFilter === t
-                  ? 'bg-sky-600 border-sky-500 text-white shadow-sm'
+                  ? 'bg-blue-600 border-blue-600 text-white'
                   : isDark
-                  ? 'bg-[#0d0d12] border-white/10 text-slate-300 hover:bg-white/5'
-                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  ? 'bg-zinc-950 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
+                  : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200'
               }`}
             >
-              {t === 'all' ? 'All' : t}
+              {t === 'all' ? 'All Roles' : t}
             </button>
           ))}
           <button
             onClick={() => setRemoteOnly(!remoteOnly)}
-            className={`flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
               remoteOnly
-                ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm'
+                ? 'bg-blue-600 border-blue-600 text-white'
                 : isDark
-                ? 'bg-[#0d0d12] border-white/10 text-slate-300 hover:bg-white/5'
-                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                ? 'bg-zinc-950 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
+                : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200'
             }`}
           >
-            <Wifi size={11} /> Remote
+            <Globe size={12} /> Remote only
           </button>
         </div>
       </div>
 
       {/* Results */}
       {loading ? (
-        <div className={`text-center font-bold py-16 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Loading opportunities...</div>
+        <div className="text-center text-xs text-zinc-400 font-medium py-16">Loading opportunities...</div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {processed.map(opp => {
             const config = TYPE_CONFIG[opp.type] || TYPE_CONFIG.job
             const TypeIcon = config.icon
-            const bgClass = isDark ? config.bgDark : config.bgLight
 
             return (
-              <div key={opp.id} className={`${cardStyle} rounded-3xl overflow-hidden hover:border-sky-500/40 transition-all border p-6`}>
-                <div className="flex gap-4 justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${bgClass}`}>
-                        <TypeIcon size={11} /> {config.label}
+              <div key={opp.id} className={`${card} p-5 hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors duration-150`}>
+                <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-medium px-2 py-0.5 rounded border inline-flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300">
+                        <TypeIcon size={12} /> {config.label}
                       </span>
                       {opp.is_live_feed && (
-                        <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${
-                          isDark ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' : 'bg-purple-100 border-purple-200 text-purple-700'
-                        }`}>
-                          <Radio size={11} className="animate-pulse text-purple-500" /> LIVE API
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded border inline-flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
+                          <Radio size={11} className="text-blue-500" /> Live Feed
                         </span>
                       )}
                       {opp.is_remote && (
-                        <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
-                          isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-emerald-100 border-emerald-200 text-emerald-800'
-                        }`}>
-                          🏠 Remote
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded border inline-flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
+                          <Globe size={11} /> Remote
                         </span>
                       )}
                     </div>
 
-                    <h3 className={`text-lg font-bold leading-tight mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{opp.title}</h3>
-                    <p className={`text-xs font-bold mb-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{opp.company} • {opp.location}</p>
+                    <div>
+                      <h3 className="text-base font-semibold leading-tight">{opp.title}</h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{opp.company} · {opp.location}</p>
+                    </div>
 
-                    <div className="flex flex-wrap gap-2 text-xs font-bold mb-4">
-                      <span className={`px-2.5 py-1 rounded-lg border ${
-                        isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                      }`}>{opp.stipend_or_salary}</span>
+                    <div className="flex flex-wrap gap-2 text-xs font-medium">
+                      <span className="text-emerald-700 dark:text-emerald-400">{opp.stipend_or_salary}</span>
                       {opp.deadline && (
-                        <span className={`px-2.5 py-1 rounded-lg border ${
-                          isDark ? 'bg-white/5 border-white/10 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
-                        }`}>Deadline: {opp.deadline}</span>
+                        <span className="text-zinc-500 dark:text-zinc-400">· Deadline: {opp.deadline}</span>
                       )}
                     </div>
 
                     {/* Required Skills */}
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 pt-1">
                       {opp.required_skills.map((s, idx) => (
-                        <span key={idx} className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${
-                          isDark ? 'bg-white/5 border-white/10 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
-                        }`}>
+                        <span key={idx} className="text-[11px] px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
                           {s}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end justify-between gap-3">
-                    <div className="text-right">
-                      <div className={`text-xl font-black ${
-                        opp.matchScore >= 80 ? 'text-emerald-500' : opp.matchScore >= 50 ? 'text-amber-500' : isDark ? 'text-slate-500' : 'text-slate-400'
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-800">
+                    <div className="text-left sm:text-right">
+                      <div className={`text-lg font-semibold ${
+                        opp.matchScore >= 80 ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-500 dark:text-zinc-400'
                       }`}>
                         {opp.matchScore}%
                       </div>
-                      <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>AI MATCH</span>
+                      <span className="text-[10px] text-zinc-400 uppercase tracking-wide">Skill Match</span>
                     </div>
 
                     <a
                       href={opp.apply_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-2xl transition-all shadow-sm flex items-center gap-1.5"
+                      className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-3.5 py-2 rounded-lg transition-colors"
                     >
-                      Apply <ExternalLink size={13} />
+                      Apply <ExternalLink size={12} />
                     </a>
                   </div>
                 </div>

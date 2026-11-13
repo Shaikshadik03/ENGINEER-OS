@@ -17,13 +17,23 @@ import {
 import '@xyflow/react/dist/style.css'
 import { createClient } from '@/lib/supabase/client'
 import { ROADMAPS, type RoadmapNode } from '@/lib/roadmaps/data'
-import { Lock, CheckCircle2, Circle, Star, ChevronRight, ArrowLeft } from 'lucide-react'
+import {
+  Lock, CheckCircle2, Circle, Award, ChevronRight, ArrowLeft,
+  Code2, Cpu, Cloud, Shield, Smartphone, Compass, ExternalLink
+} from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 
-// ── NODE STATUS TYPES ──
 type NodeStatus = 'completed' | 'available' | 'locked'
 
-// ── CUSTOM NODE COMPONENT ──
+const ROADMAP_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  fullstack: Code2,
+  datascience: Cpu,
+  devops: Cloud,
+  aiml: Cpu,
+  cybersecurity: Shield,
+  mobile: Smartphone,
+}
+
 function RoadmapNodeComponent({ data }: NodeProps) {
   const { label, status, xp, onClick } = data as {
     label: string
@@ -33,28 +43,28 @@ function RoadmapNodeComponent({ data }: NodeProps) {
   }
 
   const styleMap = {
-    completed: 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)]',
-    available: 'bg-sky-500/20 border-sky-400 text-sky-200 font-bold cursor-pointer hover:scale-105 shadow-md',
-    locked:    'bg-white/5 border-white/10 text-slate-500 cursor-not-allowed opacity-60',
+    completed: 'bg-blue-50 dark:bg-blue-950/40 border-blue-600 text-blue-700 dark:text-blue-300 font-medium',
+    available: 'bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-medium cursor-pointer hover:border-blue-500',
+    locked:    'bg-zinc-100 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-400 cursor-not-allowed',
   }
 
   const iconMap = {
-    completed: <CheckCircle2 size={14} className="text-emerald-400" />,
-    available: <Circle size={14} className="text-sky-400" />,
-    locked:    <Lock size={14} className="text-slate-500" />,
+    completed: <CheckCircle2 size={14} className="text-blue-600 dark:text-blue-400" />,
+    available: <Circle size={14} className="text-zinc-400" />,
+    locked:    <Lock size={14} className="text-zinc-400" />,
   }
 
   return (
     <div
       onClick={status !== 'locked' ? onClick : undefined}
-      className={`px-4 py-3 rounded-2xl border-2 transition-all text-center min-w-[140px] select-none shadow-sm ${styleMap[status]}`}
+      className={`px-3.5 py-2.5 rounded-lg border transition-colors duration-150 text-center min-w-[140px] select-none ${styleMap[status]}`}
     >
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
-      <div className="flex items-center justify-center gap-1.5 mb-1">
+      <div className="flex items-center justify-center gap-1.5 mb-0.5">
         {iconMap[status]}
-        <span className="text-xs font-bold">{label}</span>
+        <span className="text-xs font-semibold">{label}</span>
       </div>
-      <span className={`text-[9px] font-extrabold ${status === 'completed' ? 'text-emerald-400' : status === 'available' ? 'text-sky-400' : 'text-slate-500'}`}>
+      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
         +{xp} XP
       </span>
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
@@ -115,7 +125,7 @@ function buildFlowEdges(edges: Array<{ from: string; to: string }>): Edge[] {
     id: `${e.from}-${e.to}`,
     source: e.from,
     target: e.to,
-    style: { stroke: '#0284c7', strokeWidth: 2, opacity: 0.7 },
+    style: { stroke: '#3b82f6', strokeWidth: 1.5 },
     animated: false,
   }))
 }
@@ -177,25 +187,25 @@ export default function RoadmapsPage() {
     }
   }, [userId, completedNodes, userXP, activeRoadmap, masteredSkills])
 
-  const cardStyle = isDark 
-    ? 'bg-[#111118]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-white' 
-    : 'bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-sm text-slate-900'
+  const card = isDark 
+    ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-xl' 
+    : 'bg-white border border-zinc-200 text-zinc-900 rounded-xl shadow-sm'
 
   return (
-    <div className={`max-w-6xl mx-auto pb-16 space-y-8 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+    <div className="max-w-6xl mx-auto pb-16 space-y-6">
       {/* Header */}
-      <div className={`flex justify-between items-center pb-6 border-b ${isDark ? 'border-white/10' : 'border-slate-200/80'}`}>
+      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
         <div>
-          <h1 className={`text-3xl font-black mb-1 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Career Roadmaps</h1>
-          <p className={`font-semibold text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Visual skill-trees that unlock based on your actual profile skills.</p>
+          <h1 className="text-xl md:text-2xl font-semibold tracking-tight">Career Roadmaps</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Structured learning paths for software roles. Track your progress across key milestones.</p>
         </div>
-        <div className={`border rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-sm ${
-          isDark ? 'bg-[#12121a]/90 border-emerald-500/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+        <div className={`border rounded-lg px-3.5 py-2 flex items-center gap-2 ${
+          isDark ? 'bg-zinc-900 border-zinc-800 text-zinc-300' : 'bg-white border-zinc-200 text-zinc-800 shadow-sm'
         }`}>
-          <Star className="text-emerald-500 fill-emerald-500" size={18} />
+          <Award className="text-blue-600 dark:text-blue-400" size={16} />
           <div>
-            <p className="text-[9px] font-bold uppercase">Total XP</p>
-            <p className={`font-black text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{userXP} XP</p>
+            <span className="text-[10px] text-zinc-400 uppercase font-medium block">Total Points</span>
+            <span className="font-semibold text-xs">{userXP} XP</span>
           </div>
         </div>
       </div>
@@ -204,33 +214,43 @@ export default function RoadmapsPage() {
       {!activeRoadmap && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {ROADMAPS.map(rm => {
+            const Icon = ROADMAP_ICONS[rm.id] || Compass
             const totalNodes = rm.nodes.length
             const doneNodes = rm.nodes.filter(n => completedNodes.has(n.id)).length
             const pct = Math.round((doneNodes / totalNodes) * 100)
             return (
-              <div key={rm.id} onClick={() => openRoadmap(rm)}
-                className={`${cardStyle} rounded-3xl p-6 cursor-pointer transition-all hover:border-emerald-500/40 group`}>
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`text-4xl p-2 rounded-2xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>{rm.emoji}</span>
-                  <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${
-                    isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-sky-100 text-sky-700 border-sky-200'
-                  }`}>
-                    {doneNodes}/{totalNodes} nodes
-                  </span>
-                </div>
-                <h3 className={`text-lg font-bold mb-2 transition-colors ${isDark ? 'text-white group-hover:text-emerald-400' : 'text-slate-900 group-hover:text-sky-600'}`}>{rm.title}</h3>
-                <p className={`text-xs font-medium leading-relaxed mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{rm.description}</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold">
-                    <span className="text-slate-400">Progress</span>
-                    <span className={isDark ? 'text-white' : 'text-slate-900'}>{pct}%</span>
+              <div
+                key={rm.id}
+                onClick={() => openRoadmap(rm)}
+                className={`${card} p-5 cursor-pointer transition-colors duration-150 hover:border-zinc-400 dark:hover:border-zinc-700 flex flex-col justify-between`}
+              >
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <div className={`w-9 h-9 rounded-lg border flex items-center justify-center ${
+                      isDark ? 'bg-zinc-800 border-zinc-700 text-blue-400' : 'bg-zinc-100 border-zinc-200 text-blue-600'
+                    }`}>
+                      <Icon size={18} />
+                    </div>
+                    <span className="text-xs font-medium px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                      {doneNodes}/{totalNodes} nodes
+                    </span>
                   </div>
-                  <div className={`h-2 rounded-full overflow-hidden border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
-                    <div className={`h-full rounded-full transition-all duration-500 ${isDark ? 'bg-emerald-400 shadow-[0_0_8px_#10b981]' : 'bg-sky-500'}`} style={{ width: `${pct}%` }} />
-                  </div>
+                  <h3 className="text-base font-semibold mb-1.5">{rm.title}</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed mb-4">{rm.description}</p>
                 </div>
-                <div className={`mt-4 flex items-center gap-1 text-xs font-bold transition-colors ${isDark ? 'text-emerald-400 group-hover:text-emerald-300' : 'text-sky-600 group-hover:text-sky-800'}`}>
-                  Open Roadmap <ChevronRight size={14} />
+
+                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+                  <div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                    <span>Progress</span>
+                    <span>{pct}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                    <div className="h-full rounded-full bg-blue-600 transition-all duration-300" style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="pt-1 flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    <span>Open roadmap</span>
+                    <ChevronRight size={14} />
+                  </div>
                 </div>
               </div>
             )
@@ -241,18 +261,18 @@ export default function RoadmapsPage() {
       {/* ACTIVE ROADMAP INTERACTIVE CANVAS */}
       {activeRoadmap && (
         <div className="space-y-4">
-          <div className={`${cardStyle} rounded-2xl p-4 flex items-center justify-between`}>
+          <div className={`${card} p-3.5 flex items-center justify-between`}>
             <button
               onClick={() => setActiveRoadmap(null)}
-              className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-sky-600 hover:text-sky-800'}`}
+              className="text-xs font-medium flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:underline"
             >
-              <ArrowLeft size={16} /> Back to Roadmaps
+              <ArrowLeft size={15} /> All Roadmaps
             </button>
-            <h2 className={`text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeRoadmap.emoji} {activeRoadmap.title}</h2>
+            <h2 className="text-sm font-semibold">{activeRoadmap.title}</h2>
           </div>
 
-          <div className={`h-[550px] rounded-3xl overflow-hidden relative border ${
-            isDark ? 'bg-[#0c0c12] border-white/10' : 'bg-white border-slate-200'
+          <div className={`h-[540px] rounded-xl overflow-hidden relative border ${
+            isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-50 border-zinc-200'
           }`}>
             <ReactFlow
               nodes={nodes}
@@ -262,33 +282,33 @@ export default function RoadmapsPage() {
               nodeTypes={nodeTypes}
               fitView
             >
-              <Background color={isDark ? '#334155' : '#cbd5e1'} gap={20} />
+              <Background color={isDark ? '#27272a' : '#e4e4e7'} gap={20} />
               <Controls />
-              <MiniMap nodeColor={isDark ? '#10b981' : '#0284c7'} maskColor={isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)'} />
+              <MiniMap nodeColor={isDark ? '#3b82f6' : '#2563eb'} maskColor={isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.6)'} />
             </ReactFlow>
 
             {/* NODE DETAILS DRAWER */}
             {selectedNode && (
-              <div className={`absolute right-4 top-4 bottom-4 w-80 rounded-3xl p-5 shadow-2xl flex flex-col justify-between z-10 animate-in slide-in-from-right duration-300 border ${
-                isDark ? 'bg-[#12121a] border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'
+              <div className={`absolute right-4 top-4 bottom-4 w-80 rounded-xl p-5 shadow-lg flex flex-col justify-between z-10 border ${
+                isDark ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'
               }`}>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isDark ? 'text-emerald-400' : 'text-sky-600'}`}>ROADMAP NODE</span>
-                    <button onClick={() => setSelectedNode(null)} className="text-xs font-bold text-slate-400 hover:text-slate-200">✕</button>
+                <div className="space-y-3.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-medium tracking-wide uppercase text-zinc-400">Node Details</span>
+                    <button onClick={() => setSelectedNode(null)} className="text-xs text-zinc-400 hover:text-zinc-200">Close</button>
                   </div>
-                  <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedNode.label}</h3>
-                  <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{selectedNode.description}</p>
+                  <h3 className="text-base font-semibold">{selectedNode.label}</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{selectedNode.description}</p>
                   
                   {selectedNode.resources && (
-                    <div className="space-y-2 pt-2">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recommended Resources</span>
+                    <div className="space-y-1.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wide block">Resources</span>
                       {Array.isArray(selectedNode.resources) ? selectedNode.resources.map((r: any, i: number) => (
-                        <a key={i} href={r.url || '#'} target="_blank" rel="noreferrer" className={`text-xs block truncate font-medium ${isDark ? 'text-emerald-400 hover:underline' : 'text-sky-600 hover:underline'}`}>
-                          🔗 {r.title || r}
+                        <a key={i} href={r.url || '#'} target="_blank" rel="noreferrer" className="text-xs inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline">
+                          <ExternalLink size={12} /> {r.title || r}
                         </a>
                       )) : (
-                        <p className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{selectedNode.resources}</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{selectedNode.resources}</p>
                       )}
                     </div>
                   )}
@@ -297,13 +317,13 @@ export default function RoadmapsPage() {
                 <button
                   onClick={() => completeNode(selectedNode)}
                   disabled={completedNodes.has(selectedNode.id)}
-                  className={`w-full py-3 rounded-2xl text-xs font-extrabold transition-all shadow-md ${
+                  className={`w-full py-2.5 rounded-lg text-xs font-medium transition-colors ${
                     completedNodes.has(selectedNode.id)
-                      ? isDark ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                      : isDark ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                      ? isDark ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' : 'bg-zinc-100 text-zinc-500 border border-zinc-200'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
                   }`}
                 >
-                  {completedNodes.has(selectedNode.id) ? '✓ Completed (+XP Claimed)' : `Complete Node (+${selectedNode.xp} XP)`}
+                  {completedNodes.has(selectedNode.id) ? 'Completed' : `Mark Completed (+${selectedNode.xp} XP)`}
                 </button>
               </div>
             )}
@@ -313,4 +333,3 @@ export default function RoadmapsPage() {
     </div>
   )
 }
-
