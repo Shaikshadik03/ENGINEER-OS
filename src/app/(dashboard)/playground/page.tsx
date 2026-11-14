@@ -62,8 +62,19 @@ export default function PlaygroundPage() {
   const [output, setOutput] = useState<OutputLine[]>([])
   const [running, setRunning] = useState(false)
   const [showLangMenu, setShowLangMenu] = useState(false)
+  const langMenuRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const outputRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setShowLangMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     if (outputRef.current) {
@@ -243,53 +254,53 @@ export default function PlaygroundPage() {
   }
 
   const cardStyle = isDark
-    ? 'bg-[#111118]/80 border-white/10 text-white backdrop-blur-xl'
-    : 'bg-white/90 border-slate-200/80 text-slate-900 shadow-sm backdrop-blur-xl'
+    ? 'bg-zinc-900 border-zinc-800 text-zinc-100'
+    : 'bg-white border-zinc-200 text-zinc-900 shadow-sm'
 
   return (
-    <div className={`flex flex-col h-[calc(100vh-5rem)] pb-4 animate-in fade-in duration-500 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-      {/* Top Bar */}
-      <div className={`flex items-center justify-between mb-4 gap-3 ${cardStyle} rounded-3xl p-4 border`}>
-        <div className="flex items-center gap-3">
+    <div className={`flex flex-col h-[calc(100vh-5.5rem)] pb-2 ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
+      {/* Top Bar - Relative with z-30 ensures dropdown floats above all editors */}
+      <div className={`relative z-30 flex flex-wrap items-center justify-between mb-4 gap-3 ${cardStyle} rounded-xl p-3 sm:p-4 border`}>
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2.5">
-            <div className={`p-2 rounded-2xl border ${isDark ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-purple-50 text-purple-600 border-purple-200'}`}>
-              <Code2 size={20} />
+            <div className={`p-2 rounded-lg border ${isDark ? 'bg-zinc-800 border-zinc-700 text-blue-400' : 'bg-blue-50 border-blue-200 text-blue-600'}`}>
+              <Code2 size={18} />
             </div>
             <div>
-              <h1 className={`text-lg font-black tracking-tight leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>Code Playground</h1>
-              <span className={`text-[10px] font-extrabold tracking-wide uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Multi-Language Live Execution Engine</span>
+              <h1 className="text-base sm:text-lg font-semibold tracking-tight leading-none">Code Playground</h1>
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium tracking-wide">Multi-Language Execution Engine</span>
             </div>
-            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black flex items-center gap-1 border ${
-              isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-emerald-100 border-emerald-300 text-emerald-800'
-            }`}>
-              <Sparkles size={11} /> ZERO-LATENCY ENGINE
+            <span className="hidden sm:inline-flex text-[10px] px-2 py-0.5 rounded font-medium items-center gap-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400">
+              <Sparkles size={11} /> Zero Latency
             </span>
           </div>
 
-          {/* Language Selector */}
-          <div className="relative">
+          {/* Language Selector Dropdown with Click-Outside Guard */}
+          <div className="relative" ref={langMenuRef}>
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className={`flex items-center gap-2 rounded-2xl px-3.5 py-2 text-xs font-extrabold transition-all border ${
-                isDark ? 'bg-[#0d0d12] border-white/10 text-white hover:border-sky-500' : 'bg-slate-50 border-slate-200 text-slate-900 hover:border-sky-500'
+              className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border ${
+                isDark 
+                  ? 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:border-zinc-600' 
+                  : 'bg-zinc-50 border-zinc-200 text-zinc-800 hover:border-zinc-300'
               }`}
             >
               <span>{selectedLang.icon}</span>
               <span>{selectedLang.label}</span>
-              <ChevronDown size={14} className={isDark ? 'text-slate-400' : 'text-slate-500'} />
+              <ChevronDown size={13} className="text-zinc-400" />
             </button>
             {showLangMenu && (
-              <div className={`absolute top-full mt-2 left-0 border rounded-2xl shadow-xl z-50 overflow-hidden min-w-[170px] p-1.5 space-y-1 ${
-                isDark ? 'bg-[#111118] border-white/10' : 'bg-white border-slate-200'
+              <div className={`absolute top-full mt-1.5 left-0 border rounded-lg shadow-xl z-50 overflow-hidden min-w-[160px] p-1 space-y-0.5 ${
+                isDark ? 'bg-zinc-900 border-zinc-800 shadow-black/60' : 'bg-white border-zinc-200 shadow-zinc-200'
               }`}>
                 {LANGUAGES.map(lang => (
                   <button
                     key={lang.id}
                     onClick={() => selectLanguage(lang)}
-                    className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-bold rounded-xl transition-colors text-left ${
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-md transition-colors text-left ${
                       selectedLang.id === lang.id
-                        ? isDark ? 'text-sky-400 bg-sky-500/10 font-black' : 'text-sky-700 bg-sky-50 font-black'
-                        : isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-700 hover:bg-slate-50'
+                        ? isDark ? 'text-blue-400 bg-blue-950/40 font-semibold' : 'text-blue-600 bg-blue-50 font-semibold'
+                        : isDark ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'
                     }`}
                   >
                     <span>{lang.icon}</span> {lang.label}
@@ -303,27 +314,27 @@ export default function PlaygroundPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleReset}
-            className={`flex items-center gap-1.5 border text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all ${
-              isDark ? 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+            className={`flex items-center gap-1.5 border text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
+              isDark ? 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700' : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
             }`}
           >
-            <RotateCcw size={14} /> Reset
+            <RotateCcw size={13} /> Reset
           </button>
           <button
             onClick={handleExport}
-            className={`flex items-center gap-1.5 border text-xs font-extrabold px-3.5 py-2.5 rounded-2xl transition-all ${
-              isDark ? 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+            className={`flex items-center gap-1.5 border text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
+              isDark ? 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700' : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
             }`}
           >
-            <Download size={14} /> Export
+            <Download size={13} /> Export
           </button>
           <button
             onClick={handleRun}
             disabled={running}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white font-black text-xs px-5 py-2.5 rounded-2xl transition-all shadow-md"
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium text-xs px-4 py-1.5 rounded-lg transition-colors"
           >
-            {running ? <Loader2 size={15} className="animate-spin" /> : <Play size={15} className="fill-white" />}
-            {running ? 'Running...' : 'Run'} <span className="opacity-70 text-[10px] font-mono">Ctrl+Enter</span>
+            {running ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} className="fill-white" />}
+            {running ? 'Running...' : 'Run'} <span className="opacity-75 text-[10px] font-mono hidden sm:inline">Ctrl+Enter</span>
           </button>
         </div>
       </div>
@@ -332,26 +343,21 @@ export default function PlaygroundPage() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden min-h-0">
         
         {/* CODE EDITOR */}
-        <div className="flex flex-col bg-[#0d1117] border border-slate-800 rounded-3xl overflow-hidden shadow-md">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#161b22]">
+        <div className="flex flex-col bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/90">
             <div className="flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-rose-500" />
-                <div className="w-3 h-3 rounded-full bg-amber-500" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-              </div>
-              <span className="text-xs text-slate-400 font-mono font-bold ml-2">
+              <span className="text-xs text-zinc-300 font-mono font-medium">
                 {selectedLang.id === 'java' ? 'Main.java' : `main.${selectedLang.id}`}
               </span>
             </div>
-            <span className="text-[10px] text-slate-500 font-mono font-semibold uppercase">{selectedLang.version}</span>
+            <span className="text-[10px] text-zinc-500 font-mono font-medium uppercase">{selectedLang.version}</span>
           </div>
           
-          <div className="flex-1 relative overflow-hidden bg-[#0d1117]">
+          <div className="flex-1 relative overflow-hidden bg-zinc-950">
             {/* Line Numbers */}
-            <div className="absolute left-0 top-0 bottom-0 w-11 bg-[#0d1117] border-r border-slate-800 flex flex-col pt-3 overflow-hidden pointer-events-none z-10 select-none">
+            <div className="absolute left-0 top-0 bottom-0 w-11 bg-zinc-950 border-r border-zinc-800 flex flex-col pt-3 overflow-hidden pointer-events-none z-10 select-none">
               {code.split('\n').map((_, i) => (
-                <div key={i} className="text-[11px] text-slate-600 text-right pr-3 leading-6 font-mono">{i + 1}</div>
+                <div key={i} className="text-[11px] text-zinc-600 text-right pr-3 leading-6 font-mono">{i + 1}</div>
               ))}
             </div>
             <textarea
@@ -360,7 +366,7 @@ export default function PlaygroundPage() {
               onChange={e => setCode(e.target.value)}
               onKeyDown={handleKeyDown}
               spellCheck={false}
-              className="absolute inset-0 pl-14 pr-4 pt-3 pb-4 bg-transparent text-xs text-slate-100 font-mono leading-6 resize-none focus:outline-none w-full h-full"
+              className="absolute inset-0 pl-14 pr-4 pt-3 pb-4 bg-transparent text-xs text-zinc-100 font-mono leading-6 resize-none focus:outline-none w-full h-full"
               style={{ tabSize: 4 }}
             />
           </div>
@@ -370,35 +376,35 @@ export default function PlaygroundPage() {
         <div className="flex flex-col gap-4 overflow-hidden min-h-0">
           
           {/* stdin input */}
-          <div className={`${cardStyle} rounded-3xl p-4 shrink-0 border space-y-1.5`}>
-            <label className={`text-[10px] font-black uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Standard Input (stdin)</label>
+          <div className={`${cardStyle} rounded-xl p-3.5 shrink-0 border space-y-1.5`}>
+            <label className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">Standard Input (stdin)</label>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
               rows={2}
               placeholder="Enter input here if your program reads from stdin..."
-              className={`w-full rounded-2xl px-3.5 py-2 text-xs font-mono resize-none focus:outline-none focus:border-sky-500 border ${
-                isDark ? 'bg-[#0d0d12] border-white/10 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+              className={`w-full rounded-lg px-3 py-1.5 text-xs font-mono resize-none focus:outline-none focus:border-blue-500 border ${
+                isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-600' : 'bg-zinc-50 border-zinc-200 text-zinc-900 placeholder-zinc-400'
               }`}
             />
           </div>
 
           {/* Output Console */}
-          <div className="flex-1 bg-[#0f172a] border border-slate-800 rounded-3xl overflow-hidden flex flex-col min-h-0 shadow-md">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#1e293b] shrink-0">
+          <div className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden flex flex-col min-h-0 shadow-sm">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/90 shrink-0">
               <div className="flex items-center gap-2">
-                <Terminal size={15} className="text-emerald-400" />
-                <span className="text-xs text-slate-200 font-mono font-bold">Execution Output Console</span>
+                <Terminal size={14} className="text-blue-400" />
+                <span className="text-xs text-zinc-300 font-mono font-medium">Output Console</span>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">Terminal UTF-8</span>
+              <span className="text-[10px] font-mono text-zinc-500">UTF-8</span>
             </div>
 
-            <div ref={outputRef} className="flex-1 overflow-y-auto p-4 font-mono text-xs leading-6 bg-[#0f172a]">
+            <div ref={outputRef} className="flex-1 overflow-y-auto p-4 font-mono text-xs leading-6 bg-zinc-950">
               {output.length === 0 ? (
-                <p className="text-slate-500">Click <span className="text-emerald-400 font-bold">Run</span> to execute your code...</p>
+                <p className="text-zinc-500">Click <span className="text-blue-400 font-medium">Run</span> to execute your code...</p>
               ) : (
                 output.map((line, i) => (
-                  <div key={i} className={`${line.type === 'stderr' ? 'text-rose-400 font-semibold' : line.type === 'info' ? 'text-slate-400' : 'text-emerald-400 font-medium'} whitespace-pre-wrap`}>
+                  <div key={i} className={`${line.type === 'stderr' ? 'text-rose-400' : line.type === 'info' ? 'text-zinc-500' : 'text-emerald-400'} whitespace-pre-wrap`}>
                     {line.text}
                   </div>
                 ))
